@@ -1,0 +1,13 @@
+/build/
+/dist/
+/target/
+
+Thumbs.db
+nbproject/build-native.xml~
+nbproject/private/
+JWebSwingComplete.zip
+javadoc.zip
+persistence.xml
+/javadoc/
+/nbproject/
+/-nbproject/
