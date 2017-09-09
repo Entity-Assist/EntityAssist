@@ -91,6 +91,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	@Column(nullable = false, name = "ActiveFlag", columnDefinition = "varchar(max)")
 	@Enumerated(value = EnumType.STRING)
 	@NotNull
+	@JsonIgnore
 	private ActiveFlag activeFlag;
 	
 	@Transient
@@ -98,12 +99,15 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	private Map<Serializable, Serializable> properties;
 	
 	@Transient
+	@JsonIgnore
 	protected Class<J> myClass;
 	
 	@Transient
+	@JsonIgnore
 	protected Class<Q> queryBuilderClass;
 	
 	@Transient
+	@JsonIgnore
 	protected Class<I> idTypeClass;
 	
 	public CoreEntity()
@@ -424,7 +428,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 		return (J) this;
 	}
 	
-	public J merge()
+	public J update()
 	{
 		try
 		{

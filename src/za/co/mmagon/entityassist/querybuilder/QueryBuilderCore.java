@@ -2,6 +2,7 @@ package za.co.mmagon.entityassist.querybuilder;
 
 
 import com.armineasy.injection.GuiceContext;
+import com.armineasy.injection.Pair;
 import org.eclipse.persistence.internal.jpa.EJBQueryImpl;
 import org.eclipse.persistence.jpa.JpaEntityManager;
 import org.eclipse.persistence.queries.DatabaseQuery;
@@ -18,11 +19,11 @@ import org.hibernate.loader.criteria.CriteriaQueryTranslator;
 import org.hibernate.persister.entity.OuterJoinLoadable;
 import za.co.mmagon.entityassist.CoreEntity;
 import za.co.mmagon.entityassist.enumerations.ActiveFlag;
+import za.co.mmagon.entityassist.enumerations.OrderByType;
 import za.co.mmagon.entityassist.enumerations.Provider;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
-import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import java.io.Serializable;
@@ -44,7 +45,6 @@ import java.util.logging.Logger;
  */
 public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E extends CoreEntity<E, J, I>, I extends Serializable>
 {
-	
 	private static final Logger log = Logger.getLogger(QueryBuilderCore.class.getName());
 	
 	protected Class<E> entityClass;
@@ -54,12 +54,12 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	
 	private final Root<E> root;
 	
-	private Set<Join<E, ? extends CoreEntity>> joins;
+	private final Set<Join<E, ? extends CoreEntity>> joins;
 	
 	private final Set<Predicate> filters;
 	private final Set<Selection> selections;
 	private final Set<Predicate> groupBys;
-	private final Set<Order> orderBys;
+	private final Set<Pair<SingularAttribute,OrderByType>> orderBys;
 	private final Set<Expression> having;
 	
 	private Integer maxResults;
@@ -82,6 +82,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		groupBys = new HashSet<>();
 		orderBys = new HashSet<>();
 		having = new HashSet<>();
+		joins = new HashSet<>();
 		this.criteriaBuilder = GuiceContext.getInstance(EntityManager.class).getCriteriaBuilder();
 		this.criteriaQuery = criteriaBuilder.createQuery();
 		root = criteriaQuery.from(this.entityClass);
@@ -247,8 +248,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 */
 	public J max(PluralAttribute attribute)
 	{
-		getSelections().add(getCriteriaBuilder().greatest(getRoot().get((PluralAttribute) attribute)));
-		setCriteriaQuery(getCriteriaQuery().groupBy(getRoot().get((PluralAttribute) attribute)));
+		getSelections().add(getCriteriaBuilder().max(getRoot().get(attribute)));
 		return (J) this;
 	}
 	
@@ -261,13 +261,25 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 */
 	public J max(SingularAttribute attribute)
 	{
-		getSelections().add(getCriteriaBuilder().greatest(getRoot().get((SingularAttribute) attribute)));
-		setCriteriaQuery(getCriteriaQuery().groupBy(getRoot().get((SingularAttribute) attribute)));
+		getSelections().add(getCriteriaBuilder().max(getRoot().get(attribute)));
+		return (J) this;
+	}
+	
+	public J min(SingularAttribute attribute)
+	{
+		getSelections().add(getCriteriaBuilder().min(getRoot().get(attribute)));
+		return (J) this;
+	}
+	
+	public J min(PluralAttribute attribute)
+	{
+		getSelections().add(getCriteriaBuilder().min(getRoot().get(attribute)));
 		return (J) this;
 	}
 	
 	/**
 	 * Returns a non-distinct list and returns an empty optional if a non-unique-result exception is thrown
+	 *
 	 * @return
 	 */
 	public Optional<E> get()
@@ -277,18 +289,34 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	
 	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list (use getAll)
+	 *
+	 *
+	 * @return
+	 */
+	public <T extends CoreEntity>  Optional<T> get(Class<T> returnType)
+	{
+		return get(false, false,returnType);
+	}
+	
+	/**
+	 * Returns a list (distinct or not) and returns an empty optional if returns a list (use getAll)
+	 *
 	 * @param distinct
+	 *
 	 * @return
 	 */
 	public Optional<E> get(boolean distinct)
 	{
-		return get(distinct,false);
+		return get(distinct, false);
 	}
+	
 	
 	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from a list with the same criteria
+	 *
 	 * @param distinct
 	 * @param returnFirst
+	 *
 	 * @return
 	 */
 	public Optional<E> get(boolean distinct, boolean returnFirst)
@@ -356,9 +384,96 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		
 	}
 	
+	/**
+	 * Returns a list (distinct or not) and returns an empty optional if returns a list (use getAll)
+	 *
+	 * @param distinct
+	 *
+	 * @return
+	 */
+	public <T extends CoreEntity>  Optional<T> get(boolean distinct,Class<T> returnType)
+	{
+		return get(distinct, false,returnType);
+	}
+	
+	
+	/**
+	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from a list with the same criteria
+	 *
+	 * @param distinct
+	 * @param returnFirst
+	 *
+	 * @return
+	 */
+	public <T extends CoreEntity> Optional<T> get(boolean distinct, boolean returnFirst,Class<T> returnType)
+	{
+		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		TypedQuery<T> query = em.createQuery(getCriteriaQuery());
+		
+		String sqlQuery = "";
+		switch (getProvider())
+		{
+			case Hibernate3:
+			case Hibernate4:
+			{
+				//sqlQuery = getSelectSQLHibernate4(criteriaQuery);
+				break;
+			}
+			case Hibernate5:
+			case Hibernate5jre8:
+			{
+				sqlQuery = getSelectSQLHibernate5(getCriteriaQuery());
+				break;
+			}
+			case EcliseLink:
+			{
+				sqlQuery = getSelectSQLEclipseLink(query, em);
+				break;
+			}
+			default:
+			{
+			}
+		}
+		System.out.println("\n" + sqlQuery + "\n");
+		T j = null;
+		try
+		{
+			j = (T) query.getSingleResult();
+			em.detach(j);
+			((T) j).setFake(false);
+			return Optional.of(j);
+		}
+		catch (NoResultException nre)
+		{
+			log.log(Level.WARNING, "Couldn''t find object with name : {0}}", new Object[]
+					{
+							getClass().getName()
+					});
+			
+			return Optional.empty();
+		}
+		catch (NonUniqueResultException nure)
+		{
+			if (returnFirst)
+			{
+				List<T> returnedList = query.getResultList();
+				j = (T) returnedList.get(0);
+				em.detach(j);
+				((T) j).setFake(false);
+				return Optional.of(j);
+			}
+			else
+			{
+				return Optional.empty();
+			}
+		}
+		
+	}
+	
 	
 	/**
 	 * Returns a list of entities from a non-distinct select query
+	 *
 	 * @return
 	 */
 	public List<E> getAll()
@@ -368,14 +483,16 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	
 	/**
 	 * Returns a list of entities from a distinct or non distinct list
+	 *
 	 * @param distinct
+	 *
 	 * @return
 	 */
 	public List<E> getAll(boolean distinct)
 	{
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		TypedQuery<E> query = em.createQuery(getCriteriaQuery());
-
+		
 		if (getMaxResults() != null)
 		{
 			query.setMaxResults(getMaxResults());
@@ -427,136 +544,28 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			return new ArrayList<>();
 		}
 	}
-
-	/**
-	 * Adds the max of the given column into the select clause
-	 *
-	 * @param attribute
-	 * @param returnType
-	 * @param <T>
-	 *
-	 * @return
-	 */
-	public <T extends Serializable> T max(Attribute attribute, Class<T> returnType)
+	
+	public J count()
 	{
-		List<Predicate> allWheres = new ArrayList<>();
-		allWheres.addAll(filters);
-		
-		Predicate[] preds = new Predicate[allWheres.size()];
-		preds = allWheres.toArray(preds);
-		
-		CriteriaQuery<T> cq = criteriaBuilder.createQuery(returnType);
-		criteriaQuery.where(preds);
-		criteriaQuery.distinct(true);
-		if (attribute.getClass().isAssignableFrom(SingularAttribute.class))
-		{
-			criteriaQuery = criteriaQuery.select(criteriaBuilder.greatest(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (attribute.getClass().isAssignableFrom(PluralAttribute.class))
-		{
-			criteriaQuery = criteriaQuery.select(criteriaBuilder.greatest(getRoot().get((PluralAttribute) attribute)));
-		}
-		
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
-		TypedQuery<T> q = em.createQuery(criteriaQuery);
-		String sqlQuery = "";
-		switch (getProvider())
-		{
-			case Hibernate3:
-			case Hibernate4:
-			{
-				//sqlQuery = getSelectSQLHibernate4(criteriaQuery);
-				break;
-			}
-			case Hibernate5:
-			case Hibernate5jre8:
-			{
-				sqlQuery = getSelectSQLHibernate5(criteriaQuery);
-				break;
-			}
-			case EcliseLink:
-			{
-				sqlQuery = getSelectSQLEclipseLink(q, em);
-				break;
-			}
-			default:
-			{
-			}
-		}
-		System.out.println("\n" + sqlQuery + "\n");
-		T j = null;
-		try
-		{
-			j = (T) q.getSingleResult();
-			return j;
-		}
-		catch (NoResultException nre)
-		{
-			log.log(Level.WARNING, "Couldn''t find object with name : {0} with filters {1}", new Object[]
-					{
-							getClass().getName(), allWheres
-					});
-			return null;
-		}
+		getSelections().add(getCriteriaBuilder().count(getRoot()));
+		return (J) this;
 	}
 	
-	public Optional<Long> count()
+	public J count(SingularAttribute attribute)
 	{
-		List<Predicate> allWheres = new ArrayList<>();
-		allWheres.addAll(filters);
-		
-		Predicate[] preds = new Predicate[allWheres.size()];
-		preds = allWheres.toArray(preds);
-		
-		CriteriaQuery<Long> cq = criteriaBuilder.createQuery(Long.class);
-		criteriaQuery.where(preds);
-		criteriaQuery.distinct(true);
-		criteriaQuery = criteriaQuery.select(criteriaBuilder.count(root));
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
-		TypedQuery<Long> q = em.createQuery(criteriaQuery);
-		String sqlQuery = "";
-		switch (getProvider())
-		{
-			case Hibernate3:
-			case Hibernate4:
-			{
-				//sqlQuery = getSelectSQLHibernate4(criteriaQuery);
-				break;
-			}
-			case Hibernate5:
-			case Hibernate5jre8:
-			{
-				sqlQuery = getSelectSQLHibernate5(criteriaQuery);
-				break;
-			}
-			case EcliseLink:
-			{
-				sqlQuery = getSelectSQLEclipseLink(q, em);
-				break;
-			}
-			default:
-			{
-			}
-		}
-		System.out.println("\n" + sqlQuery + "\n");
-		Long j = null;
-		try
-		{
-			j = (Long) q.getSingleResult();
-			return Optional.ofNullable(j);
-		}
-		catch (NoResultException nre)
-		{
-			log.log(Level.WARNING, "Couldn''t find object with name : {0} with filters {1}", new Object[]
-					{
-							getClass().getName(), allWheres
-					});
-			return Optional.empty();
-		}
+		getSelections().add(getCriteriaBuilder().count(getRoot().get(attribute)));
+		return (J) this;
+	}
+	
+	public J count(PluralAttribute attribute)
+	{
+		getSelections().add(getCriteriaBuilder().count(getRoot().get(attribute)));
+		return (J) this;
 	}
 	
 	/**
 	 * Prepares the select statement
+	 *
 	 * @return
 	 */
 	public J select()
@@ -576,20 +585,13 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 				cq.select(selection);
 			}
 		}
+		
 		getCriteriaQuery().where(preds);
 		if (!getGroupBys().isEmpty())
 		{
 			for (Predicate p : getGroupBys())
 			{
 				cq.groupBy(p);
-			}
-		}
-		
-		if (!getOrderBys().isEmpty())
-		{
-			for (Order p : getOrderBys())
-			{
-				cq.orderBy(p);
 			}
 		}
 		
@@ -601,7 +603,26 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			}
 		}
 		
-		return (J)this;
+		if (!getOrderBys().isEmpty())
+		{
+			for (Pair<SingularAttribute,OrderByType> p : getOrderBys())
+			{
+				switch (p.getValue())
+				{
+					case ASC:
+					{
+						cq.orderBy(criteriaBuilder.asc(getRoot().get(p.getKey())));
+						break;
+					}
+					case DESC:
+					{
+						cq.orderBy(criteriaBuilder.desc(getRoot().get(p.getKey())));
+						break;
+					}
+				}
+			}
+		}
+		return (J) this;
 	}
 	
 	public J inActiveRange()
@@ -996,12 +1017,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		return joins;
 	}
 	
-	public J setJoins(Set<Join<E, ? extends CoreEntity>> joins)
-	{
-		this.joins = joins;
-		return (J) this;
-	}
-	
 	/**
 	 * Returns the current list of group by's
 	 *
@@ -1017,7 +1032,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
-	public Set<Order> getOrderBys()
+	public Set<Pair<SingularAttribute,OrderByType>> getOrderBys()
 	{
 		return orderBys;
 	}
