@@ -198,13 +198,13 @@
         <dependency>
             <groupId>za.co.mmagon</groupId>
             <artifactId>guice-injection</artifactId>
-            <version>0.0.0_0</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>za.co.mmagon</groupId>
             <artifactId>guice-injection</artifactId>
-            <version>0.0.0_0</version>
+            <version>${project.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
@@ -218,7 +218,7 @@
         <dependency>
             <groupId>za.co.mmagon</groupId>
             <artifactId>log-master</artifactId>
-            <version>0.0.0_0</version>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
 
