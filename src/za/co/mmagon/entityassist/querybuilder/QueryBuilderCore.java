@@ -353,7 +353,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		try
 		{
 			j = (E) query.getSingleResult();
-			em.detach(j);
+			//em.detach(j);
 			((E) j).setFake(false);
 			return Optional.of(j);
 		}
@@ -458,7 +458,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			{
 				List<T> returnedList = query.getResultList();
 				j = (T) returnedList.get(0);
-				em.detach(j);
+				//em.detach(j);
 				((T) j).setFake(false);
 				return Optional.of(j);
 			}
