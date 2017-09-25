@@ -2,6 +2,7 @@ package za.co.mmagon.entityassist.enumerations;
 
 /**
  * Because the sql generators are provider specific...
+ *
  * @author GedMarc
  * @since 2017/08/02
  */

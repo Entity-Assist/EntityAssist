@@ -46,30 +46,22 @@ import java.util.logging.Logger;
 public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E extends CoreEntity<E, J, I>, I extends Serializable>
 {
 	private static final Logger log = Logger.getLogger(QueryBuilderCore.class.getName());
-	
-	protected Class<E> entityClass;
-	
-	private final CriteriaBuilder criteriaBuilder;
-	private CriteriaQuery criteriaQuery;
-	
-	private final Root<E> root;
-	
-	private final Set<Join<E, ? extends CoreEntity>> joins;
-	
-	private final Set<Predicate> filters;
-	private final Set<Selection> selections;
-	private final Set<Predicate> groupBys;
-	private final Set<Pair<SingularAttribute,OrderByType>> orderBys;
-	private final Set<Expression> having;
-	
-	private Integer maxResults;
-	private Integer firstResults;
-	
-	
 	/**
 	 * Static provider to generate sql for
 	 */
 	private static Provider provider = Provider.EcliseLink;
+	private final CriteriaBuilder criteriaBuilder;
+	private final Root<E> root;
+	private final Set<Join<E, ? extends CoreEntity>> joins;
+	private final Set<Predicate> filters;
+	private final Set<Selection> selections;
+	private final Set<Predicate> groupBys;
+	private final Set<Pair<SingularAttribute, OrderByType>> orderBys;
+	private final Set<Expression> having;
+	protected Class<E> entityClass;
+	private CriteriaQuery criteriaQuery;
+	private Integer maxResults;
+	private Integer firstResults;
 	
 	/**
 	 * Constructs a new query builder core with typed classes instantiated
@@ -86,6 +78,28 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		this.criteriaBuilder = GuiceContext.getInstance(EntityManager.class).getCriteriaBuilder();
 		this.criteriaQuery = criteriaBuilder.createQuery();
 		root = criteriaQuery.from(this.entityClass);
+	}
+	
+	/**
+	 * Returns the current sql generator provider
+	 *
+	 * @return
+	 */
+	public static Provider getProvider()
+	{
+		return provider;
+	}
+	
+	/**
+	 * Returns the current sql generator provider
+	 *
+	 * @param provider
+	 *
+	 * @return
+	 */
+	public static void setProvider(Provider provider)
+	{
+		provider = provider;
 	}
 	
 	protected Class<E> getClassEntity()
@@ -228,6 +242,18 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	public J find(Long id)
 	{
 		Optional<Field> idField = GuiceContext.reflect().getFieldAnnotatedWithOfType(Id.class, Long.class, entityClass);
+		if (!idField.isPresent())
+		{
+			Field[] fields = entityClass.getDeclaredFields();
+			for (Field field : fields)
+			{
+				if (field.isAnnotationPresent(Id.class))
+				{
+					idField = Optional.ofNullable(field);
+				}
+			}
+		}
+		
 		if (idField.isPresent())
 		{
 			getFilters().add(getRoot().get(idField.get().getName()).in(id));
@@ -290,12 +316,11 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list (use getAll)
 	 *
-	 *
 	 * @return
 	 */
-	public <T extends CoreEntity>  Optional<T> get(Class<T> returnType)
+	public <T extends CoreEntity> Optional<T> get(Class<T> returnType)
 	{
-		return get(false, false,returnType);
+		return get(false, false, returnType);
 	}
 	
 	/**
@@ -309,7 +334,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	{
 		return get(distinct, false);
 	}
-	
 	
 	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from a list with the same criteria
@@ -348,7 +372,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			{
 			}
 		}
-		System.out.println("\n" + sqlQuery + "\n");
+		System.out.println(sqlQuery);
 		E j = null;
 		try
 		{
@@ -391,11 +415,10 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
-	public <T extends CoreEntity>  Optional<T> get(boolean distinct,Class<T> returnType)
+	public <T extends CoreEntity> Optional<T> get(boolean distinct, Class<T> returnType)
 	{
-		return get(distinct, false,returnType);
+		return get(distinct, false, returnType);
 	}
-	
 	
 	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from a list with the same criteria
@@ -405,7 +428,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
-	public <T extends CoreEntity> Optional<T> get(boolean distinct, boolean returnFirst,Class<T> returnType)
+	public <T extends CoreEntity> Optional<T> get(boolean distinct, boolean returnFirst, Class<T> returnType)
 	{
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		TypedQuery<T> query = em.createQuery(getCriteriaQuery());
@@ -434,7 +457,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			{
 			}
 		}
-		System.out.println("\n" + sqlQuery + "\n");
+		System.out.println(sqlQuery);
 		T j = null;
 		try
 		{
@@ -469,7 +492,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		}
 		
 	}
-	
 	
 	/**
 	 * Returns a list of entities from a non-distinct select query
@@ -526,7 +548,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			{
 			}
 		}
-		System.out.println("\n" + sqlQuery + "\n");
+		System.out.println(sqlQuery);
 		List<E> j = null;
 		try
 		{
@@ -605,7 +627,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		
 		if (!getOrderBys().isEmpty())
 		{
-			for (Pair<SingularAttribute,OrderByType> p : getOrderBys())
+			for (Pair<SingularAttribute, OrderByType> p : getOrderBys())
 			{
 				switch (p.getValue())
 				{
@@ -869,10 +891,22 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		                                                                  "!=").replaceAll("<", " < ").replaceAll(">", " > ");
 	}
 	
-	
 	public Integer getFirstResults()
 	{
 		return firstResults;
+	}
+	
+	/**
+	 * Sets the first restults to return
+	 *
+	 * @param firstResults
+	 *
+	 * @return
+	 */
+	public J setFirstResults(Integer firstResults)
+	{
+		this.firstResults = firstResults;
+		return (J) this;
 	}
 	
 	public Integer getMaxResults()
@@ -881,25 +915,15 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	}
 	
 	/**
-	 * Returns the current sql generator provider
+	 * Sets the maximum number of results to return
+	 *
+	 * @param maxResults
 	 *
 	 * @return
 	 */
-	public static Provider getProvider()
+	public J setMaxResults(int maxResults)
 	{
-		return provider;
-	}
-	
-	/**
-	 * Returns the current sql generator provider
-	 *
-	 * @param provider
-	 *
-	 * @return
-	 */
-	public static void setProvider(Provider provider)
-	{
-		provider = provider;
+		return (J) this;
 	}
 	
 	/**
@@ -916,19 +940,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	}
 	
 	/**
-	 * Sets the first restults to return
-	 *
-	 * @param firstResults
-	 *
-	 * @return
-	 */
-	public J setFirstResults(Integer firstResults)
-	{
-		this.firstResults = firstResults;
-		return (J) this;
-	}
-	
-	/**
 	 * Gets the selections that are going to be applied, leave empty for all columns
 	 *
 	 * @return
@@ -936,18 +947,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	public Set<Selection> getSelections()
 	{
 		return selections;
-	}
-	
-	/**
-	 * Sets the maximum number of results to return
-	 *
-	 * @param maxResults
-	 *
-	 * @return
-	 */
-	public J setMaxResults(int maxResults)
-	{
-		return (J) this;
 	}
 	
 	/**
@@ -1032,7 +1031,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
-	public Set<Pair<SingularAttribute,OrderByType>> getOrderBys()
+	public Set<Pair<SingularAttribute, OrderByType>> getOrderBys()
 	{
 		return orderBys;
 	}

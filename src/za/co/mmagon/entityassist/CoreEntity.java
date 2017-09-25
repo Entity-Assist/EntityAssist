@@ -57,58 +57,47 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 	private static final DateTimeFormatter dateTimeOffsetFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 	;
-	
+	private static final long serialVersionUID = 1L;
+	@Transient
+	@JsonIgnore
+	protected Class<J> myClass;
+	@Transient
+	@JsonIgnore
+	protected Class<Q> queryBuilderClass;
+	@Transient
+	@JsonIgnore
+	protected Class<I> idTypeClass;
 	@JsonProperty(value = "$jwid")
 	@Transient
 	private String referenceId;
-	
-	private static final long serialVersionUID = 1L;
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
 	@Column(nullable = false, name = "EffectiveFromDate", columnDefinition = "datetime")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime effectiveFromDate;
-	
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
 	@Column(nullable = false, name = "EffectiveToDate", columnDefinition = "datetime")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime effectiveToDate;
-	
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
 	@Column(nullable = false, name = "WarehouseCreatedTimestamp", columnDefinition = "datetime")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime warehouseCreatedTimestamp;
-	
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
 	@Column(nullable = false, name = "WarehouseLastUpdatedTimestamp", columnDefinition = "datetime")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime warehouseLastUpdatedTimestamp;
-	
 	@Basic(optional = false, fetch = FetchType.EAGER)
 	@Column(nullable = false, name = "ActiveFlag", columnDefinition = "varchar(max)")
 	@Enumerated(value = EnumType.STRING)
 	@NotNull
-	@JsonIgnore
 	private ActiveFlag activeFlag;
-	
 	@Transient
 	@JsonIgnore
 	private Map<Serializable, Serializable> properties;
-	
-	@Transient
-	@JsonIgnore
-	protected Class<J> myClass;
-	
-	@Transient
-	@JsonIgnore
-	protected Class<Q> queryBuilderClass;
-	
-	@Transient
-	@JsonIgnore
-	protected Class<I> idTypeClass;
 	
 	public CoreEntity()
 	{
@@ -218,15 +207,15 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 		return GuiceContext.inject();
 	}
 	
+	public boolean isFake()
+	{
+		return getProperties().containsKey("Fake") ? Boolean.parseBoolean(getProperties().get("Fake").toString()) : false;
+	}
+	
 	public J setFake(boolean fake)
 	{
 		getProperties().put("Fake", fake);
 		return (J) this;
-	}
-	
-	public boolean isFake()
-	{
-		return getProperties().containsKey("Fake") ? Boolean.parseBoolean(getProperties().get("Fake").toString()) : false;
 	}
 	
 	/**

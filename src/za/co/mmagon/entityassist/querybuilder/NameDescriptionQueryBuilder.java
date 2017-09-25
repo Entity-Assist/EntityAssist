@@ -4,8 +4,8 @@ import za.co.mmagon.entityassist.CoreEntity;
 
 import java.io.Serializable;
 
-public abstract class NameDescriptionQueryBuilder<J extends NameDescriptionQueryBuilder<J,E,I>,E extends CoreEntity<E,J,I>,I extends Serializable>
-		extends QueryBuilderCore<J,E,I>
+public abstract class NameDescriptionQueryBuilder<J extends NameDescriptionQueryBuilder<J, E, I>, E extends CoreEntity<E, J, I>, I extends Serializable>
+		extends QueryBuilderCore<J, E, I>
 {
 	
 	public J findByName(String... name)

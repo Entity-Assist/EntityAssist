@@ -10,7 +10,8 @@ import java.time.format.DateTimeFormatter;
 public class LocalDateTimestampAttributeConverter implements AttributeConverter<LocalDate, Timestamp>
 {
 	@Override
-	public LocalDate convertToEntityAttribute(Timestamp sqlTimestamp) {
+	public LocalDate convertToEntityAttribute(Timestamp sqlTimestamp)
+	{
 		return (sqlTimestamp == null ? null : sqlTimestamp.toLocalDateTime().toLocalDate());
 	}
 	

@@ -2,30 +2,42 @@ package za.co.mmagon.entityassist.enumerations;
 
 /**
  * Active Range ordered from Unknown -> Removed -> Archived/Visible -> Active -> Highlighted -> Permanent
- *
+ * <p>
  * Meant as text with indexer for support on Gen 3 and Gen 4 databases
  */
 public enum ActiveFlag
 {
-	/**UnknownRange*/
+	/**
+	 * UnknownRange
+	 */
 	Unknown,
 	Unspecified,
-	/**RemovedRange**/
+	/**
+	 * RemovedRange
+	 **/
 	Deleted,
 	Hidden,
 	Invisible,
-	/**VisibleRange*/
+	/**
+	 * VisibleRange
+	 */
 	Archived,
 	LongTermStorage,
 	MidTermStorage,
 	ShortTermStorage,
-	/**ActiveRange*/
+	/**
+	 * ActiveRange
+	 */
 	Active,
 	Current,
-	/**HighlightedRange **/
+	/**
+	 * HighlightedRange
+	 **/
 	Important,
 	Highlighted,
-	/**PermanentRange*/
+	/**
+	 * PermanentRange
+	 */
 	Always,
 	Permanent
 }
