@@ -915,18 +915,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	}
 	
 	/**
-	 * Sets the maximum number of results to return
-	 *
-	 * @param maxResults
-	 *
-	 * @return
-	 */
-	public J setMaxResults(int maxResults)
-	{
-		return (J) this;
-	}
-	
-	/**
 	 * Sets the maximum results to return
 	 *
 	 * @param maxResults
@@ -936,6 +924,18 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	public J setMaxResults(Integer maxResults)
 	{
 		this.maxResults = maxResults;
+		return (J) this;
+	}
+	
+	/**
+	 * Sets the maximum number of results to return
+	 *
+	 * @param maxResults
+	 *
+	 * @return
+	 */
+	public J setMaxResults(int maxResults)
+	{
 		return (J) this;
 	}
 	

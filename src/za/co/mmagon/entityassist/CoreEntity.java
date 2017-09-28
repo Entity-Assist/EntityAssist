@@ -421,6 +421,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	{
 		try
 		{
+			onUpdate();
 			if (!(getEntityManager().getTransaction().isActive()))
 			{
 				getEntityManager().getTransaction().begin();
