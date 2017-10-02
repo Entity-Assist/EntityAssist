@@ -233,6 +233,7 @@
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
             <version>7.0</version>
+            
         </dependency>
 
         <dependency>
@@ -247,6 +248,7 @@
             <artifactId>hibernate-core</artifactId>
             <version>5.2.10.Final</version>
             <type>jar</type>
+            
         </dependency>
 
         <dependency>
@@ -254,6 +256,7 @@
             <artifactId>hibernate-jpa-2.1-api</artifactId>
             <version>1.0.0.Final</version>
             <type>jar</type>
+            
         </dependency>
 
         <dependency>
@@ -261,6 +264,7 @@
             <artifactId>hibernate-entitymanager</artifactId>
             <version>5.2.10.Final</version>
             <type>jar</type>
+            
         </dependency>
 
         <dependency>
@@ -268,6 +272,7 @@
             <artifactId>hibernate-c3p0</artifactId>
             <version>5.2.10.Final</version>
             <type>jar</type>
+            
         </dependency>
 
         <dependency>
@@ -275,6 +280,7 @@
             <artifactId>eclipselink</artifactId>
             <version>2.7.0</version>
             <type>jar</type>
+            
         </dependency>
 
         <dependency>
@@ -282,6 +288,7 @@
             <artifactId>org.eclipse.persistence.jpa</artifactId>
             <version>2.7.0</version>
             <type>jar</type>
+            
         </dependency>
 
         <dependency>

@@ -230,9 +230,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 			Type s = getClass().getGenericSuperclass();
 			ParameterizedType pt = ((ParameterizedType) s);
 			Class<J> myClass = getClassEntityType();
-			//Error check my class entity type parameters set
 			Class<Q> queryBuilderClass = getClassQueryBuilderClass();
-			//Error check query builder type parameters are set
 			Q wb = GuiceContext.getInstance(queryBuilderClass);
 			return wb;
 		}

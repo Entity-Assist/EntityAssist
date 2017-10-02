@@ -1,4 +1,4 @@
-package za.co.mmagon.entityassist;
+package za.co.mmagon.entityassist.sessions;
 
 import org.eclipse.persistence.sessions.DatabaseLogin;
 import org.eclipse.persistence.sessions.Session;
