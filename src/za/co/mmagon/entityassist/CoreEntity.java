@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -575,6 +576,18 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 			else if (columnValue instanceof Long)
 			{
 				insertString += columnValue + ", ";
+			}
+			else if (columnValue instanceof Integer)
+			{
+				insertString += columnValue + ", ";
+			}
+			else if (columnValue instanceof BigInteger)
+			{
+				insertString += ((BigInteger) columnValue).longValue() + ", ";
+			}
+			else if (columnValue instanceof BigDecimal)
+			{
+				insertString += ((BigDecimal) columnValue).doubleValue() + ", ";
 			}
 			else if (columnValue instanceof Short)
 			{
