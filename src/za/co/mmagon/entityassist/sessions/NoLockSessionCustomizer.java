@@ -2,9 +2,8 @@ package za.co.mmagon.entityassist.sessions;
 
 import org.eclipse.persistence.sessions.DatabaseLogin;
 import org.eclipse.persistence.sessions.Session;
-import org.eclipse.persistence.sessions.factories.SessionCustomizer;
 
-public class NoLockSessionCustomizer implements SessionCustomizer
+public class NoLockSessionCustomizer implements org.eclipse.persistence.config.SessionCustomizer
 {
 	@Override
 	public void customize(Session session) throws Exception
@@ -12,5 +11,5 @@ public class NoLockSessionCustomizer implements SessionCustomizer
 		DatabaseLogin databaseLogin = (DatabaseLogin) session.getDatasourceLogin();
 		databaseLogin.setTransactionIsolation(DatabaseLogin.TRANSACTION_READ_COMMITTED);
 	}
-	
+
 }
