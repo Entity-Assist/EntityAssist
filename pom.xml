@@ -35,7 +35,8 @@
             <id>development</id>
             <properties>
                 <src.dir>src</src.dir>
-                <test.dir>test</test.dir><additionalparam>-Xdoclint:none</additionalparam>
+                <test.dir>test</test.dir>
+                <additionalparam>-Xdoclint:none</additionalparam>
             </properties>
 
         </profile>
@@ -43,7 +44,8 @@
             <id>unittest-profile</id>
             <properties>
                 <src.dir>src</src.dir>
-                <test.dir>test</test.dir><additionalparam>-Xdoclint:none</additionalparam>
+                <test.dir>test</test.dir>
+                <additionalparam>-Xdoclint:none</additionalparam>
             </properties>
             <build>
                 <plugins>
@@ -101,7 +103,8 @@
                                     <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <failOnError>false</failOnError><additionalparam>-Xdoclint:none</additionalparam>
+                                    <failOnError>false</failOnError>
+                                    <additionalparam>-Xdoclint:none</additionalparam>
                                 </configuration>
                             </execution>
                         </executions>
@@ -129,7 +132,8 @@
 
             <properties>
                 <src.dir>src</src.dir>
-                <test.dir>test</test.dir><additionalparam>-Xdoclint:none</additionalparam>
+                <test.dir>test</test.dir>
+                <additionalparam>-Xdoclint:none</additionalparam>
             </properties>
         </profile>
     </profiles>
@@ -138,7 +142,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <src.dir>src</src.dir>
-        <test.dir>test</test.dir><additionalparam>-Xdoclint:none</additionalparam>
+        <test.dir>test</test.dir>
+        <additionalparam>-Xdoclint:none</additionalparam>
         <maven.jar.version>3.0.2</maven.jar.version>
         <maven.dependency.version>3.0.1</maven.dependency.version>
         <maven.javadoc.version>2.10.4</maven.javadoc.version>
@@ -235,7 +240,7 @@
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
             <version>7.0</version>
-            
+
         </dependency>
 
         <dependency>
@@ -250,7 +255,7 @@
             <artifactId>hibernate-core</artifactId>
             <version>5.2.10.Final</version>
             <type>jar</type>
-            
+
         </dependency>
 
         <dependency>
@@ -258,7 +263,7 @@
             <artifactId>hibernate-jpa-2.1-api</artifactId>
             <version>1.0.0.Final</version>
             <type>jar</type>
-            
+
         </dependency>
 
         <dependency>
@@ -266,7 +271,7 @@
             <artifactId>hibernate-entitymanager</artifactId>
             <version>5.2.10.Final</version>
             <type>jar</type>
-            
+
         </dependency>
 
         <dependency>
@@ -274,7 +279,7 @@
             <artifactId>hibernate-c3p0</artifactId>
             <version>5.2.10.Final</version>
             <type>jar</type>
-            
+
         </dependency>
 
         <dependency>
@@ -282,7 +287,7 @@
             <artifactId>eclipselink</artifactId>
             <version>2.7.0</version>
             <type>jar</type>
-            
+
         </dependency>
 
         <dependency>
@@ -290,7 +295,7 @@
             <artifactId>org.eclipse.persistence.jpa</artifactId>
             <version>2.7.0</version>
             <type>jar</type>
-            
+
         </dependency>
 
         <dependency>
@@ -341,16 +346,12 @@
     <reporting>
         <plugins>
             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>                            <!-- select non-aggregate reports -->
-                            <report>report</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.17</version>
+                <configuration>
+                    <configLocation>config/sun_checks.xml</configLocation>
+                </configuration>
             </plugin>
         </plugins>
     </reporting>
