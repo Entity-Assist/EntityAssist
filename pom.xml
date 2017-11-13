@@ -163,7 +163,6 @@
         <testSourceDirectory>${test.dir}</testSourceDirectory>
 
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -304,7 +303,6 @@
             <version>2.7.0</version>
             <type>jar</type>
         </dependency>
-
 
         <dependency>
             <groupId>jaxen</groupId>

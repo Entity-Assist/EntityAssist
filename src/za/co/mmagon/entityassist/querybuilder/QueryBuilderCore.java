@@ -1,6 +1,4 @@
 package za.co.mmagon.entityassist.querybuilder;
-
-
 import com.armineasy.injection.GuiceContext;
 import com.armineasy.injection.Pair;
 import org.eclipse.persistence.internal.jpa.EJBQueryImpl;
@@ -46,21 +44,58 @@ import java.util.logging.Logger;
 public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E extends CoreEntity<E, J, I>, I extends Serializable>
 {
 	private static final Logger log = Logger.getLogger(QueryBuilderCore.class.getName());
+
+	/**
+	 * The actual builder for the entity
+	 */
+	private final CriteriaBuilder criteriaBuilder;
+	/**
+	 * Returns the root object of this entity
+	 */
+	private final Root<E> root;
+	/**
+	 * A set of all the joins applied to this specific entity
+	 */
+	private final Set<Join<E, ? extends CoreEntity>> joins;
+	/**
+	 * A predefined list of filters for this entity
+	 */
+	private final Set<Predicate> filters;
+	/**
+	 * A list of columns to select if specified
+	 */
+	private final Set<Selection> selections;
+	/**
+	 * A list of group by's to go by. Built at generation time
+	 */
+	private final Set<Predicate> groupBys;
+	/**
+	 * A list of order by's. Generated at generation time
+	 */
+	private final Set<Pair<SingularAttribute, OrderByType>> orderBys;
+	/**
+	 * A list of having clauses
+	 */
+	private final Set<Expression> having;
+	/**
+	 * The given entity class
+	 */
+	protected Class<E> entityClass;
 	/**
 	 * Static provider to generate sql for
 	 */
-	private static Provider provider = Provider.EcliseLink;
-	private final CriteriaBuilder criteriaBuilder;
-	private final Root<E> root;
-	private final Set<Join<E, ? extends CoreEntity>> joins;
-	private final Set<Predicate> filters;
-	private final Set<Selection> selections;
-	private final Set<Predicate> groupBys;
-	private final Set<Pair<SingularAttribute, OrderByType>> orderBys;
-	private final Set<Expression> having;
-	protected Class<E> entityClass;
+	private Provider provider = Provider.EcliseLink;
+	/**
+	 * The physical criteria query
+	 */
 	private CriteriaQuery criteriaQuery;
+	/**
+	 * The maximum number of results
+	 */
 	private Integer maxResults;
+	/**
+	 * The minimum number of results
+	 */
 	private Integer firstResults;
 	
 	/**
@@ -79,27 +114,88 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		this.criteriaQuery = criteriaBuilder.createQuery();
 		root = criteriaQuery.from(this.entityClass);
 	}
-	
+
 	/**
-	 * Returns the current sql generator provider
+	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from a list with the same criteria
+	 *
+	 * @param distinct
+	 * @param returnFirst
 	 *
 	 * @return
 	 */
-	public static Provider getProvider()
+	public Optional<E> get(boolean distinct, boolean returnFirst)
 	{
-		return provider;
+		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		TypedQuery<E> query = em.createQuery(getCriteriaQuery());
+
+		String sqlQuery = "";
+		switch (getProvider())
+		{
+			case Hibernate3:
+			case Hibernate4:
+			{
+				//sqlQuery = getSelectSQLHibernate4(criteriaQuery);
+				break;
+			}
+			case Hibernate5:
+			case Hibernate5jre8:
+			{
+				sqlQuery = getSelectSQLHibernate5(getCriteriaQuery());
+				break;
+			}
+			case EcliseLink:
+			{
+				sqlQuery = getSelectSQLEclipseLink(query, em);
+				break;
+			}
+			default:
+			{
+			}
+		}
+		System.out.println(sqlQuery);
+		E j = null;
+		try
+		{
+			j = query.getSingleResult();
+			//em.detach(j);
+			j.setFake(false);
+			return Optional.of(j);
+		}
+		catch (NoResultException nre)
+		{
+			log.log(Level.WARNING, "Couldn''t find object with name : {0}}", new Object[]
+					                                                                 {
+							                                                                 getClass().getName()
+					                                                                 });
+
+			return Optional.empty();
+		}
+		catch (NonUniqueResultException nure)
+		{
+			if (returnFirst)
+			{
+				List<E> returnedList = query.getResultList();
+				j = returnedList.get(0);
+				em.detach(j);
+				j.setFake(false);
+				return Optional.of(j);
+			}
+			else
+			{
+				return Optional.empty();
+			}
+		}
+
 	}
 	
 	/**
 	 * Returns the current sql generator provider
 	 *
-	 * @param provider
-	 *
 	 * @return
 	 */
-	public static void setProvider(Provider provider)
+	public Provider getProvider()
 	{
-		provider = provider;
+		return provider;
 	}
 	
 	protected Class<E> getClassEntity()
@@ -334,78 +430,17 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	{
 		return get(distinct, false);
 	}
-	
+
 	/**
-	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from a list with the same criteria
+	 * Returns the current sql generator provider
 	 *
-	 * @param distinct
-	 * @param returnFirst
+	 * @param provider
 	 *
 	 * @return
 	 */
-	public Optional<E> get(boolean distinct, boolean returnFirst)
+	public void setProvider(Provider provider)
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
-		TypedQuery<E> query = em.createQuery(getCriteriaQuery());
-		
-		String sqlQuery = "";
-		switch (getProvider())
-		{
-			case Hibernate3:
-			case Hibernate4:
-			{
-				//sqlQuery = getSelectSQLHibernate4(criteriaQuery);
-				break;
-			}
-			case Hibernate5:
-			case Hibernate5jre8:
-			{
-				sqlQuery = getSelectSQLHibernate5(getCriteriaQuery());
-				break;
-			}
-			case EcliseLink:
-			{
-				sqlQuery = getSelectSQLEclipseLink(query, em);
-				break;
-			}
-			default:
-			{
-			}
-		}
-		System.out.println(sqlQuery);
-		E j = null;
-		try
-		{
-			j = (E) query.getSingleResult();
-			//em.detach(j);
-			((E) j).setFake(false);
-			return Optional.of(j);
-		}
-		catch (NoResultException nre)
-		{
-			log.log(Level.WARNING, "Couldn''t find object with name : {0}}", new Object[]
-					{
-							getClass().getName()
-					});
-			
-			return Optional.empty();
-		}
-		catch (NonUniqueResultException nure)
-		{
-			if (returnFirst)
-			{
-				List<E> returnedList = query.getResultList();
-				j = (E) returnedList.get(0);
-				em.detach(j);
-				((E) j).setFake(false);
-				return Optional.of(j);
-			}
-			else
-			{
-				return Optional.empty();
-			}
-		}
-		
+		provider = provider;
 	}
 	
 	/**
@@ -461,9 +496,9 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		T j = null;
 		try
 		{
-			j = (T) query.getSingleResult();
+			j = query.getSingleResult();
 			em.detach(j);
-			((T) j).setFake(false);
+			j.setFake(false);
 			return Optional.of(j);
 		}
 		catch (NoResultException nre)
@@ -480,9 +515,9 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			if (returnFirst)
 			{
 				List<T> returnedList = query.getResultList();
-				j = (T) returnedList.get(0);
+				j = returnedList.get(0);
 				//em.detach(j);
-				((T) j).setFake(false);
+				j.setFake(false);
 				return Optional.of(j);
 			}
 			else
@@ -552,7 +587,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		List<E> j = null;
 		try
 		{
-			j = (List) query.getResultList();
+			j = query.getResultList();
 			for (Object j1 : j)
 			{
 				CoreEntity wct = (CoreEntity) j1;
@@ -682,8 +717,8 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	
 	public J inDateRange(LocalDateTime date)
 	{
-		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().<LocalDateTime>get("effectiveFromDate"), date));
-		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().<LocalDateTime>get("effectiveToDate"), date));
+		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get("effectiveFromDate"), date));
+		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), date));
 		return (J) this;
 	}
 	
@@ -694,8 +729,8 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	
 	public J inDateRange(LocalDateTime fromDate, LocalDateTime toDate)
 	{
-		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().<LocalDateTime>get("effectiveFromDate"), fromDate));
-		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().<LocalDateTime>get("effectiveToDate"), toDate));
+		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get("effectiveFromDate"), fromDate));
+		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), toDate));
 		return (J) this;
 	}
 	
