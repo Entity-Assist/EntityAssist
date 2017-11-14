@@ -679,6 +679,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @return Returns the ID
 	 */
+	@NotNull
 	public abstract I getId();
 
 	/**
@@ -689,7 +690,8 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * @return
 	 */
 	@SuppressWarnings("all")
-	public abstract J setId(I id);
+	@NotNull
+	public abstract J setId(@NotNull I id);
 
 	/**
 	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
