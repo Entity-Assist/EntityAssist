@@ -12,6 +12,7 @@ import za.co.mmagon.entityassist.exceptions.ConstraintsNotMetException;
 import za.co.mmagon.entityassist.exceptions.EntityNotValidException;
 import za.co.mmagon.entityassist.exceptions.QueryNotValidException;
 import za.co.mmagon.entityassist.querybuilder.QueryBuilderCore;
+import za.co.mmagon.entityassist.querybuilder.statements.InsertStatement;
 import za.co.mmagon.logger.LogFactory;
 
 import javax.annotation.Nullable;
@@ -22,16 +23,12 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -64,18 +61,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * Returns the date time formatter
 	 */
 	private static final transient DateTimeFormatter dateTimeOffsetFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-	/**
-	 * The standard sdf format
-	 */
-	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-	/**
-	 * Returns teh date formatter
-	 */
-	private final transient DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	/**
-	 * Returns the date time formmatter
-	 */
-	private final transient DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+
 	@Transient
 	@JsonIgnore
 	@SuppressWarnings("all")
@@ -303,7 +289,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 				onCreate();
 			}
 
-			String insertString = buildInsertString();
+			String insertString = InsertStatement.buildInsertString(this);
 			log.info(insertString);
 			EntityManager entityManager = getInstance(EntityManager.class);
 			if (entityManager != null && !entityManager.getTransaction().isActive())
@@ -488,163 +474,11 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public J setActiveFlag(ActiveFlag activeFlag)
 	{
 		this.activeFlag = activeFlag;
 		return (J) this;
-	}
-
-	/**
-	 * Builds the physical insert string for this entity class
-	 * @return
-	 */
-	@NotNull
-	@SuppressWarnings("all")
-	private String buildInsertString()
-	{
-		StringBuilder insertString = new StringBuilder("INSERT INTO ");
-		Class c = getClass();
-		Table t = getClass().getAnnotation(Table.class);
-		String tableName = t.name();
-		insertString.append(tableName).append(" (");
-		List<Field> fields = new ArrayList<>();
-
-		Class<?> i = c;
-		while (i != null)
-		{
-			Collections.addAll(fields, i.getDeclaredFields());
-			i = i.getSuperclass();
-		}
-		List<String> columnsNames = new ArrayList<>();
-		List<Object> columnValues = new ArrayList<>();
-
-		for (Field field : fields)
-		{
-			field.setAccessible(true);
-			try
-			{
-				Object o = field.get(this);
-				if (o == null)
-				{
-					continue;
-				}
-
-				GeneratedValue genValu = field.getAnnotation(GeneratedValue.class);
-				if (genValu != null)
-				{
-					continue;
-				}
-
-				JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
-				Column col = field.getAnnotation(Column.class);
-				if (col == joinCol) //fuzzy logic, if both null continue
-				{
-					continue;
-				}
-				String columnName = col == null ? joinCol.name() : col.name();
-				if (columnName.isEmpty())
-				{
-					continue;
-				}
-
-				if (o instanceof CoreEntity)
-				{
-					CoreEntity wct = (CoreEntity) o;
-					if (Long.class.cast(wct.getId()) == Long.MAX_VALUE)
-					{
-						continue;
-					}
-				}
-				else if (o instanceof Long)
-				{
-					Long wct = (Long) o;
-					if (wct == Long.MAX_VALUE)
-					{
-						continue;
-					}
-				}
-
-				if (!columnsNames.contains(columnName))
-				{
-					columnsNames.add(columnName);
-					columnValues.add(o);
-				}
-			}
-			catch (IllegalArgumentException | IllegalAccessException ex)
-			{
-				log.log(Level.SEVERE, null, ex);
-			}
-		}
-
-		//columns
-		for (String columnName : columnsNames)
-		{
-			insertString.append(columnName).append(", ");
-		}
-		insertString.delete(insertString.length() - 2, insertString.length());
-		insertString.append(") VALUES (");
-		for (Object columnValue : columnValues)
-		{
-			if (columnValue instanceof Boolean)
-			{
-				insertString.append(Boolean.class.cast(columnValue) ? "1" : "0").append(", ");
-			}
-			else if (columnValue instanceof Long)
-			{
-				insertString.append(columnValue).append(", ");
-			}
-			else if (columnValue instanceof Integer)
-			{
-				insertString.append(columnValue).append(", ");
-			}
-			else if (columnValue instanceof BigInteger)
-			{
-				insertString.append(((BigInteger) columnValue).longValue()).append(", ");
-			}
-			else if (columnValue instanceof BigDecimal)
-			{
-				insertString.append(((BigDecimal) columnValue).doubleValue()).append(", ");
-			}
-			else if (columnValue instanceof Short)
-			{
-				short columnVal = (short) columnValue;
-				insertString.append(columnVal).append(", ");
-			}
-			else if (columnValue instanceof String)
-			{
-				insertString.append("'").append(((String) columnValue).replaceAll("'", "''")).append("', ");
-			}
-			else if (columnValue instanceof Date)
-			{
-				Date date = (Date) columnValue;
-				insertString.append("'").append(sdf.format(date)).append("', ");
-			}
-			else if (columnValue instanceof LocalDate)
-			{
-				LocalDate date = (LocalDate) columnValue;
-				insertString.append("'").append(dateFormat.format(date)).append("', ");
-			}
-			else if (columnValue instanceof LocalDateTime)
-			{
-				LocalDateTime date = (LocalDateTime) columnValue;
-				insertString.append("'").append(dateTimeFormat.format(date)).append("', ");
-			}
-			else if (columnValue instanceof CoreEntity)
-			{
-				CoreEntity wct = (CoreEntity) columnValue;
-				insertString.append(wct.getId()).append(", ");
-			}
-			else if (columnValue instanceof Enum)
-			{
-				Enum wct = (Enum) columnValue;
-				insertString.append("'").append(wct.toString()).append("', ");
-			}
-		}
-
-		insertString.delete(insertString.length() - 2, insertString.length());
-		insertString.append(");");
-
-		return insertString.toString();
 	}
 
 	/**
@@ -898,39 +732,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	{
 		this.referenceId = referenceId;
 		return (J) this;
-	}
-
-	/**
-	 * Returns the sdf format
-	 *
-	 * @return
-	 */
-	@NotNull
-	public SimpleDateFormat getDefaultDateTimeFormatter()
-	{
-		return sdf;
-	}
-
-	/**
-	 * Returns the date time formatter for LocalDate instances
-	 *
-	 * @return
-	 */
-	@NotNull
-	public DateTimeFormatter getDateFormat()
-	{
-		return dateFormat;
-	}
-
-	/**
-	 * Return the date time formatter for LocalDateTime instances
-	 *
-	 * @return
-	 */
-	@NotNull
-	public DateTimeFormatter getDateTimeFormat()
-	{
-		return dateTimeFormat;
 	}
 
 	/**

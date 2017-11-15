@@ -134,7 +134,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			case Hibernate3:
 			case Hibernate4:
 			{
-				//sqlQuery = getSelectSQLHibernate4(criteriaQuery);
 				break;
 			}
 			case Hibernate5:
@@ -150,14 +149,14 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			}
 			default:
 			{
+				break;
 			}
 		}
-		System.out.println(sqlQuery);
+		log.info(sqlQuery);
 		E j = null;
 		try
 		{
 			j = query.getSingleResult();
-			//em.detach(j);
 			j.setFake(false);
 			return Optional.of(j);
 		}
@@ -197,22 +196,93 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	{
 		return provider;
 	}
-	
-	protected Class<E> getClassEntity()
+
+	@SuppressWarnings("unchecked")
+	public String getSelectSQLHibernate5(CriteriaQuery criteria)
 	{
-		if (entityClass == null)
+		String sql = "";
+		Object[] parameters = null;
+		try
 		{
-			try
+			CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
+			SessionImpl sessionImpl = (SessionImpl) criteriaImpl.getSession();
+			SessionFactoryImplementor factory = sessionImpl.getSessionFactory();
+			String[] implementors = factory.getImplementors(criteriaImpl.getEntityOrClassName());
+			OuterJoinLoadable persister = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
+			LoadQueryInfluencers loadQueryInfluencers = new LoadQueryInfluencers();
+			CriteriaLoader loader = new CriteriaLoader(persister, factory,
+			                                           criteriaImpl, implementors[0], loadQueryInfluencers);
+			Field f = OuterJoinLoader.class.getDeclaredField("sql");
+			f.setAccessible(true);
+			sql = (String) f.get(loader);
+			Field fp = CriteriaLoader.class.getDeclaredField("translator");
+			fp.setAccessible(true);
+			CriteriaQueryTranslator translator = (CriteriaQueryTranslator) fp.get(loader);
+			parameters = translator.getQueryParameters().getPositionalParameterValues();
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+		if (sql != null)
+		{
+			int fromPosition = sql.indexOf(" from ");
+			sql = "\nSELECT * " + sql.substring(fromPosition);
+
+			if (parameters != null && parameters.length > 0)
 			{
-				this.entityClass = (Class<E>) ((ParameterizedType) getClass()
-						.getGenericSuperclass()).getActualTypeArguments()[1];
-			}
-			catch (Exception e)
-			{
-				this.entityClass = null;
+				for (Object val : parameters)
+				{
+					String value;
+					if (val instanceof Boolean)
+					{
+						value = ((Boolean) val) ? "1" : "0";
+					}
+					else if (val instanceof String)
+					{
+						value = "'" + val + "'";
+					}
+					else if (val instanceof Number)
+					{
+						value = val.toString();
+					}
+					else if (val instanceof Class)
+					{
+						value = "'" + ((Class) val).getCanonicalName() + "'";
+					}
+					else if (val instanceof Date)
+					{
+						SimpleDateFormat sdf = new SimpleDateFormat(
+								                                           "yyyy-MM-dd HH:mm:ss.SSS");
+						value = "'" + sdf.format((Date) val) + "'";
+					}
+					else if (val instanceof LocalDate)
+					{
+						SimpleDateFormat sdf = new SimpleDateFormat(
+								                                           "yyyy-MM-dd");
+						value = "'" + sdf.format(val) + "'";
+					}
+					else if (val instanceof LocalDateTime)
+					{
+						SimpleDateFormat sdf = new SimpleDateFormat(
+								                                           "yyyy-MM-dd HH:mm:ss.SSS");
+						value = "'" + sdf.format(val) + "'";
+					}
+					else if (val instanceof Enum)
+					{
+						value = Integer.toString(((Enum) val).ordinal());
+					}
+					else
+					{
+						value = val.toString();
+					}
+					sql = sql.replaceFirst("\\?", value);
+				}
 			}
 		}
-		return entityClass;
+		return sql.replaceAll("left outer join", "\nleft outer join").replaceAll(
+				" and ", "\nand ").replaceAll(" on ", "\non ").replaceAll("<>",
+		                                                                  "!=").replaceAll("<", " < ").replaceAll(">", " > ");
 	}
 	
 	/**
@@ -250,6 +320,24 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	{
 		return join(entityClassJoinTo, onFilters, entityFilters, Optional.empty());
 	}
+
+	@SuppressWarnings("unchecked")
+	protected Class<E> getClassEntity()
+	{
+		if (entityClass == null)
+		{
+			try
+			{
+				this.entityClass = (Class<E>) ((ParameterizedType) getClass()
+						                                                   .getGenericSuperclass()).getActualTypeArguments()[1];
+			}
+			catch (Exception e)
+			{
+				this.entityClass = null;
+			}
+		}
+		return entityClass;
+	}
 	
 	/**
 	 * Performs a join on this entity
@@ -258,6 +346,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public <JOIN extends CoreEntity> J join(Class<JOIN> entityClassJoinTo, Optional<List<Predicate>> onFilters, Optional<List<Predicate>> entityFilters, Optional<JoinType> joinType)
 	{
 		String joinFieldName = getFieldNameForJoinEntityType(entityClassJoinTo);
@@ -279,7 +368,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		{
 			getFilters().addAll(entityFilters.get());
 		}
-		
+
 		return (J) this;
 	}
 	
@@ -290,17 +379,17 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private String getFieldNameForJoinEntityType(Class<? extends CoreEntity> joinClassType)
 	{
 		Class<? extends Annotation> joinAnnotation = JoinColumn.class;
 		Optional<Field> fOpt = GuiceContext.reflect().getFieldAnnotatedWithOfType(joinAnnotation, joinClassType, entityClass);
 		if (fOpt.isPresent())
 		{
-			String name = fOpt.get().getName();
-			return name;
+			return fOpt.get().getName();
 		}
 		log.log(Level.WARNING, "Unable to get field name for specified join type to [" + joinClassType + "]");
-		
+
 		return "";
 	}
 	
@@ -309,6 +398,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	protected Class<J> getClassQueryBuilder()
 	{
 		return (Class<J>) getClass();
@@ -322,6 +412,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public J in(String fieldName, Object value)
 	{
 		getFilters().add(getRoot().get(fieldName).in(value));
@@ -335,6 +426,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public J find(Long id)
 	{
 		Optional<Field> idField = GuiceContext.reflect().getFieldAnnotatedWithOfType(Id.class, Long.class, entityClass);
@@ -345,11 +437,11 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			{
 				if (field.isAnnotationPresent(Id.class))
 				{
-					idField = Optional.ofNullable(field);
+					idField = Optional.of(field);
 				}
 			}
 		}
-		
+
 		if (idField.isPresent())
 		{
 			getFilters().add(getRoot().get(idField.get().getName()).in(id));
@@ -368,12 +460,13 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public J max(PluralAttribute attribute)
 	{
 		getSelections().add(getCriteriaBuilder().max(getRoot().get(attribute)));
 		return (J) this;
 	}
-	
+
 	/**
 	 * Adds a max column to be added with a group by clause at the end
 	 *
@@ -381,19 +474,15 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public J max(SingularAttribute attribute)
 	{
 		getSelections().add(getCriteriaBuilder().max(getRoot().get(attribute)));
 		return (J) this;
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public J min(SingularAttribute attribute)
-	{
-		getSelections().add(getCriteriaBuilder().min(getRoot().get(attribute)));
-		return (J) this;
-	}
-	
-	public J min(PluralAttribute attribute)
 	{
 		getSelections().add(getCriteriaBuilder().min(getRoot().get(attribute)));
 		return (J) this;
@@ -431,16 +520,11 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		return get(distinct, false);
 	}
 
-	/**
-	 * Returns the current sql generator provider
-	 *
-	 * @param provider
-	 *
-	 * @return
-	 */
-	public void setProvider(Provider provider)
+	@SuppressWarnings("unchecked")
+	public J min(PluralAttribute attribute)
 	{
-		provider = provider;
+		getSelections().add(getCriteriaBuilder().min(getRoot().get(attribute)));
+		return (J) this;
 	}
 	
 	/**
@@ -453,6 +537,28 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	public <T extends CoreEntity> Optional<T> get(boolean distinct, Class<T> returnType)
 	{
 		return get(distinct, false, returnType);
+	}
+
+	/**
+	 * Returns the current sql generator provider
+	 *
+	 * @param provider
+	 *
+	 * @return
+	 */
+	public void setProvider(Provider provider)
+	{
+		this.provider = provider;
+	}
+
+	/**
+	 * Returns a list of entities from a non-distinct select query
+	 *
+	 * @return
+	 */
+	public List<E> getAll()
+	{
+		return getAll(false);
 	}
 	
 	/**
@@ -467,16 +573,12 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	{
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		TypedQuery<T> query = em.createQuery(getCriteriaQuery());
-		
+
 		String sqlQuery = "";
 		switch (getProvider())
 		{
 			case Hibernate3:
 			case Hibernate4:
-			{
-				//sqlQuery = getSelectSQLHibernate4(criteriaQuery);
-				break;
-			}
 			case Hibernate5:
 			case Hibernate5jre8:
 			{
@@ -490,9 +592,10 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			}
 			default:
 			{
+				break;
 			}
 		}
-		System.out.println(sqlQuery);
+		log.info(sqlQuery);
 		T j = null;
 		try
 		{
@@ -507,7 +610,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 					{
 							getClass().getName()
 					});
-			
+
 			return Optional.empty();
 		}
 		catch (NonUniqueResultException nure)
@@ -516,7 +619,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			{
 				List<T> returnedList = query.getResultList();
 				j = returnedList.get(0);
-				//em.detach(j);
 				j.setFake(false);
 				return Optional.of(j);
 			}
@@ -525,19 +627,9 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 				return Optional.empty();
 			}
 		}
-		
+
 	}
-	
-	/**
-	 * Returns a list of entities from a non-distinct select query
-	 *
-	 * @return
-	 */
-	public List<E> getAll()
-	{
-		return getAll(false);
-	}
-	
+
 	/**
 	 * Returns a list of entities from a distinct or non distinct list
 	 *
@@ -545,11 +637,12 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public List<E> getAll(boolean distinct)
 	{
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		TypedQuery<E> query = em.createQuery(getCriteriaQuery());
-		
+
 		if (getMaxResults() != null)
 		{
 			query.setMaxResults(getMaxResults());
@@ -558,16 +651,12 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		{
 			query.setFirstResult(getFirstResults());
 		}
-		
+
 		String sqlQuery = "";
 		switch (getProvider())
 		{
 			case Hibernate3:
 			case Hibernate4:
-			{
-				//sqlQuery = getSelectSQLHibernate4(criteriaQuery);
-				break;
-			}
 			case Hibernate5:
 			case Hibernate5jre8:
 			{
@@ -581,6 +670,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			}
 			default:
 			{
+				break;
 			}
 		}
 		System.out.println(sqlQuery);
@@ -601,40 +691,44 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			return new ArrayList<>();
 		}
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public J count()
 	{
 		getSelections().add(getCriteriaBuilder().count(getRoot()));
 		return (J) this;
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public J count(SingularAttribute attribute)
 	{
 		getSelections().add(getCriteriaBuilder().count(getRoot().get(attribute)));
 		return (J) this;
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public J count(PluralAttribute attribute)
 	{
 		getSelections().add(getCriteriaBuilder().count(getRoot().get(attribute)));
 		return (J) this;
 	}
-	
+
 	/**
 	 * Prepares the select statement
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public J select()
 	{
 		List<Predicate> allWheres = new ArrayList<>();
 		allWheres.addAll(getFilters());
-		
+
 		Predicate[] preds = new Predicate[allWheres.size()];
 		preds = allWheres.toArray(preds);
-		
+
 		CriteriaQuery<E> cq = getCriteriaQuery();
-		
+
 		if (!getSelections().isEmpty())
 		{
 			for (Selection selection : getSelections())
@@ -642,7 +736,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 				cq.select(selection);
 			}
 		}
-		
+
 		getCriteriaQuery().where(preds);
 		if (!getGroupBys().isEmpty())
 		{
@@ -651,7 +745,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 				cq.groupBy(p);
 			}
 		}
-		
+
 		if (!getHaving().isEmpty())
 		{
 			for (Expression expression : getHaving())
@@ -659,7 +753,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 				cq.having(expression);
 			}
 		}
-		
+
 		if (!getOrderBys().isEmpty())
 		{
 			for (Pair<SingularAttribute, OrderByType> p : getOrderBys())
@@ -681,7 +775,8 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		}
 		return (J) this;
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public J inActiveRange()
 	{
 		List<ActiveFlag> flags = new ArrayList<>();
@@ -695,7 +790,13 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		getFilters().add(getRoot().get("activeFlag").in(flags));
 		return (J) this;
 	}
-	
+
+	public J inDateRange()
+	{
+		return inDateRange(LocalDateTime.now());
+	}
+
+	@SuppressWarnings("unchecked")
 	public J inVisibleRange()
 	{
 		List<ActiveFlag> flags = new ArrayList<>();
@@ -709,28 +810,17 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		getFilters().add(getRoot().get("activeFlag").in(flags));
 		return (J) this;
 	}
-	
-	public J inDateRange()
-	{
-		return inDateRange(LocalDateTime.now());
-	}
-	
-	public J inDateRange(LocalDateTime date)
-	{
-		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get("effectiveFromDate"), date));
-		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), date));
-		return (J) this;
-	}
-	
+
 	public J inDateRangeSpecified(LocalDateTime fromDate)
 	{
 		return inDateRange(LocalDateTime.now());
 	}
-	
-	public J inDateRange(LocalDateTime fromDate, LocalDateTime toDate)
+
+	@SuppressWarnings("unchecked")
+	public J inDateRange(LocalDateTime date)
 	{
-		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get("effectiveFromDate"), fromDate));
-		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), toDate));
+		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get("effectiveFromDate"), date));
+		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), date));
 		return (J) this;
 	}
 	
@@ -751,7 +841,16 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		bound = bound.replace("'})", "')");
 		return bound;
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public J inDateRange(LocalDateTime fromDate, LocalDateTime toDate)
+	{
+		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get("effectiveFromDate"), fromDate));
+		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), toDate));
+		return (J) this;
+	}
+
+	@SuppressWarnings("unchecked")
 	public String getSelectSQLHibernate4(Criteria criteria)
 	{
 		String sql = "";
@@ -765,7 +864,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 			OuterJoinLoadable persister = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
 			LoadQueryInfluencers loadQueryInfluencers = new LoadQueryInfluencers();
 			CriteriaLoader loader = new CriteriaLoader(persister, factory,
-			                                           criteriaImpl, implementors[0].toString(), loadQueryInfluencers);
+			                                           criteriaImpl, implementors[0], loadQueryInfluencers);
 			Field f = OuterJoinLoader.class.getDeclaredField("sql");
 			f.setAccessible(true);
 			sql = (String) f.get(loader);
@@ -782,7 +881,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		{
 			int fromPosition = sql.indexOf(" from ");
 			sql = "\nSELECT * " + sql.substring(fromPosition);
-			
+
 			if (parameters != null && parameters.length > 0)
 			{
 				for (Object val : parameters)
@@ -824,94 +923,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 					}
 					else if (val instanceof Enum)
 					{
-						value = "" + ((Enum) val).ordinal();
-					}
-					else
-					{
-						value = val.toString();
-					}
-					sql = sql.replaceFirst("\\?", value);
-				}
-			}
-		}
-		return sql.replaceAll("left outer join", "\nleft outer join").replaceAll(
-				" and ", "\nand ").replaceAll(" on ", "\non ").replaceAll("<>",
-		                                                                  "!=").replaceAll("<", " < ").replaceAll(">", " > ");
-	}
-	
-	public String getSelectSQLHibernate5(CriteriaQuery criteria)
-	{
-		String sql = "";
-		Object[] parameters = null;
-		try
-		{
-			CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
-			SessionImpl sessionImpl = (SessionImpl) criteriaImpl.getSession();
-			SessionFactoryImplementor factory = sessionImpl.getSessionFactory();
-			String[] implementors = factory.getImplementors(criteriaImpl.getEntityOrClassName());
-			OuterJoinLoadable persister = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
-			LoadQueryInfluencers loadQueryInfluencers = new LoadQueryInfluencers();
-			CriteriaLoader loader = new CriteriaLoader(persister, factory,
-			                                           criteriaImpl, implementors[0].toString(), loadQueryInfluencers);
-			Field f = OuterJoinLoader.class.getDeclaredField("sql");
-			f.setAccessible(true);
-			sql = (String) f.get(loader);
-			Field fp = CriteriaLoader.class.getDeclaredField("translator");
-			fp.setAccessible(true);
-			CriteriaQueryTranslator translator = (CriteriaQueryTranslator) fp.get(loader);
-			parameters = translator.getQueryParameters().getPositionalParameterValues();
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
-		if (sql != null)
-		{
-			int fromPosition = sql.indexOf(" from ");
-			sql = "\nSELECT * " + sql.substring(fromPosition);
-			
-			if (parameters != null && parameters.length > 0)
-			{
-				for (Object val : parameters)
-				{
-					String value = "%";
-					if (val instanceof Boolean)
-					{
-						value = ((Boolean) val) ? "1" : "0";
-					}
-					else if (val instanceof String)
-					{
-						value = "'" + val + "'";
-					}
-					else if (val instanceof Number)
-					{
-						value = val.toString();
-					}
-					else if (val instanceof Class)
-					{
-						value = "'" + ((Class) val).getCanonicalName() + "'";
-					}
-					else if (val instanceof Date)
-					{
-						SimpleDateFormat sdf = new SimpleDateFormat(
-								"yyyy-MM-dd HH:mm:ss.SSS");
-						value = "'" + sdf.format((Date) val) + "'";
-					}
-					else if (val instanceof LocalDate)
-					{
-						SimpleDateFormat sdf = new SimpleDateFormat(
-								"yyyy-MM-dd");
-						value = "'" + sdf.format(val) + "'";
-					}
-					else if (val instanceof LocalDateTime)
-					{
-						SimpleDateFormat sdf = new SimpleDateFormat(
-								"yyyy-MM-dd HH:mm:ss.SSS");
-						value = "'" + sdf.format(val) + "'";
-					}
-					else if (val instanceof Enum)
-					{
-						value = "" + ((Enum) val).ordinal();
+						value = Integer.toString(((Enum) val).ordinal());
 					}
 					else
 					{
@@ -938,6 +950,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public J setFirstResults(Integer firstResults)
 	{
 		this.firstResults = firstResults;
@@ -956,6 +969,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public J setMaxResults(Integer maxResults)
 	{
 		this.maxResults = maxResults;
@@ -969,6 +983,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public J setMaxResults(int maxResults)
 	{
 		return (J) this;
@@ -991,6 +1006,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public J setFirstResult(int firstResult)
 	{
 		return (J) this;
