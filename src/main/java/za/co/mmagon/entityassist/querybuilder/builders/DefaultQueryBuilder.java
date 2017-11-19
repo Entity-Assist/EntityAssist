@@ -78,7 +78,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 		root = criteriaQuery.from(getEntityClass());
 	}
 
-
 	/**
 	 * Performs a join on this entity
 	 *

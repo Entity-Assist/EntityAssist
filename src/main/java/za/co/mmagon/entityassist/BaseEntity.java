@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.jdbc.Work;
-import za.co.mmagon.entityassist.exceptions.QueryNotValidException;
 import za.co.mmagon.entityassist.querybuilder.EntityAssistStrings;
 import za.co.mmagon.entityassist.querybuilder.builders.QueryBuilderBase;
 import za.co.mmagon.entityassist.querybuilder.statements.InsertStatement;
@@ -228,14 +227,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 							@Override
 							public void execute(Connection innerConnection) throws SQLException
 							{
-								try
-								{
-									performInsert(innerConnection, insertString);
-								}
-								catch (QueryNotValidException e)
-								{
-									throw new SQLException(e);
-								}
+								performInsert(innerConnection, insertString);
 							}
 						});
 						break;
@@ -352,9 +344,8 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 * @param connection
 	 * @param insertString
 	 *
-	 * @throws QueryNotValidException
 	 */
-	private void performInsert(Connection connection, String insertString) throws QueryNotValidException
+	private void performInsert(Connection connection, String insertString)
 	{
 		String escaped = StringUtils.replace(insertString, "'", "''");
 		try (PreparedStatement statement = connection.prepareStatement(escaped, Statement.RETURN_GENERATED_KEYS))
@@ -379,7 +370,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 		}
 		catch (SQLException sql)
 		{
-			throw new QueryNotValidException("Fix the query....", sql);
+			log.log(Level.SEVERE, "Fix the query....", sql);
 		}
 	}
 
