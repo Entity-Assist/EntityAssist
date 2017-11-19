@@ -242,12 +242,6 @@
 
         </dependency>
 
-        <dependency>
-            <groupId>za.co.mmagon</groupId>
-            <artifactId>log-master</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>

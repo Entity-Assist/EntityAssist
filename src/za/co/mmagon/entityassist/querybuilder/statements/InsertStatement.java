@@ -1,7 +1,6 @@
 package za.co.mmagon.entityassist.querybuilder.statements;
 
 import za.co.mmagon.entityassist.CoreEntity;
-import za.co.mmagon.logger.LogFactory;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -27,7 +26,7 @@ import java.util.logging.Logger;
  */
 public class InsertStatement
 {
-	private static final Logger log = LogFactory.getLog(InsertStatement.class.getName());
+	private static final Logger log = Logger.getLogger(InsertStatement.class.getName());
 	/**
 	 * The standard sdf format
 	 */
@@ -40,6 +39,11 @@ public class InsertStatement
 	 * Returns the date time formmatter
 	 */
 	private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+
+	private InsertStatement()
+	{
+		//Nothing needed
+	}
 
 	/**
 	 * Builds the physical insert string for this entity class

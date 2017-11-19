@@ -13,7 +13,6 @@ import za.co.mmagon.entityassist.exceptions.EntityNotValidException;
 import za.co.mmagon.entityassist.exceptions.QueryNotValidException;
 import za.co.mmagon.entityassist.querybuilder.QueryBuilderCore;
 import za.co.mmagon.entityassist.querybuilder.statements.InsertStatement;
-import za.co.mmagon.logger.LogFactory;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
@@ -54,7 +53,7 @@ import static com.armineasy.injection.GuiceContext.inject;
 public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryBuilderCore<Q, J, I>, I extends Serializable>
 		implements Serializable
 {
-	private static final Logger log = LogFactory.getLog(CoreEntity.class.getName());
+	private static final Logger log = Logger.getLogger(CoreEntity.class.getName());
 	private static final long serialVersionUID = 1L;
 
 	/**

@@ -1,20 +1,5 @@
 package za.co.mmagon.entityassist.querybuilder;
 import com.armineasy.injection.GuiceContext;
-import com.armineasy.injection.Pair;
-import org.eclipse.persistence.internal.jpa.EJBQueryImpl;
-import org.eclipse.persistence.jpa.JpaEntityManager;
-import org.eclipse.persistence.queries.DatabaseQuery;
-import org.eclipse.persistence.sessions.DatabaseRecord;
-import org.eclipse.persistence.sessions.Record;
-import org.hibernate.Criteria;
-import org.hibernate.engine.spi.LoadQueryInfluencers;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.internal.CriteriaImpl;
-import org.hibernate.internal.SessionImpl;
-import org.hibernate.loader.OuterJoinLoader;
-import org.hibernate.loader.criteria.CriteriaLoader;
-import org.hibernate.loader.criteria.CriteriaQueryTranslator;
-import org.hibernate.persister.entity.OuterJoinLoadable;
 import za.co.mmagon.entityassist.CoreEntity;
 import za.co.mmagon.entityassist.enumerations.ActiveFlag;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
@@ -28,12 +13,13 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static za.co.mmagon.entityassist.querybuilder.statements.SelectStatement.getSelectSQLEclipseLink;
+import static za.co.mmagon.entityassist.querybuilder.statements.SelectStatement.getSelectSQLHibernate5;
 
 /**
  * @param <J> This Class
@@ -72,7 +58,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	/**
 	 * A list of order by's. Generated at generation time
 	 */
-	private final Set<Pair<SingularAttribute, OrderByType>> orderBys;
+	private final Set<Map<SingularAttribute, OrderByType>> orderBys;
 	/**
 	 * A list of having clauses
 	 */
@@ -197,94 +183,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		return provider;
 	}
 
-	@SuppressWarnings("unchecked")
-	public String getSelectSQLHibernate5(CriteriaQuery criteria)
-	{
-		String sql = "";
-		Object[] parameters = null;
-		try
-		{
-			CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
-			SessionImpl sessionImpl = (SessionImpl) criteriaImpl.getSession();
-			SessionFactoryImplementor factory = sessionImpl.getSessionFactory();
-			String[] implementors = factory.getImplementors(criteriaImpl.getEntityOrClassName());
-			OuterJoinLoadable persister = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
-			LoadQueryInfluencers loadQueryInfluencers = new LoadQueryInfluencers();
-			CriteriaLoader loader = new CriteriaLoader(persister, factory,
-			                                           criteriaImpl, implementors[0], loadQueryInfluencers);
-			Field f = OuterJoinLoader.class.getDeclaredField("sql");
-			f.setAccessible(true);
-			sql = (String) f.get(loader);
-			Field fp = CriteriaLoader.class.getDeclaredField("translator");
-			fp.setAccessible(true);
-			CriteriaQueryTranslator translator = (CriteriaQueryTranslator) fp.get(loader);
-			parameters = translator.getQueryParameters().getPositionalParameterValues();
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
-		if (sql != null)
-		{
-			int fromPosition = sql.indexOf(" from ");
-			sql = "\nSELECT * " + sql.substring(fromPosition);
-
-			if (parameters != null && parameters.length > 0)
-			{
-				for (Object val : parameters)
-				{
-					String value;
-					if (val instanceof Boolean)
-					{
-						value = ((Boolean) val) ? "1" : "0";
-					}
-					else if (val instanceof String)
-					{
-						value = "'" + val + "'";
-					}
-					else if (val instanceof Number)
-					{
-						value = val.toString();
-					}
-					else if (val instanceof Class)
-					{
-						value = "'" + ((Class) val).getCanonicalName() + "'";
-					}
-					else if (val instanceof Date)
-					{
-						SimpleDateFormat sdf = new SimpleDateFormat(
-								                                           "yyyy-MM-dd HH:mm:ss.SSS");
-						value = "'" + sdf.format((Date) val) + "'";
-					}
-					else if (val instanceof LocalDate)
-					{
-						SimpleDateFormat sdf = new SimpleDateFormat(
-								                                           "yyyy-MM-dd");
-						value = "'" + sdf.format(val) + "'";
-					}
-					else if (val instanceof LocalDateTime)
-					{
-						SimpleDateFormat sdf = new SimpleDateFormat(
-								                                           "yyyy-MM-dd HH:mm:ss.SSS");
-						value = "'" + sdf.format(val) + "'";
-					}
-					else if (val instanceof Enum)
-					{
-						value = Integer.toString(((Enum) val).ordinal());
-					}
-					else
-					{
-						value = val.toString();
-					}
-					sql = sql.replaceFirst("\\?", value);
-				}
-			}
-		}
-		return sql.replaceAll("left outer join", "\nleft outer join").replaceAll(
-				" and ", "\nand ").replaceAll(" on ", "\non ").replaceAll("<>",
-		                                                                  "!=").replaceAll("<", " < ").replaceAll(">", " > ");
-	}
-	
 	/**
 	 * Performs a join on this entity
 	 *
@@ -756,22 +654,27 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 
 		if (!getOrderBys().isEmpty())
 		{
-			for (Pair<SingularAttribute, OrderByType> p : getOrderBys())
-			{
-				switch (p.getValue())
-				{
-					case ASC:
-					{
-						cq.orderBy(criteriaBuilder.asc(getRoot().get(p.getKey())));
-						break;
-					}
-					case DESC:
-					{
-						cq.orderBy(criteriaBuilder.desc(getRoot().get(p.getKey())));
-						break;
-					}
-				}
-			}
+			getOrderBys().forEach(a -> a.forEach((key, value) ->
+			                                     {
+				                                     switch (value)
+				                                     {
+					                                     case ASC:
+					                                     {
+						                                     cq.orderBy(criteriaBuilder.asc(getRoot().get(key)));
+						                                     break;
+					                                     }
+					                                     case DESC:
+					                                     {
+						                                     cq.orderBy(criteriaBuilder.desc(getRoot().get(key)));
+						                                     break;
+					                                     }
+					                                     default:
+					                                     {
+						                                     break;
+					                                     }
+				                                     }
+			                                     })
+			                     );
 		}
 		return (J) this;
 	}
@@ -828,19 +731,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	{
 		return filters;
 	}
-	
-	private String getSelectSQLEclipseLink(TypedQuery query, EntityManager em)
-	{
-		org.eclipse.persistence.sessions.Session session = em.unwrap(JpaEntityManager.class).getActiveSession();
-		DatabaseQuery databaseQuery = query.unwrap(EJBQueryImpl.class).getDatabaseQuery();
-		databaseQuery.prepareCall(session, new DatabaseRecord());
-		databaseQuery.bindAllParameters();
-		Record r = databaseQuery.getTranslationRow();
-		String bound = databaseQuery.getTranslatedSQLString(session, r);
-		bound = bound.replace("{ts ", "");
-		bound = bound.replace("'})", "')");
-		return bound;
-	}
 
 	@SuppressWarnings("unchecked")
 	public J inDateRange(LocalDateTime fromDate, LocalDateTime toDate)
@@ -850,93 +740,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		return (J) this;
 	}
 
-	@SuppressWarnings("unchecked")
-	public String getSelectSQLHibernate4(Criteria criteria)
-	{
-		String sql = "";
-		Object[] parameters = null;
-		try
-		{
-			CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
-			SessionImpl sessionImpl = (SessionImpl) criteriaImpl.getSession();
-			SessionFactoryImplementor factory = sessionImpl.getSessionFactory();
-			String[] implementors = factory.getImplementors(criteriaImpl.getEntityOrClassName());
-			OuterJoinLoadable persister = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
-			LoadQueryInfluencers loadQueryInfluencers = new LoadQueryInfluencers();
-			CriteriaLoader loader = new CriteriaLoader(persister, factory,
-			                                           criteriaImpl, implementors[0], loadQueryInfluencers);
-			Field f = OuterJoinLoader.class.getDeclaredField("sql");
-			f.setAccessible(true);
-			sql = (String) f.get(loader);
-			Field fp = CriteriaLoader.class.getDeclaredField("translator");
-			fp.setAccessible(true);
-			CriteriaQueryTranslator translator = (CriteriaQueryTranslator) fp.get(loader);
-			parameters = translator.getQueryParameters().getPositionalParameterValues();
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
-		if (sql != null)
-		{
-			int fromPosition = sql.indexOf(" from ");
-			sql = "\nSELECT * " + sql.substring(fromPosition);
-
-			if (parameters != null && parameters.length > 0)
-			{
-				for (Object val : parameters)
-				{
-					String value = "%";
-					if (val instanceof Boolean)
-					{
-						value = ((Boolean) val) ? "1" : "0";
-					}
-					else if (val instanceof String)
-					{
-						value = "'" + val + "'";
-					}
-					else if (val instanceof Number)
-					{
-						value = val.toString();
-					}
-					else if (val instanceof Class)
-					{
-						value = "'" + ((Class) val).getCanonicalName() + "'";
-					}
-					else if (val instanceof Date)
-					{
-						SimpleDateFormat sdf = new SimpleDateFormat(
-								"yyyy-MM-dd HH:mm:ss.SSS");
-						value = "'" + sdf.format((Date) val) + "'";
-					}
-					else if (val instanceof LocalDate)
-					{
-						SimpleDateFormat sdf = new SimpleDateFormat(
-								"yyyy-MM-dd");
-						value = "'" + sdf.format(val) + "'";
-					}
-					else if (val instanceof LocalDateTime)
-					{
-						SimpleDateFormat sdf = new SimpleDateFormat(
-								"yyyy-MM-dd HH:mm:ss.SSS");
-						value = "'" + sdf.format(val) + "'";
-					}
-					else if (val instanceof Enum)
-					{
-						value = Integer.toString(((Enum) val).ordinal());
-					}
-					else
-					{
-						value = val.toString();
-					}
-					sql = sql.replaceFirst("\\?", value);
-				}
-			}
-		}
-		return sql.replaceAll("left outer join", "\nleft outer join").replaceAll(
-				" and ", "\nand ").replaceAll(" on ", "\non ").replaceAll("<>",
-		                                                                  "!=").replaceAll("<", " < ").replaceAll(">", " > ");
-	}
 	
 	public Integer getFirstResults()
 	{
@@ -1082,7 +885,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
-	public Set<Pair<SingularAttribute, OrderByType>> getOrderBys()
+	public Set<Map<SingularAttribute, OrderByType>> getOrderBys()
 	{
 		return orderBys;
 	}

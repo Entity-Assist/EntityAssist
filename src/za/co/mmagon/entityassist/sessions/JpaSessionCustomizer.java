@@ -5,15 +5,14 @@ import org.eclipse.persistence.config.SessionCustomizer;
 import org.eclipse.persistence.sessions.DatabaseLogin;
 import org.eclipse.persistence.sessions.JNDIConnector;
 import org.eclipse.persistence.sessions.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyVetoException;
+import java.util.logging.Logger;
 
 public class JpaSessionCustomizer implements SessionCustomizer
 {
-	
-	private static final Logger log = LoggerFactory.getLogger(JpaSessionCustomizer.class);
+
+	private static final Logger log = Logger.getLogger(JpaSessionCustomizer.class.getName());
 	
 	@Override
 	public void customize(Session session) throws Exception {
@@ -26,8 +25,8 @@ public class JpaSessionCustomizer implements SessionCustomizer
 		// WARNING: databaseLogin.getPassword() is encrypted,
 		// which cannot be used directly here
 		String password = "Override with system properies c3p0.password xD";
-		log.debug("jdbcDriver={}, jdbcUrl={}, username={}, password={}",
-		          jdbcDriver, jdbcUrl, username, password);
+		log.config(String.format("jdbcDriver={}, jdbcUrl={}, username={}, password={}",
+		                         jdbcDriver, jdbcUrl, username, password));
 		
 		ComboPooledDataSource dataSource = buildDataSource(jdbcDriver, jdbcUrl, username, password);
 		databaseLogin.setConnector(new JNDIConnector(dataSource));
