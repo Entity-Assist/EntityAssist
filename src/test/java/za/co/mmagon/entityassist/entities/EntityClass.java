@@ -3,8 +3,17 @@ package za.co.mmagon.entityassist.entities;
 import za.co.mmagon.entityassist.CoreEntity;
 import za.co.mmagon.entityassist.entities.builders.EntityClassBuilder;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table
 public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>
 {
+	@Id
+	@Column(name = "id")
 	private Long id;
 
 	@Override
@@ -14,14 +23,21 @@ public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Lon
 	}
 
 	@Override
+	protected boolean isIdGenerated()
+	{
+		return true;
+	}
+
+	@Override
 	public EntityClass setId(Long id)
 	{
+		this.id = id;
 		return this;
 	}
 
 	@Override
-	public boolean isIdGenerated()
+	public String toString()
 	{
-		return true;
+		return "EntityTest : " + getId();
 	}
 }

@@ -1,4 +1,4 @@
-package za.co.mmagon.entityassist.querybuilder;
+package za.co.mmagon.entityassist.querybuilder.builders;
 
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.Provider;
@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 
-public class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
+public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 {
 	/**
 	 * The maximum number of results
@@ -36,11 +36,11 @@ public class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends Bas
 	 */
 	private Provider provider;
 
-	public QueryBuilderBase()
+	protected QueryBuilderBase()
 	{
 		//Nothing needed
 		this.entityClass = getEntityClass();
-		provider = Provider.EcliseLink;
+		provider = Provider.Hibernate5jre8;
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends Bas
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Class<E> getEntityClass()
+	protected Class<E> getEntityClass()
 	{
 		if (entityClass == null)
 		{
@@ -144,7 +144,7 @@ public class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends Bas
 	 *
 	 * @return
 	 */
-	public boolean isLogSelectSql()
+	protected boolean isLogSelectSql()
 	{
 		return logSelectSql;
 	}
@@ -156,7 +156,7 @@ public class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends Bas
 	 *
 	 * @return
 	 */
-	public J setLogSelectSql(boolean logSelectSql)
+	protected J setLogSelectSql(boolean logSelectSql)
 	{
 		this.logSelectSql = logSelectSql;
 		return (J) this;
@@ -167,7 +167,7 @@ public class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends Bas
 	 *
 	 * @return
 	 */
-	public boolean isLogInsertSql()
+	protected boolean isLogInsertSql()
 	{
 		return logInsertSql;
 	}
@@ -179,7 +179,7 @@ public class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends Bas
 	 *
 	 * @return
 	 */
-	public J setLogInsertSql(boolean logInsertSql)
+	protected J setLogInsertSql(boolean logInsertSql)
 	{
 		this.logInsertSql = logInsertSql;
 		return (J) this;

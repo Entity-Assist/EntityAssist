@@ -3,10 +3,7 @@ package za.co.mmagon.entityassist.querybuilder.statements;
 import za.co.mmagon.entityassist.CoreEntity;
 import za.co.mmagon.entityassist.querybuilder.EntityAssistStrings;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.JoinColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -58,7 +55,23 @@ public class InsertStatement implements EntityAssistStrings
 		StringBuilder insertString = new StringBuilder("INSERT INTO ");
 		Class c = o.getClass();
 		Table t = (Table) c.getAnnotation(Table.class);
-		String tableName = t.name();
+		String tableName = "";
+		if (t != null)
+		{
+			tableName = t.name();
+		}
+		if (tableName.isEmpty())
+		{
+			Entity e = (Entity) c.getAnnotation(Entity.class);
+			if (e != null)
+			{
+				tableName = e.name();
+			}
+		}
+		if (tableName.isEmpty())
+		{
+			tableName = o.getClass().getSimpleName();
+		}
 		insertString.append(tableName).append(" (");
 		List<Field> fields = new ArrayList<>();
 
@@ -116,7 +129,6 @@ public class InsertStatement implements EntityAssistStrings
 						continue;
 					}
 				}
-
 				if (!columnsNames.contains(columnName))
 				{
 					columnsNames.add(columnName);
