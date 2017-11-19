@@ -1,6 +1,7 @@
 package za.co.mmagon.entityassist.querybuilder.statements;
 
 import za.co.mmagon.entityassist.CoreEntity;
+import za.co.mmagon.entityassist.querybuilder.EntityAssistStrings;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -24,7 +25,7 @@ import java.util.logging.Logger;
 /**
  * An insert statement
  */
-public class InsertStatement
+public class InsertStatement implements EntityAssistStrings
 {
 	private static final Logger log = Logger.getLogger(InsertStatement.class.getName());
 	/**

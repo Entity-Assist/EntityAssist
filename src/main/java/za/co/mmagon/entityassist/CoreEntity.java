@@ -2,10 +2,8 @@ package za.co.mmagon.entityassist;
 
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.inject.Injector;
 import za.co.mmagon.entityassist.converters.LocalDateTimeAttributeConverter;
 import za.co.mmagon.entityassist.enumerations.ActiveFlag;
 import za.co.mmagon.entityassist.exceptions.ConstraintsNotMetException;
@@ -22,7 +20,6 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,12 +27,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.armineasy.injection.GuiceContext.getInstance;
-import static com.armineasy.injection.GuiceContext.inject;
 
 /**
  * @param <J>
@@ -51,6 +49,7 @@ import static com.armineasy.injection.GuiceContext.inject;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryBuilderCore<Q, J, I>, I extends Serializable>
+		extends BaseEntity<J, Q, I>
 		implements Serializable
 {
 	private static final Logger log = Logger.getLogger(CoreEntity.class.getName());
@@ -61,18 +60,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	private static final transient DateTimeFormatter dateTimeOffsetFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
-	@Transient
-	@JsonIgnore
-	@SuppressWarnings("all")
-	protected Class<J> myClass;
-	@Transient
-	@JsonIgnore
-	@SuppressWarnings("all")
-	protected Class<Q> queryBuilderClass;
-	@Transient
-	@JsonIgnore
-	@SuppressWarnings("all")
-	protected Class<I> idTypeClass;
 	@JsonProperty(value = "$jwid")
 	@Transient
 	private String referenceId;
@@ -101,158 +88,14 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	@Enumerated(value = EnumType.STRING)
 	@NotNull
 	private ActiveFlag activeFlag;
-	@Transient
-	@JsonIgnore
-	private Map<Serializable, Serializable> properties;
+
 
 	/**
 	 * Initialize the entity
 	 */
-	@SuppressWarnings("all")
 	public CoreEntity()
 	{
-	}
-
-	/**
-	 * If this ID is generated from the source and which form to use
-	 * Default is Generated
-	 *
-	 * @return Returns if the id column is a generated type
-	 */
-	public abstract boolean isIdGenerated();
-
-	/**
-	 * Returns this classes specific entity type
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public Class<J> getClassEntityType()
-	{
-		if (myClass == null)
-		{
-			try
-			{
-				this.myClass = (Class<J>) ((ParameterizedType) getClass()
-						                                               .getGenericSuperclass()).getActualTypeArguments()[0];
-			}
-			catch (Exception e)
-			{
-				this.myClass = null;
-				log.log(Level.SEVERE, "Cannot return the my class generic type? this class is not extended?", e);
-			}
-		}
-		return myClass;
-	}
-
-	/**
-	 * Returns a quick check to the GuiceContext container
-	 *
-	 * @return
-	 */
-	@NotNull
-	public Injector getInjector()
-	{
-		return inject();
-	}
-
-	/**
-	 * Returns if this entity is operating as a fake or not (testing or dto)
-	 *
-	 * @return
-	 */
-	@NotNull
-	public boolean isFake()
-	{
-		return getProperties().containsKey("Fake") && Boolean.parseBoolean(getProperties().get("Fake").toString());
-	}
-
-	/**
-	 * Any DB Transient Maps
-	 * <p>
-	 * Sets any custom properties for this core entity.
-	 * Dto Read only structure. Not for storage unless mapped as such in a sub-method
-	 *
-	 * @return
-	 */
-	@NotNull
-	public Map<Serializable, Serializable> getProperties()
-	{
-		if (properties == null)
-		{
-			properties = new HashMap<>();
-		}
-		return properties;
-	}
-
-	/**
-	 * Sets any custom properties for this core entity.
-	 * Dto Read only structure. Not for storage unless mapped as such in a sub-method
-	 *
-	 * @param properties
-	 *
-	 * @return
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public J setProperties(@NotNull Map<Serializable, Serializable> properties)
-	{
-		this.properties = properties;
-		return (J) this;
-	}
-
-	/**
-	 * Sets the fake property
-	 *
-	 * @param fake
-	 *
-	 * @return
-	 */
-	@NotNull
-	public J setFake(boolean fake)
-	{
-		getProperties().put("Fake", fake);
-		return (J) this;
-	}
-
-	@NotNull
-	/**
-	 * Returns the builder associated with this entity
-	 *
-	 * @return
-	 */
-	public Q builder()
-	{
-		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
-		return getInstance(foundQueryBuilderClass);
-
-	}
-
-	/**
-	 * Returns this classes associated query builder class
-	 *
-	 * @return
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public Class<Q> getClassQueryBuilderClass()
-	{
-		if (queryBuilderClass == null)
-		{
-			try
-			{
-				this.queryBuilderClass = (Class<Q>) ((ParameterizedType) getClass()
-						                                                         .getGenericSuperclass()).getActualTypeArguments()[1];
-			}
-			catch (Exception e)
-			{
-				this.queryBuilderClass = null;
-				log.log(Level.SEVERE, "Cannot return the my query builder class - config seems wrong. Check that a builder is attached to this entity as the second generic field type e.g. \n" +
-						                      "public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>\n\n" +
-						                      "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/za/co/mmagon/entityassist/entities", e);
-			}
-		}
-		return queryBuilderClass;
+		//Nothing needed
 	}
 
 	/**
@@ -273,6 +116,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * Persists this entity. Uses the get instance entity manager to operate.
 	 *
 	 * @return
+	 *
 	 * @throws za.co.mmagon.entityassist.exceptions.QueryNotValidException
 	 * @throws za.co.mmagon.entityassist.exceptions.EntityNotValidException
 	 * @throws za.co.mmagon.entityassist.exceptions.ConstraintsNotMetException
@@ -393,6 +237,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 
 	/**
 	 * Returns the assigned entity manager
+	 *
 	 * @return
 	 */
 	@NotNull
@@ -433,98 +278,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 			setActiveFlag(ActiveFlag.Active);
 		}
 	}
-
-	/**
-	 * Finds the entity with the given ID
-	 *
-	 * @param id
-	 *
-	 * @return
-	 */
-	public Optional<J> find(Long id)
-	{
-		return builder().find(id).select().get();
-	}
-
-	/**
-	 * Finds all the entity types
-	 *
-	 * @return
-	 */
-	public List<J> findAll()
-	{
-		return builder().select().getAll();
-	}
-
-	/**
-	 * Returns the active flag
-	 *
-	 * @return
-	 */
-	public ActiveFlag getActiveFlag()
-	{
-		return activeFlag;
-	}
-
-	/**
-	 * Sets the active flag
-	 *
-	 * @param activeFlag
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J setActiveFlag(ActiveFlag activeFlag)
-	{
-		this.activeFlag = activeFlag;
-		return (J) this;
-	}
-
-	/**
-	 * Returns this classes associated id class type
-	 *
-	 * @return
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public Class<I> getClassIDType()
-	{
-		if (idTypeClass == null)
-		{
-			try
-			{
-				this.idTypeClass = (Class<I>) ((ParameterizedType) getClass()
-						                                                   .getGenericSuperclass()).getActualTypeArguments()[2];
-			}
-			catch (Exception e)
-			{
-				log.log(Level.SEVERE, "Cannot return the class for uncheckeds. Embeddables are allowed. Config seems wrong. Check that a builder is attached to this entity as the second generic field type e.g. \n" +
-						                      "public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>\n\n" +
-						                      "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/za/co/mmagon/entityassist/entities", e);
-				this.idTypeClass = null;
-			}
-		}
-		return idTypeClass;
-	}
-
-	/**
-	 * Returns the id of the given type in the generic decleration
-	 *
-	 * @return Returns the ID
-	 */
-	@NotNull
-	public abstract I getId();
-
-	/**
-	 * Returns the id of the given type in the generic decleration
-	 *
-	 * @param id
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("all")
-	@NotNull
-	public abstract J setId(@NotNull I id);
 
 	/**
 	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
@@ -589,6 +342,30 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	}
 
 	/**
+	 * Returns the active flag
+	 *
+	 * @return
+	 */
+	public ActiveFlag getActiveFlag()
+	{
+		return activeFlag;
+	}
+
+	/**
+	 * Sets the active flag
+	 *
+	 * @param activeFlag
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J setActiveFlag(ActiveFlag activeFlag)
+	{
+		this.activeFlag = activeFlag;
+		return (J) this;
+	}
+
+	/**
 	 * Performs the update command for entities
 	 */
 	@PreUpdate
@@ -628,32 +405,38 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	}
 
 	/**
-	 * Performs the constraint validation and returns a list of all constraint errors.
-	 * <p>
-	 * <b>Great for form checking</b>
+	 * Finds the entity with the given ID
+	 *
+	 * @param id
 	 *
 	 * @return
 	 */
-	@NotNull
-	@SuppressWarnings("unused")
-	public List<String> validateEntity()
+	public Optional<J> find(Long id)
 	{
-		List<String> errors = new ArrayList<>();
-		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		Validator validator = factory.getValidator();
-		Set constraintViolations = validator.validate(this);
+		return builder().find(id).select().get();
+	}
 
-		if (!constraintViolations.isEmpty())
-		{
-			log.info("Constraint Violations Occured \n");
-			for (Object constraintViolation : constraintViolations)
-			{
-				ConstraintViolation contraints = (ConstraintViolation) constraintViolation;
-				String error = contraints.getRootBeanClass().getSimpleName() + "." + contraints.getPropertyPath() + " " + contraints.getMessage();
-				errors.add(error);
-			}
-		}
-		return errors;
+	@NotNull
+	/**
+	 * Returns the builder associated with this entity
+	 *
+	 * @return
+	 */
+	public Q builder()
+	{
+		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
+		return getInstance(foundQueryBuilderClass);
+
+	}
+
+	/**
+	 * Finds all the entity types
+	 *
+	 * @return
+	 */
+	public List<J> findAll()
+	{
+		return builder().select().getAll();
 	}
 
 	/**

@@ -8,20 +8,20 @@ public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Lon
 	private Long id;
 
 	@Override
-	public boolean isIdGenerated()
-	{
-		return true;
-	}
-
-	@Override
 	public Long getId()
 	{
 		return id;
 	}
-	
+
 	@Override
 	public EntityClass setId(Long id)
 	{
 		return this;
+	}
+
+	@Override
+	public boolean isIdGenerated()
+	{
+		return true;
 	}
 }
