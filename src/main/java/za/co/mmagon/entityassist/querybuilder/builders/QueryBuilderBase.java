@@ -36,6 +36,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	private Provider provider;
 
+	@SuppressWarnings("unchecked")
 	protected QueryBuilderBase()
 	{
 		//Nothing needed
