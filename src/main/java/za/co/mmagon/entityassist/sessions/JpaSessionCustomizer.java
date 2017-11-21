@@ -25,11 +25,10 @@ public class JpaSessionCustomizer implements SessionCustomizer
 		String username = databaseLogin.getUserName();
 		// WARNING: databaseLogin.getPassword() is encrypted,
 		// which cannot be used directly here
-		String password = "Override with system properies c3p0.password xD";
-		log.config(String.format("jdbcDriver={}, jdbcUrl={}, username={}, password={}",
-		                         jdbcDriver, jdbcUrl, username, password));
+		log.config(String.format("jdbcDriver={}, jdbcUrl={}, username={}, pass={}",
+		                         jdbcDriver, jdbcUrl, username, "dummypassword"));
 
-		ComboPooledDataSource dataSource = buildDataSource(jdbcDriver, jdbcUrl, username, password);
+		ComboPooledDataSource dataSource = buildDataSource(jdbcDriver, jdbcUrl, username, "dummypassword");
 		databaseLogin.setConnector(new JNDIConnector(dataSource));
 	}
 
@@ -40,8 +39,8 @@ public class JpaSessionCustomizer implements SessionCustomizer
 	{
 		ComboPooledDataSource dataSource = new ComboPooledDataSource();
 
-		dataSource.setDriverClass(jdbcDriver); // Loads the JDBC driver
 		dataSource.setJdbcUrl(jdbcUrl);
+		dataSource.setDriverClass(jdbcDriver); // Loads the JDBC driver
 		dataSource.setUser(username);
 		dataSource.setPassword(password);
 

@@ -25,18 +25,19 @@ import java.util.logging.Logger;
 public class InsertStatement implements EntityAssistStrings
 {
 	private static final Logger log = Logger.getLogger(InsertStatement.class.getName());
+	private static InsertStatement insertStatement = new InsertStatement();
 	/**
 	 * The standard sdf format
 	 */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	/**
 	 * Returns teh date formatter
 	 */
-	private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	/**
 	 * Returns the date time formmatter
 	 */
-	private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	private final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
 	private InsertStatement()
 	{
@@ -182,17 +183,17 @@ public class InsertStatement implements EntityAssistStrings
 			else if (columnValue instanceof Date)
 			{
 				Date date = (Date) columnValue;
-				insertString.append("'").append(sdf.format(date)).append("', ");
+				insertString.append("'").append(getInsertStatement().sdf.format(date)).append("', ");
 			}
 			else if (columnValue instanceof LocalDate)
 			{
 				LocalDate date = (LocalDate) columnValue;
-				insertString.append("'").append(dateFormat.format(date)).append("', ");
+				insertString.append("'").append(getInsertStatement().dateFormat.format(date)).append("', ");
 			}
 			else if (columnValue instanceof LocalDateTime)
 			{
 				LocalDateTime date = (LocalDateTime) columnValue;
-				insertString.append("'").append(dateTimeFormat.format(date)).append("', ");
+				insertString.append("'").append(getInsertStatement().dateTimeFormat.format(date)).append("', ");
 			}
 			else if (columnValue instanceof CoreEntity)
 			{
@@ -246,4 +247,8 @@ public class InsertStatement implements EntityAssistStrings
 		return dateTimeFormat;
 	}
 
+	public static InsertStatement getInsertStatement()
+	{
+		return insertStatement;
+	}
 }

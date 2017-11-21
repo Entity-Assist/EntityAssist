@@ -7,9 +7,13 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 {
+
+	private static final Logger log = Logger.getLogger("QueryBuilderCore");
 	/**
 	 * The maximum number of results
 	 */
@@ -62,6 +66,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			catch (Exception e)
 			{
 				this.entityClass = null;
+				log.log(Level.SEVERE, "Unable to read the entity class that this query builder core is built for\n", e);
 			}
 		}
 		return entityClass;

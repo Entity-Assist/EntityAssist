@@ -65,6 +65,7 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	/**
 	 * Constructs a new query builder core with typed classes instantiated
 	 */
+	@SuppressWarnings("unchecked")
 	public DefaultQueryBuilder()
 	{
 		this.filters = new HashSet<>();
