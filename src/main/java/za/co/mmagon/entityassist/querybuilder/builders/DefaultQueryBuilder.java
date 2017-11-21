@@ -3,13 +3,16 @@ package za.co.mmagon.entityassist.querybuilder.builders;
 import com.armineasy.injection.GuiceContext;
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.CoreEntity;
+import za.co.mmagon.entityassist.enumerations.Operand;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
 
 import javax.persistence.EntityManager;
 import javax.persistence.JoinColumn;
 import javax.persistence.criteria.*;
+import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -47,11 +50,11 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	/**
 	 * A list of group by's to go by. Built at generation time
 	 */
-	private final Set<Predicate> groupBys;
+	private final Set<Expression> groupBys;
 	/**
 	 * A list of order by's. Generated at generation time
 	 */
-	private final Set<Map<SingularAttribute, OrderByType>> orderBys;
+	private final Map<Attribute, OrderByType> orderBys;
 	/**
 	 * A list of having clauses
 	 */
@@ -71,7 +74,7 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 		this.filters = new HashSet<>();
 		selections = new HashSet<>();
 		groupBys = new HashSet<>();
-		orderBys = new HashSet<>();
+		orderBys = new LinkedHashMap<>();
 		having = new HashSet<>();
 		joins = new HashSet<>();
 		this.criteriaBuilder = GuiceContext.getInstance(EntityManager.class).getCriteriaBuilder();
@@ -82,8 +85,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	/**
 	 * Performs a join on this entity
 	 *
-	 * @param <JOIN>
-	 *
 	 * @return
 	 */
 	public <O extends CoreEntity> J join(Class<O> entityClassJoinTo)
@@ -93,8 +94,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 
 	/**
 	 * Performs a join on this entity
-	 *
-	 * @param <JOIN>
 	 *
 	 * @return
 	 */
@@ -159,8 +158,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	/**
 	 * Performs a join on this entity
 	 *
-	 * @param <JOIN>
-	 *
 	 * @return
 	 */
 	public <O extends CoreEntity> J join(Class<O> entityClassJoinTo, Optional<List<Predicate>> onFilters)
@@ -170,8 +167,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 
 	/**
 	 * Performs a join on this entity
-	 *
-	 * @param <JOIN>
 	 *
 	 * @return
 	 */
@@ -190,22 +185,9 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	 */
 	@SuppressWarnings("unchecked")
 	public J in(String fieldName, Object value)
+
 	{
 		getFilters().add(getRoot().get(fieldName).in(value));
-		return (J) this;
-	}
-
-	/**
-	 * Adds a max column to be added with a group by clause at the end
-	 *
-	 * @param attribute
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J max(PluralAttribute attribute)
-	{
-		getSelections().add(getCriteriaBuilder().max(getRoot().get(attribute)));
 		return (J) this;
 	}
 
@@ -230,62 +212,26 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	}
 
 	/**
-	 * Adds a max column to be added with a group by clause at the end
+	 * Adds an order by column to the query
 	 *
-	 * @param attribute
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J max(SingularAttribute attribute)
-	{
-		getSelections().add(getCriteriaBuilder().max(getRoot().get(attribute)));
-		return (J) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public J min(SingularAttribute attribute)
-	{
-		getSelections().add(getCriteriaBuilder().min(getRoot().get(attribute)));
-		return (J) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public J min(PluralAttribute attribute)
-	{
-		getSelections().add(getCriteriaBuilder().min(getRoot().get(attribute)));
-		return (J) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public J count()
-	{
-		getSelections().add(getCriteriaBuilder().count(getRoot()));
-		return (J) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public J count(SingularAttribute attribute)
-	{
-		getSelections().add(getCriteriaBuilder().count(getRoot().get(attribute)));
-		return (J) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public J count(PluralAttribute attribute)
-	{
-		getSelections().add(getCriteriaBuilder().count(getRoot().get(attribute)));
-		return (J) this;
-	}
-
-	/**
-	 * Returns the current list of group by's
+	 * @param orderBy
+	 * @param direction
 	 *
 	 * @return
 	 */
-	protected Set<Predicate> getGroupBys()
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J orderBy(Attribute orderBy, OrderByType direction)
 	{
-		return groupBys;
+		if (isSingularAttribute(orderBy))
+		{
+			getOrderBys().put(SingularAttribute.class.cast(orderBy), direction);
+		}
+		else if (isPluralOrMapAttribute(orderBy))
+		{
+			getOrderBys().put(PluralAttribute.class.cast(orderBy), direction);
+		}
+		return (J) this;
 	}
 
 	/**
@@ -303,7 +249,7 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	 *
 	 * @return
 	 */
-	protected Set<Map<SingularAttribute, OrderByType>> getOrderBys()
+	protected Map<Attribute, OrderByType> getOrderBys()
 	{
 		return orderBys;
 	}
@@ -332,4 +278,437 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	{
 		this.criteriaQuery = criteriaQuery;
 	}
+
+	/**
+	 * Selects a given column
+	 *
+	 * @param selectColumn
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectColumn(Attribute selectColumn)
+	{
+		if (isSingularAttribute(selectColumn))
+		{
+			getSelections().add(getRoot().get(SingularAttribute.class.cast(selectColumn)));
+		}
+		else if (isPluralOrMapAttribute(selectColumn))
+		{
+			getSelections().add(getRoot().get(PluralAttribute.class.cast(selectColumn)));
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectMin(Attribute attribute)
+	{
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().min(getRoot().get(SingularAttribute.class.cast(attribute))));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().min(getRoot().get(PluralAttribute.class.cast(attribute))));
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectMax(Attribute attribute)
+	{
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().max(getRoot().get(SingularAttribute.class.cast(attribute))));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().max(getRoot().get(PluralAttribute.class.cast(attribute))));
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCount(Attribute attribute)
+	{
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().count(getRoot().get(SingularAttribute.class.cast(attribute))));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().count(getRoot().get(PluralAttribute.class.cast(attribute))));
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum count of the root object (select count(*))
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCount()
+	{
+		getSelections().add(getCriteriaBuilder().count(getRoot()));
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum count distinct of the root object (select distinct count(*))
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCountDistinct()
+	{
+		getSelections().add(getCriteriaBuilder().count(getRoot()));
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCountDistinct(Attribute attribute)
+	{
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().countDistinct(getRoot().get(SingularAttribute.class.cast(attribute))));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().countDistinct(getRoot().get(PluralAttribute.class.cast(attribute))));
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSum(Attribute attribute)
+	{
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sum(getRoot().get(SingularAttribute.class.cast(attribute))));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sum(getRoot().get(PluralAttribute.class.cast(attribute))));
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSumAsLong(Attribute attribute)
+	{
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sumAsLong(getRoot().get(SingularAttribute.class.cast(attribute))));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sumAsLong(getRoot().get(PluralAttribute.class.cast(attribute))));
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSumAsDouble(Attribute attribute)
+	{
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sumAsDouble(getRoot().get(SingularAttribute.class.cast(attribute))));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sumAsDouble(getRoot().get(PluralAttribute.class.cast(attribute))));
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectAverage(Attribute attribute)
+	{
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().avg(getRoot().get(SingularAttribute.class.cast(attribute))));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().avg(getRoot().get(PluralAttribute.class.cast(attribute))));
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Selects a given column
+	 *
+	 * @param selectColumn
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J groupBy(Attribute selectColumn)
+	{
+
+		if (isSingularAttribute(selectColumn))
+		{
+			getGroupBys().add(getRoot().get(SingularAttribute.class.cast(selectColumn)));
+		}
+		else if (isPluralOrMapAttribute(selectColumn))
+		{
+			getGroupBys().add(getRoot().get(PluralAttribute.class.cast(selectColumn)));
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Returns the current list of group by's
+	 *
+	 * @return
+	 */
+	protected Set<Expression> getGroupBys()
+	{
+		return groupBys;
+	}
+
+	/**
+	 * Performs a filter on the database with the where clauses
+	 *
+	 * @param attribute
+	 * 		The attribute to be used
+	 * @param operator
+	 * 		The operand to use
+	 * @param value
+	 * 		The value to apply (Usually serializable)
+	 *
+	 * @return This object
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public J where(Attribute attribute, Operand operator, Object value)
+	{
+		switch (operator)
+		{
+			case Equals:
+			{
+				if (isSingularAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().equal(getRoot().get(SingularAttribute.class.cast(attribute)), value));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().equal(getRoot().get(PluralAttribute.class.cast(attribute)), value));
+				}
+				break;
+			}
+			case Null:
+			{
+				if (isSingularAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().isNull(getRoot().get(SingularAttribute.class.cast(attribute))));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().isNull(getRoot().get(PluralAttribute.class.cast(attribute))));
+				}
+				break;
+			}
+			case NotNull:
+			{
+				if (isSingularAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().isNotEmpty(getRoot().get(SingularAttribute.class.cast(attribute))));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().isNotEmpty(getRoot().get(PluralAttribute.class.cast(attribute))));
+				}
+				break;
+			}
+			case NotEquals:
+			{
+				if (isSingularAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().notEqual(getRoot().get(SingularAttribute.class.cast(attribute)), value));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().notEqual(getRoot().get(PluralAttribute.class.cast(attribute)), value));
+				}
+				break;
+			}
+			case InList:
+			{
+				if (isSingularAttribute(attribute))
+				{
+					getCriteriaQuery().where(getRoot().get(SingularAttribute.class.cast(attribute)).in(value));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					getCriteriaQuery().where(getRoot().get(PluralAttribute.class.cast(attribute)).in(value));
+				}
+				break;
+			}
+			case LessThan:
+			case LessThanEqualTo:
+			case MoreThan:
+			case MoreThanEqualTo:
+			default:
+			{
+				return where(attribute, operator, (Number) value);
+			}
+		}
+
+		return (J) this;
+	}
+
+	/**
+	 * Performs a filter on the database with the where clauses
+	 *
+	 * @param attribute
+	 * 		The attribute to be used
+	 * @param operator
+	 * 		The operand to use
+	 * @param value
+	 * 		The value to apply (Usually serializable)
+	 *
+	 * @return This object
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	private J where(Attribute attribute, Operand operator, Number value)
+	{
+		switch (operator)
+		{
+			case LessThan:
+			{
+				if (isSingularAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().lt(getRoot().get((SingularAttribute) attribute), value));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().lt(getRoot().get((PluralAttribute) attribute), value));
+				}
+				break;
+			}
+			case LessThanEqualTo:
+			{
+				if (isSingularAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().lt(getRoot().get((SingularAttribute) attribute), value));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().lt(getRoot().get((PluralAttribute) attribute), value));
+				}
+				break;
+			}
+			case MoreThan:
+			{
+				if (isSingularAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((SingularAttribute) attribute), value));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((PluralAttribute) attribute), value));
+				}
+				break;
+			}
+			case MoreThanEqualTo:
+			{
+				if (isSingularAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((SingularAttribute) attribute), value));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((PluralAttribute) attribute), value));
+				}
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+
+		if (isSingularAttribute(attribute))
+		{
+			getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((SingularAttribute) attribute), value));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((PluralAttribute) attribute), value));
+		}
+
+		return (J) this;
+	}
+
 }

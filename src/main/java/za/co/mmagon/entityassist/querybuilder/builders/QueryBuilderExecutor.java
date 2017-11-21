@@ -3,6 +3,7 @@ package za.co.mmagon.entityassist.querybuilder.builders;
 import com.armineasy.injection.GuiceContext;
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.CoreEntity;
+import za.co.mmagon.entityassist.enumerations.OrderByType;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -12,6 +13,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Selection;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,94 +32,10 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 {
 
 	private static final Logger log = Logger.getLogger(QueryBuilderExecutor.class.getName());
-
 	/**
-	 * Prepares the select statement
-	 *
-	 * @return
+	 * Marks if this query is selected
 	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J select()
-	{
-		List<Predicate> allWheres = new ArrayList<>();
-		allWheres.addAll(getFilters());
-
-		Predicate[] preds = new Predicate[allWheres.size()];
-		preds = allWheres.toArray(preds);
-
-		CriteriaQuery<E> cq = getCriteriaQuery();
-
-		if (!getSelections().isEmpty())
-		{
-			for (Selection selection : getSelections())
-			{
-				cq.select(selection);
-			}
-		}
-
-		getCriteriaQuery().where(preds);
-		if (!getGroupBys().isEmpty())
-		{
-			for (Predicate p : getGroupBys())
-			{
-				cq.groupBy(p);
-			}
-		}
-
-		if (!getHaving().isEmpty())
-		{
-			for (Expression expression : getHaving())
-			{
-				cq.having(expression);
-			}
-		}
-
-		if (!getOrderBys().isEmpty())
-		{
-			getOrderBys().forEach(a -> a.forEach((key, value) ->
-			                                     {
-				                                     switch (value)
-				                                     {
-					                                     case ASC:
-					                                     {
-						                                     cq.orderBy(getCriteriaBuilder().asc(getRoot().get(key)));
-						                                     break;
-					                                     }
-					                                     case DESC:
-					                                     {
-						                                     cq.orderBy(getCriteriaBuilder().desc(getRoot().get(key)));
-						                                     break;
-					                                     }
-					                                     default:
-					                                     {
-						                                     break;
-					                                     }
-				                                     }
-			                                     })
-			                     );
-		}
-
-		if (getSelections().isEmpty())
-		{
-			getCriteriaQuery().select(getRoot());
-		}
-		else
-		{
-			getSelections().forEach(a -> getCriteriaQuery().select(a));
-		}
-		return (J) this;
-	}
-
-	/**
-	 * Returns a non-distinct list and returns an empty optional if a non-unique-result exception is thrown
-	 *
-	 * @return
-	 */
-	public Optional<E> get()
-	{
-		return get(false);
-	}
+	private boolean selected;
 
 	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from a list with the same criteria
@@ -127,6 +47,11 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	@SuppressWarnings("unchecked")
 	public Optional<E> get(boolean returnFirst)
 	{
+		if (!selected)
+		{
+			select();
+		}
+
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		TypedQuery<E> query = em.createQuery(getCriteriaQuery());
 
@@ -162,6 +87,84 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 	}
 
+	/**
+	 * Prepares the select statement
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	private J select()
+	{
+		List<Predicate> allWheres = new ArrayList<>();
+		allWheres.addAll(getFilters());
+
+		Predicate[] preds = new Predicate[allWheres.size()];
+		preds = allWheres.toArray(preds);
+
+		CriteriaQuery<E> cq = getCriteriaQuery();
+
+		if (!getSelections().isEmpty())
+		{
+			for (Selection selection : getSelections())
+			{
+				cq.select(selection);
+			}
+		}
+
+		getCriteriaQuery().where(preds);
+		if (!getGroupBys().isEmpty())
+		{
+			for (Expression p : getGroupBys())
+			{
+				cq.groupBy(p);
+			}
+		}
+
+		if (!getHaving().isEmpty())
+		{
+			for (Expression expression : getHaving())
+			{
+				cq.having(expression);
+			}
+		}
+
+		if (!getOrderBys().isEmpty())
+		{
+			getOrderBys().forEach((key, value) -> processOrderBys(key, value, cq));
+
+			if (getSelections().isEmpty())
+			{
+				getCriteriaQuery().select(getRoot());
+			}
+			else
+			{
+				getSelections().forEach(a -> getCriteriaQuery().select(a));
+			}
+		}
+		selected = true;
+		return (J) this;
+	}
+
+
+	/**
+	 * Returns a non-distinct list and returns an empty optional if a non-unique-result exception is thrown
+	 *
+	 * @return
+	 */
+	public Optional<E> get()
+	{
+		return get(false);
+	}
+
+	/**
+	 * Switches between the return and build commands
+	 *
+	 * @param query
+	 * @param em
+	 *
+	 * @return
+	 */
 	private String getCriteriaBuilderString(TypedQuery query, EntityManager em)
 	{
 		switch (getProvider())
@@ -185,6 +188,40 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		return "";
 	}
 
+	@SuppressWarnings("unchecked")
+	private void processOrderBys(Attribute key, OrderByType value, CriteriaQuery cq)
+	{
+		switch (value)
+		{
+
+			case DESC:
+			{
+				if (isSingularAttribute(key))
+				{
+					cq.orderBy(getCriteriaBuilder().desc(getRoot().get(SingularAttribute.class.cast(key))));
+				}
+				else if (isPluralOrMapAttribute(key))
+				{
+					cq.orderBy(getCriteriaBuilder().desc(getRoot().get(PluralAttribute.class.cast(key))));
+				}
+				break;
+			}
+			case ASC:
+			default:
+			{
+				if (isSingularAttribute(key))
+				{
+					cq.orderBy(getCriteriaBuilder().asc(getRoot().get(SingularAttribute.class.cast(key))));
+				}
+				else if (isPluralOrMapAttribute(key))
+				{
+					cq.orderBy(getCriteriaBuilder().asc(getRoot().get(PluralAttribute.class.cast(key))));
+				}
+				break;
+			}
+		}
+	}
+
 	/**
 	 * Returns a list of entities from a distinct or non distinct list
 	 *
@@ -193,6 +230,10 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	@SuppressWarnings("unchecked")
 	public List<E> getAll()
 	{
+		if (!selected)
+		{
+			select();
+		}
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		TypedQuery<E> query = em.createQuery(getCriteriaQuery());
 
@@ -217,5 +258,4 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 		return j;
 	}
-
 }

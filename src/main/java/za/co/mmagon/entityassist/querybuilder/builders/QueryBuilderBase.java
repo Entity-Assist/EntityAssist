@@ -4,6 +4,10 @@ import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.Provider;
 
 import javax.annotation.Nullable;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.MapAttribute;
+import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
@@ -43,7 +47,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	@SuppressWarnings("unchecked")
 	protected QueryBuilderBase()
 	{
-		//Nothing needed
 		this.entityClass = getEntityClass();
 		provider = Provider.Hibernate5jre8;
 	}
@@ -139,6 +142,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public J setProvider(@NotNull Provider provider)
 	{
 		this.provider = provider;
@@ -162,6 +166,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	protected J setLogSelectSql(boolean logSelectSql)
 	{
 		this.logSelectSql = logSelectSql;
@@ -185,9 +190,58 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	protected J setLogInsertSql(boolean logInsertSql)
 	{
 		this.logInsertSql = logInsertSql;
 		return (J) this;
+	}
+
+	/**
+	 * Returns if the class is a singular attribute
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	protected boolean isSingularAttribute(Attribute attribute)
+	{
+		return attribute.getClass().isAssignableFrom(SingularAttribute.class);
+	}
+
+	/**
+	 * Returns if the attribute is plural or map
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	protected boolean isPluralOrMapAttribute(Attribute attribute)
+	{
+		return isPluralAttribute(attribute) || isMapAttribute(attribute);
+	}
+
+	/**
+	 * Returns if the class is a singular attribute
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	protected boolean isPluralAttribute(Attribute attribute)
+	{
+		return attribute.getClass().isAssignableFrom(PluralAttribute.class);
+	}
+
+	/**
+	 * Returns if the class is a singular attribute
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	protected boolean isMapAttribute(Attribute attribute)
+	{
+		return attribute.getClass().isAssignableFrom(MapAttribute.class);
 	}
 }
