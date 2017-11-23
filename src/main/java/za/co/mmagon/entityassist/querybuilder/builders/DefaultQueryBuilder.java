@@ -2,25 +2,18 @@ package za.co.mmagon.entityassist.querybuilder.builders;
 
 import com.armineasy.injection.GuiceContext;
 import za.co.mmagon.entityassist.BaseEntity;
-import za.co.mmagon.entityassist.CoreEntity;
 import za.co.mmagon.entityassist.enumerations.Operand;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
 
 import javax.persistence.EntityManager;
-import javax.persistence.JoinColumn;
+import javax.persistence.Id;
 import javax.persistence.criteria.*;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static za.co.mmagon.entityassist.querybuilder.EntityAssistStrings.STRING_EMPTY;
 
 public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 		extends QueryBuilderBase<J, E, I>
@@ -83,62 +76,87 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	}
 
 	/**
-	 * Performs a join on this entity
+	 * Joins a specific attribute
 	 *
-	 * @return
-	 */
-	public <O extends CoreEntity> J join(Class<O> entityClassJoinTo)
-	{
-		return join(entityClassJoinTo, Optional.empty(), Optional.empty(), Optional.empty());
-	}
-
-	/**
-	 * Performs a join on this entity
+	 * @param attribute
+	 * @param <X>
+	 * @param <Y>
 	 *
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <O extends CoreEntity> J join(Class<O> entityClassJoinTo, Optional<List<Predicate>> onFilters, Optional<List<Predicate>> entityFilters, Optional<JoinType> joinType)
+	public <X, Y> J join(Attribute<X, Y> attribute)
 	{
-		String joinFieldName = getFieldNameForJoinEntityType(entityClassJoinTo);
-		Join<E, O> join;
-		if (joinType.isPresent())
+		return join(attribute, JoinType.INNER);
+	}
+
+	/**
+	 * Joins a specific attribute
+	 *
+	 * @param attribute
+	 * @param <X>
+	 * @param <Y>
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <X, Y> J join(Attribute<X, Y> attribute, JoinType joinType)
+	{
+		if (isSingularAttribute(attribute))
 		{
-			join = getRoot().join(joinFieldName, joinType.get());
+			getRoot().join(SingularAttribute.class.cast(attribute), joinType);
+		}
+		else if (isCollectionAttribute(attribute))
+		{
+			getRoot().join(CollectionAttribute.class.cast(attribute), joinType);
+		}
+		else if (isMapAttribute(attribute))
+		{
+			getRoot().join(MapAttribute.class.cast(attribute), joinType);
 		}
 		else
 		{
-			join = getRoot().join(joinFieldName, JoinType.LEFT);
+			getRoot().join(attribute.getName(), joinType);
 		}
-		if (onFilters.isPresent())
-		{
-			Predicate[] preds = new Predicate[onFilters.get().size()];
-			join.on(onFilters.get().toArray(preds));
-		}
-		entityFilters.ifPresent(predicates -> getFilters().addAll(predicates));
 		return (J) this;
 	}
 
 	/**
-	 * Returns the first field name for the given class type
+	 * Joins a specific attribute
 	 *
-	 * @param joinClassType
+	 * @param attribute
+	 * @param <X>
+	 * @param <Y>
 	 *
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private String getFieldNameForJoinEntityType(Class<? extends CoreEntity> joinClassType)
+	public <X, Y> J join(Attribute<X, Y> attribute, JoinType joinType, Predicate... onFilters)
 	{
-		Class<? extends Annotation> joinAnnotation = JoinColumn.class;
-		Optional<Field> fOpt = GuiceContext.reflect().getFieldAnnotatedWithOfType(joinAnnotation, joinClassType, getEntityClass());
-		if (fOpt.isPresent())
+		if (onFilters != null && onFilters.length > 0)
 		{
-			return fOpt.get().getName();
+			Join join = null;
+			if (isSingularAttribute(attribute))
+			{
+				join = getRoot().join(SingularAttribute.class.cast(attribute), joinType);
+			}
+			else if (isCollectionAttribute(attribute))
+			{
+				join = getRoot().join(CollectionAttribute.class.cast(attribute), joinType);
+			}
+			else if (isMapAttribute(attribute))
+			{
+				join = getRoot().join(MapAttribute.class.cast(attribute), joinType);
+			}
+			else
+			{
+				join = getRoot().join(attribute.getName(), joinType);
+			}
+			join.on(onFilters);
 		}
-		log.log(Level.WARNING, "Unable to get field name for specified join type to [" + joinClassType + "]");
-
-		return STRING_EMPTY;
+		return (J) this;
 	}
+
 
 	/**
 	 * Gets my given root
@@ -153,26 +171,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	protected Set<Predicate> getFilters()
 	{
 		return filters;
-	}
-
-	/**
-	 * Performs a join on this entity
-	 *
-	 * @return
-	 */
-	public <O extends CoreEntity> J join(Class<O> entityClassJoinTo, Optional<List<Predicate>> onFilters)
-	{
-		return join(entityClassJoinTo, onFilters, Optional.empty(), Optional.empty());
-	}
-
-	/**
-	 * Performs a join on this entity
-	 *
-	 * @return
-	 */
-	public <O extends CoreEntity> J join(Class<O> entityClassJoinTo, Optional<List<Predicate>> onFilters, Optional<List<Predicate>> entityFilters)
-	{
-		return join(entityClassJoinTo, onFilters, entityFilters, Optional.empty());
 	}
 
 	/**
@@ -267,6 +265,40 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	protected CriteriaQuery getCriteriaQuery()
 	{
 		return criteriaQuery;
+	}
+
+	/**
+	 * Where the "id" field is in
+	 *
+	 * @param id
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J find(I id)
+	{
+		Optional<Field> idField = GuiceContext.reflect().getFieldAnnotatedWithOfType(Id.class, id.getClass(), getEntityClass());
+		if (!idField.isPresent())
+		{
+			Field[] fields = getEntityClass().getDeclaredFields();
+			for (Field field : fields)
+			{
+				if (field.isAnnotationPresent(Id.class))
+				{
+					idField = Optional.of(field);
+				}
+			}
+		}
+
+		if (idField.isPresent())
+		{
+			getFilters().add(getRoot().get(idField.get().getName()).in(id));
+		}
+		else
+		{
+			getFilters().add(getRoot().get("id").in(id));
+		}
+		return (J) this;
 	}
 
 	/**
@@ -619,10 +651,34 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 				getFilters().add(in);
 				break;
 			}
+			case Like:
+			{
+				if (isSingularAttribute(attribute))
+				{
+					getFilters().add(getCriteriaBuilder().like(getRoot().get(SingularAttribute.class.cast(attribute)), value.toString()));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					getFilters().add(getCriteriaBuilder().like(getRoot().get(PluralAttribute.class.cast(attribute)), value.toString()));
+				}
+				break;
+			}
+			case NotLike:
+			{
+				if (isSingularAttribute(attribute))
+				{
+					getFilters().add(getCriteriaBuilder().notLike(getRoot().get(SingularAttribute.class.cast(attribute)), value.toString()));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					getFilters().add(getCriteriaBuilder().notLike(getRoot().get(PluralAttribute.class.cast(attribute)), value.toString()));
+				}
+				break;
+			}
 			case LessThan:
 			case LessThanEqualTo:
-			case MoreThan:
-			case MoreThanEqualTo:
+			case GreaterThan:
+			case GreaterThanEqualTo:
 			default:
 			{
 				return where(attribute, operator, (Number) value);
@@ -710,7 +766,7 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 				if (isSingularAttribute(attribute))
 				{
 					Expression<? extends Number> path = getRoot().get(SingularAttribute.class.cast(attribute));
-					getFilters().add(getCriteriaBuilder().le(path,value));
+					getFilters().add(getCriteriaBuilder().le(path, value));
 				}
 				else if (isPluralOrMapAttribute(attribute))
 				{
@@ -718,7 +774,7 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 				}
 				break;
 			}
-			case MoreThan:
+			case GreaterThan:
 			{
 				if (isSingularAttribute(attribute))
 				{
@@ -730,7 +786,7 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 				}
 				break;
 			}
-			case MoreThanEqualTo:
+			case GreaterThanEqualTo:
 			{
 				if (isSingularAttribute(attribute))
 				{

@@ -3,10 +3,13 @@ package za.co.mmagon.entityassist;
 import com.armineasy.injection.GuiceContext;
 import org.junit.jupiter.api.Test;
 import za.co.mmagon.entityassist.entities.EntityClass;
+import za.co.mmagon.entityassist.entities.EntityClassTwo_;
 import za.co.mmagon.entityassist.entities.EntityClass_;
 import za.co.mmagon.entityassist.enumerations.Operand;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.JoinType;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,22 +53,8 @@ public class TestEntities
 		System.out.println("Number of all rows : " + ec.builder().selectCount().getCount());
 
 		List<EntityClass> numberofresults = ec.builder()
-				                                    // .selectCount()
-				                                    //    .selectCountDistinct(EntityClass_.id)
-				                      /* .selectColumn(EntityClass_.activeFlag)
-				                       .selectMax(EntityClass_.id)
-				                       .selectMin(EntityClass_.id)
-				                       .selectSum(EntityClass_.id)
-				                       .selectAverage(EntityClass_.id)
-				                       .selectSumAsLong(EntityClass_.id)
-				                       .selectSumAsDouble(EntityClass_.id)*/
-				                                    //  .where(EntityClass_.id, Operand.NotNull, null)
 				                                    .where(EntityClass_.id, Operand.InList, 2L)
-				                                    //  .where(EntityClass_.id, Operand.MoreThanEqualTo, 2L)
-				                                    //  .groupBy(EntityClass_.id)
-				                                    .getAll()
-				//.get();
-				;
+				                                    .getAll();
 		System.out.println("Wow that returned : " + numberofresults);
 	}
 
@@ -122,7 +111,7 @@ public class TestEntities
 		List resultList = new ArrayList();
 		resultList.add(8);
 		resultList.add(9);
-		long resultCount = ec.builder().where(EntityClass_.id, Operand.MoreThanEqualTo, 8)
+		long resultCount = ec.builder().where(EntityClass_.id, Operand.GreaterThanEqualTo, 8)
 				                   .where(EntityClass_.id, Operand.InList, resultList)
 				                   .selectCount().getCount();
 		assertEquals(2L, resultCount);
@@ -143,7 +132,7 @@ public class TestEntities
 		List resultList = new ArrayList();
 		resultList.add(10);
 		resultList.add(11);
-		long resultCount = ec.builder().where(EntityClass_.id, Operand.MoreThan, 10)
+		long resultCount = ec.builder().where(EntityClass_.id, Operand.GreaterThan, 10)
 				                   .where(EntityClass_.id, Operand.InList, resultList)
 				                   .selectCount().getCount();
 		assertEquals(1L, resultCount);
@@ -236,6 +225,45 @@ public class TestEntities
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder().getAll();
 		if (list.size() < 1)
+		{
+			fail("Rows not inserted?");
+		}
+	}
+
+	@Test
+	public void testJoin()
+	{
+		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		System.out.println("EM Open : " + em.isOpen());
+		List<EntityClass> list = new EntityClass().builder()
+				                         .join(EntityClassTwo_.entityClass)
+				                         .getAll();
+		if (!list.isEmpty())
+		{
+			fail("Rows not inserted?");
+		}
+	}
+
+	@Test
+	public void testJoinLeft()
+	{
+		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		System.out.println("EM Open : " + em.isOpen());
+		List<EntityClass> list = new EntityClass().builder()
+				                         .join(EntityClassTwo_.entityClass, JoinType.LEFT)
+				                         .getAll();
+	}
+
+	@Test
+	public void testInRangeSpecified()
+	{
+		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		System.out.println("EM Open : " + em.isOpen());
+		List<EntityClass> list = new EntityClass().builder()
+				                         .inDateRange(LocalDateTime.now(), LocalDateTime.now())
+				                         .join(EntityClassTwo_.entityClass, JoinType.LEFT)
+				                         .getAll();
+		if (!list.isEmpty())
 		{
 			fail("Rows not inserted?");
 		}

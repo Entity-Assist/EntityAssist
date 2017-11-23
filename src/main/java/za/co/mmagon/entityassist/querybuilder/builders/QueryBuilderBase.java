@@ -4,10 +4,7 @@ import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.Provider;
 
 import javax.annotation.Nullable;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.MapAttribute;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
@@ -219,6 +216,18 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	protected boolean isPluralOrMapAttribute(Attribute attribute)
 	{
 		return isPluralAttribute(attribute) || isMapAttribute(attribute);
+	}
+
+	/**
+	 * Returns if the attribute is plural or map
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	protected boolean isCollectionAttribute(Attribute attribute)
+	{
+		return CollectionAttribute.class.isAssignableFrom(attribute.getClass());
 	}
 
 	/**

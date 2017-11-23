@@ -3,10 +3,7 @@ package za.co.mmagon.entityassist.entities;
 import za.co.mmagon.entityassist.CoreEntity;
 import za.co.mmagon.entityassist.entities.builders.EntityClassBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table
@@ -15,6 +12,10 @@ public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Lon
 	@Id
 	@Column(name = "id")
 	private Long id;
+
+	@OneToOne
+	@JoinColumn(name = "entityClass")
+	private EntityClassTwo entityClass;
 
 	@Override
 	public Long getId()
@@ -33,6 +34,16 @@ public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Lon
 	{
 		this.id = id;
 		return this;
+	}
+
+	public EntityClassTwo getEntityClass()
+	{
+		return entityClass;
+	}
+
+	public void setEntityClass(EntityClassTwo entityClass)
+	{
+		this.entityClass = entityClass;
 	}
 
 	@Override

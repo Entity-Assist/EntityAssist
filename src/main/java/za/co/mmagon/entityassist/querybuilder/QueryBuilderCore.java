@@ -1,15 +1,15 @@
 package za.co.mmagon.entityassist.querybuilder;
 
-import com.armineasy.injection.GuiceContext;
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.ActiveFlag;
 import za.co.mmagon.entityassist.querybuilder.builders.QueryBuilderExecutor;
 
-import javax.persistence.Id;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @param <J>
@@ -22,39 +22,7 @@ import java.util.*;
 public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 		extends QueryBuilderExecutor<J, E, I>
 {
-	/**
-	 * Where the "id" field is in
-	 *
-	 * @param id
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J find(I id)
-	{
-		Optional<Field> idField = GuiceContext.reflect().getFieldAnnotatedWithOfType(Id.class, id.getClass(), getEntityClass());
-		if (!idField.isPresent())
-		{
-			Field[] fields = getEntityClass().getDeclaredFields();
-			for (Field field : fields)
-			{
-				if (field.isAnnotationPresent(Id.class))
-				{
-					idField = Optional.of(field);
-				}
-			}
-		}
 
-		if (idField.isPresent())
-		{
-			getFilters().add(getRoot().get(idField.get().getName()).in(id));
-		}
-		else
-		{
-			getFilters().add(getRoot().get("id").in(id));
-		}
-		return (J) this;
-	}
 
 	@SuppressWarnings("unchecked")
 	public J inActiveRange()
@@ -111,5 +79,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), toDate));
 		return (J) this;
 	}
+
 
 }

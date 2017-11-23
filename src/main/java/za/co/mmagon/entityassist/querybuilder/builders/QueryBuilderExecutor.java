@@ -86,6 +86,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public Long getCount()
 	{
 		if (!selected)
