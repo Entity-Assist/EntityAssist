@@ -206,7 +206,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	protected boolean isSingularAttribute(Attribute attribute)
 	{
-		return attribute.getClass().isAssignableFrom(SingularAttribute.class);
+		return SingularAttribute.class.isAssignableFrom(attribute.getClass());
 	}
 
 	/**
@@ -230,7 +230,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	protected boolean isPluralAttribute(Attribute attribute)
 	{
-		return attribute.getClass().isAssignableFrom(PluralAttribute.class);
+		return PluralAttribute.class.isAssignableFrom(attribute.getClass());
 	}
 
 	/**
@@ -242,6 +242,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	protected boolean isMapAttribute(Attribute attribute)
 	{
-		return attribute.getClass().isAssignableFrom(MapAttribute.class);
+		return MapAttribute.class.isAssignableFrom(attribute.getClass());
 	}
 }

@@ -40,4 +40,6 @@ public enum ActiveFlag
 	 */
 	Always,
 	Permanent
+
+
 }

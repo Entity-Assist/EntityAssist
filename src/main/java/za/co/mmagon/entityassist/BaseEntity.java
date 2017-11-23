@@ -343,11 +343,10 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @param connection
 	 * @param insertString
-	 *
 	 */
 	private void performInsert(Connection connection, String insertString)
 	{
-		String escaped = StringUtils.replace(insertString, "'", "''");
+		String escaped = StringUtils.replace(insertString, STRING_SINGLE_QUOTES, STRING_SINGLE_QUOTES_TWICE);
 		try (PreparedStatement statement = connection.prepareStatement(escaped, Statement.RETURN_GENERATED_KEYS))
 		{
 			int affectedRows = statement.executeUpdate();
@@ -357,20 +356,25 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 			}
 			try (ResultSet generatedKeys = statement.getGeneratedKeys())
 			{
-				if (generatedKeys.next())
-				{
-					Object o = generatedKeys.getObject(1);
-					processId(generatedKeys, o);
-				}
-				else
-				{
-					throw new SQLException("Creating user failed, no ID obtained.");
-				}
+				iterateThroughResultSetForGeneratedIDs(generatedKeys);
 			}
 		}
 		catch (SQLException sql)
 		{
 			log.log(Level.SEVERE, "Fix the query....", sql);
+		}
+	}
+
+	private void iterateThroughResultSetForGeneratedIDs(ResultSet generatedKeys) throws SQLException
+	{
+		if (generatedKeys.next())
+		{
+			Object o = generatedKeys.getObject(1);
+			processId(generatedKeys, o);
+		}
+		else
+		{
+			throw new SQLException("Creating user failed, no ID obtained.");
 		}
 	}
 

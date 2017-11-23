@@ -12,7 +12,6 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
@@ -87,6 +86,42 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 	}
 
+	public Long getCount()
+	{
+		if (!selected)
+		{
+			select();
+		}
+
+		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		TypedQuery<Long> query = em.createQuery(getCriteriaQuery());
+
+		String sqlQuery = getCriteriaBuilderString(query, em);
+		log.info(sqlQuery);
+		Long j = null;
+		try
+		{
+			j = query.getSingleResult();
+			return j;
+		}
+		catch (NoResultException nre)
+		{
+			log.log(Level.WARNING, "Couldn''t find object with name : " + getClass().getName() + "}\n", nre);
+			return 0L;
+		}
+	}
+
+
+	/**
+	 * Returns a non-distinct list and returns an empty optional if a non-unique-result exception is thrown
+	 *
+	 * @return
+	 */
+	public Optional<E> get()
+	{
+		return get(false);
+	}
+
 	/**
 	 * Prepares the select statement
 	 *
@@ -104,15 +139,9 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 
 		CriteriaQuery<E> cq = getCriteriaQuery();
 
-		if (!getSelections().isEmpty())
-		{
-			for (Selection selection : getSelections())
-			{
-				cq.select(selection);
-			}
-		}
-
 		getCriteriaQuery().where(preds);
+
+
 		if (!getGroupBys().isEmpty())
 		{
 			for (Expression p : getGroupBys())
@@ -132,29 +161,17 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		if (!getOrderBys().isEmpty())
 		{
 			getOrderBys().forEach((key, value) -> processOrderBys(key, value, cq));
-
-			if (getSelections().isEmpty())
-			{
-				getCriteriaQuery().select(getRoot());
-			}
-			else
-			{
-				getSelections().forEach(a -> getCriteriaQuery().select(a));
-			}
+		}
+		if (getSelections().isEmpty())
+		{
+			getCriteriaQuery().select(getRoot());
+		}
+		else
+		{
+			getSelections().forEach(a -> getCriteriaQuery().select(a));
 		}
 		selected = true;
 		return (J) this;
-	}
-
-
-	/**
-	 * Returns a non-distinct list and returns an empty optional if a non-unique-result exception is thrown
-	 *
-	 * @return
-	 */
-	public Optional<E> get()
-	{
-		return get(false);
 	}
 
 	/**

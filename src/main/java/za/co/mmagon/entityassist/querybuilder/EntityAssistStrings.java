@@ -10,6 +10,7 @@ public interface EntityAssistStrings
 	String STRING_TAB = "\t";
 	String STRING_NEWLINE_TEXT = "\n";
 	String STRING_SINGLE_QUOTES = "'";
+	String STRING_SINGLE_QUOTES_TWICE = "''";
 	String STRING_DOUBLE_QUOTES = "\"";
 	String STRING_DOUBLE_QUOTES_SPACE = "\" ";
 	String STRING_EQUALS_DOUBLE_QUOTES = "=\"";

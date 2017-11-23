@@ -76,6 +76,7 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.hibernate:hibernate-c3p0:5.2.12.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.mchange:c3p0:0.9.5.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.mchange:mchange-commons-java:0.2.11" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.hibernate:hibernate-jpamodelgen:5.2.12.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.hibernate:hibernate-validator:5.4.2.Final" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:1.1.0.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: jaxen:jaxen:1.1.6" level="project" />

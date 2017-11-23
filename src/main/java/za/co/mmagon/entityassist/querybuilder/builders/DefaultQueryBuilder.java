@@ -558,11 +558,11 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().equal(getRoot().get(SingularAttribute.class.cast(attribute)), value));
+					getFilters().add(getCriteriaBuilder().equal(getRoot().get(SingularAttribute.class.cast(attribute)), value));
 				}
 				else if (isPluralOrMapAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().equal(getRoot().get(PluralAttribute.class.cast(attribute)), value));
+					getFilters().add(getCriteriaBuilder().equal(getRoot().get(PluralAttribute.class.cast(attribute)), value));
 				}
 				break;
 			}
@@ -570,11 +570,11 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().isNull(getRoot().get(SingularAttribute.class.cast(attribute))));
+					getFilters().add(getCriteriaBuilder().isNull(getRoot().get(SingularAttribute.class.cast(attribute))));
 				}
 				else if (isPluralOrMapAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().isNull(getRoot().get(PluralAttribute.class.cast(attribute))));
+					getFilters().add(getCriteriaBuilder().isNull(getRoot().get(PluralAttribute.class.cast(attribute))));
 				}
 				break;
 			}
@@ -582,11 +582,11 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().isNotEmpty(getRoot().get(SingularAttribute.class.cast(attribute))));
+					getFilters().add(getCriteriaBuilder().isNotNull(getRoot().get(SingularAttribute.class.cast(attribute))));
 				}
 				else if (isPluralOrMapAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().isNotEmpty(getRoot().get(PluralAttribute.class.cast(attribute))));
+					getFilters().add(getCriteriaBuilder().isNotNull(getRoot().get(PluralAttribute.class.cast(attribute))));
 				}
 				break;
 			}
@@ -594,11 +594,11 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().notEqual(getRoot().get(SingularAttribute.class.cast(attribute)), value));
+					getFilters().add(getCriteriaBuilder().notEqual(getRoot().get(SingularAttribute.class.cast(attribute)), value));
 				}
 				else if (isPluralOrMapAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().notEqual(getRoot().get(PluralAttribute.class.cast(attribute)), value));
+					getFilters().add(getCriteriaBuilder().notEqual(getRoot().get(PluralAttribute.class.cast(attribute)), value));
 				}
 				break;
 			}
@@ -606,11 +606,17 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getCriteriaQuery().where(getRoot().get(SingularAttribute.class.cast(attribute)).in(value));
+					Path<Object> path = getRoot().get(SingularAttribute.class.cast(attribute));
+					CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
+					buildInObject(in, value);
+					getFilters().add(in);
 				}
 				else if (isPluralOrMapAttribute(attribute))
 				{
-					getCriteriaQuery().where(getRoot().get(PluralAttribute.class.cast(attribute)).in(value));
+					Expression<Object> path = getRoot().get(PluralAttribute.class.cast(attribute));
+					CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
+					buildInObject(in, value);
+					getFilters().add(in);
 				}
 				break;
 			}
@@ -628,6 +634,56 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	}
 
 	/**
+	 * Builds the in cluase query
+	 *
+	 * @param inClause
+	 * 		The in clause to add the values to
+	 * @param object
+	 *
+	 * @return
+	 */
+	private Set buildInObject(CriteriaBuilder.In<Object> inClause, @NotNull Object object)
+	{
+		boolean isArray = object.getClass().isArray();
+		boolean isCollection = Collection.class.isAssignableFrom(object.getClass());
+		boolean isMap = Map.class.isAssignableFrom(object.getClass());
+
+		if (!(isArray || isCollection || isMap))
+		{
+			log.warning("Where In List Clause was not an array collection or map");
+			return new HashSet();
+		}
+
+		Set output = new LinkedHashSet();
+		if (isArray)
+		{
+			for (Object o : (Object[]) object)
+			{
+				output.add(o);
+			}
+		}
+		if (isCollection)
+		{
+			for (Object o : (Collection) object)
+			{
+				output.add(o);
+			}
+		}
+		if (isMap)
+		{
+			Map.class.cast(object).forEach((key, value) ->
+			                               {
+			                               });
+		}
+
+		for (Object o : output)
+		{
+			inClause.value(o);
+		}
+		return output;
+	}
+
+	/**
 	 * Performs a filter on the database with the where clauses
 	 *
 	 * @param attribute
@@ -641,7 +697,7 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	 */
 	@NotNull
 	@SuppressWarnings("unchecked")
-	private J where(Attribute attribute, Operand operator, Number value)
+	private <N extends Number> J where(Attribute attribute, Operand operator, N value)
 	{
 		switch (operator)
 		{
@@ -649,11 +705,11 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().lt(getRoot().get((SingularAttribute) attribute), value));
+					getFilters().add(getCriteriaBuilder().lt(getRoot().get((SingularAttribute) attribute), value));
 				}
 				else if (isPluralOrMapAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().lt(getRoot().get((PluralAttribute) attribute), value));
+					getFilters().add(getCriteriaBuilder().lt(getRoot().get((PluralAttribute) attribute), value));
 				}
 				break;
 			}
@@ -661,11 +717,12 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().lt(getRoot().get((SingularAttribute) attribute), value));
+					Expression<? extends Number> path = getRoot().get(SingularAttribute.class.cast(attribute));
+					getFilters().add(getCriteriaBuilder().le(path,value));
 				}
 				else if (isPluralOrMapAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().lt(getRoot().get((PluralAttribute) attribute), value));
+					getFilters().add(getCriteriaBuilder().le(getRoot().get((PluralAttribute) attribute), value));
 				}
 				break;
 			}
@@ -673,11 +730,11 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((SingularAttribute) attribute), value));
+					getFilters().add(getCriteriaBuilder().gt(getRoot().get((SingularAttribute) attribute), value));
 				}
 				else if (isPluralOrMapAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((PluralAttribute) attribute), value));
+					getFilters().add(getCriteriaBuilder().gt(getRoot().get((PluralAttribute) attribute), value));
 				}
 				break;
 			}
@@ -685,11 +742,11 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((SingularAttribute) attribute), value));
+					getFilters().add(getCriteriaBuilder().ge(getRoot().get((SingularAttribute) attribute), value));
 				}
 				else if (isPluralOrMapAttribute(attribute))
 				{
-					getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((PluralAttribute) attribute), value));
+					getFilters().add(getCriteriaBuilder().ge(getRoot().get((PluralAttribute) attribute), value));
 				}
 				break;
 			}
@@ -698,16 +755,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 				break;
 			}
 		}
-
-		if (isSingularAttribute(attribute))
-		{
-			getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((SingularAttribute) attribute), value));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getCriteriaQuery().where(getCriteriaBuilder().gt(getRoot().get((PluralAttribute) attribute), value));
-		}
-
 		return (J) this;
 	}
 

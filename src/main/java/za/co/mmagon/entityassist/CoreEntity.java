@@ -186,7 +186,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	public Optional<J> find(I id)
 	{
-		return builder().find(id).select().get();
+		return builder().find(id).get();
 	}
 
 	/**
@@ -196,7 +196,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	public List<J> findAll()
 	{
-		return builder().select().getAll();
+		return builder().getAll();
 	}
 
 	/**

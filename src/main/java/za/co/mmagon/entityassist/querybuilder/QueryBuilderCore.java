@@ -9,9 +9,7 @@ import javax.persistence.Id;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @param <J>
@@ -61,7 +59,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	@SuppressWarnings("unchecked")
 	public J inActiveRange()
 	{
-		List<ActiveFlag> flags = new ArrayList<>();
+		Set<ActiveFlag> flags = new LinkedHashSet<>();
 		for (ActiveFlag flag : ActiveFlag.values())
 		{
 			if (flag.ordinal() >= ActiveFlag.Active.ordinal())
