@@ -604,20 +604,19 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 			}
 			case InList:
 			{
+				CriteriaBuilder.In<Object> in = null;
+				Expression<Object> path = null;
 				if (isSingularAttribute(attribute))
 				{
-					Path<Object> path = getRoot().get(SingularAttribute.class.cast(attribute));
-					CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
-					buildInObject(in, value);
-					getFilters().add(in);
+					path = getRoot().get(SingularAttribute.class.cast(attribute));
 				}
 				else if (isPluralOrMapAttribute(attribute))
 				{
-					Expression<Object> path = getRoot().get(PluralAttribute.class.cast(attribute));
-					CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
-					buildInObject(in, value);
-					getFilters().add(in);
+					path = getRoot().get(PluralAttribute.class.cast(attribute));
 				}
+				in = getCriteriaBuilder().in(path);
+				buildInObject(in, value);
+				getFilters().add(in);
 				break;
 			}
 			case LessThan:
@@ -669,13 +668,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 				output.add(o);
 			}
 		}
-		if (isMap)
-		{
-			Map.class.cast(object).forEach((key, value) ->
-			                               {
-			                               });
-		}
-
 		for (Object o : output)
 		{
 			inClause.value(o);
