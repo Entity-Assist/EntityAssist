@@ -89,7 +89,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * @return
 	 */
 	@SuppressWarnings("all")
-	protected LocalDateTime getEffectiveFromDate()
+	public LocalDateTime getEffectiveFromDate()
 	{
 		return effectiveFromDate;
 	}
@@ -111,7 +111,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	protected J setEffectiveFromDate(@NotNull LocalDateTime effectiveFromDate)
+	public J setEffectiveFromDate(@NotNull LocalDateTime effectiveFromDate)
 	{
 		this.effectiveFromDate = effectiveFromDate;
 		return (J) this;
@@ -124,7 +124,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	@Nullable
 	@SuppressWarnings("all")
-	protected LocalDateTime getEffectiveToDate()
+	public LocalDateTime getEffectiveToDate()
 	{
 		return effectiveToDate;
 	}
@@ -138,7 +138,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	protected J setEffectiveToDate(@NotNull LocalDateTime effectiveToDate)
+	public J setEffectiveToDate(@NotNull LocalDateTime effectiveToDate)
 	{
 		this.effectiveToDate = effectiveToDate;
 		return (J) this;
@@ -158,7 +158,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @return
 	 */
-	protected ActiveFlag getActiveFlag()
+	public ActiveFlag getActiveFlag()
 	{
 		return activeFlag;
 	}
@@ -171,7 +171,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	protected J setActiveFlag(ActiveFlag activeFlag)
+	public J setActiveFlag(ActiveFlag activeFlag)
 	{
 		this.activeFlag = activeFlag;
 		return (J) this;
@@ -205,7 +205,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * @return
 	 */
 	@Nullable
-	protected LocalDateTime getWarehouseCreatedTimestamp()
+	public LocalDateTime getWarehouseCreatedTimestamp()
 	{
 		return warehouseCreatedTimestamp;
 	}
@@ -219,7 +219,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	protected J setWarehouseCreatedTimestamp(@NotNull LocalDateTime warehouseCreatedTimestamp)
+	public J setWarehouseCreatedTimestamp(@NotNull LocalDateTime warehouseCreatedTimestamp)
 	{
 		this.warehouseCreatedTimestamp = warehouseCreatedTimestamp;
 		return (J) this;
@@ -232,7 +232,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	@Nullable
 	@SuppressWarnings("all")
-	protected LocalDateTime getWarehouseLastUpdatedTimestamp()
+	public LocalDateTime getWarehouseLastUpdatedTimestamp()
 	{
 		return warehouseLastUpdatedTimestamp;
 	}
@@ -246,7 +246,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	protected J setWarehouseLastUpdatedTimestamp(@NotNull LocalDateTime warehouseLastUpdatedTimestamp)
+	public J setWarehouseLastUpdatedTimestamp(@NotNull LocalDateTime warehouseLastUpdatedTimestamp)
 	{
 		this.warehouseLastUpdatedTimestamp = warehouseLastUpdatedTimestamp;
 		return (J) this;
@@ -258,7 +258,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * @return
 	 */
 	@Nullable
-	protected String getReferenceId()
+	public String getReferenceId()
 	{
 		return referenceId;
 	}
@@ -270,7 +270,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	protected J setReferenceId(@NotNull String referenceId)
+	public J setReferenceId(@NotNull String referenceId)
 	{
 		this.referenceId = referenceId;
 		return (J) this;

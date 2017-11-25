@@ -23,9 +23,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static za.co.mmagon.entityassist.querybuilder.statements.SelectStatement.getSelectSQLEclipseLink;
-import static za.co.mmagon.entityassist.querybuilder.statements.SelectStatement.getSelectSQLHibernate5;
-
 public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 		extends DefaultQueryBuilder<J, E, I>
 {
@@ -53,9 +50,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		TypedQuery<E> query = em.createQuery(getCriteriaQuery());
-
-		String sqlQuery = getCriteriaBuilderString(query, em);
-		log.info(sqlQuery);
 		E j = null;
 		try
 		{
@@ -97,8 +91,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		TypedQuery<Long> query = em.createQuery(getCriteriaQuery());
 
-		String sqlQuery = getCriteriaBuilderString(query, em);
-		log.info(sqlQuery);
 		Long j = null;
 		try
 		{
@@ -175,37 +167,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		return (J) this;
 	}
 
-	/**
-	 * Switches between the return and build commands
-	 *
-	 * @param query
-	 * @param em
-	 *
-	 * @return
-	 */
-	private String getCriteriaBuilderString(TypedQuery query, EntityManager em)
-	{
-		switch (getProvider())
-		{
-			case EcliseLink:
-			{
-				return getSelectSQLEclipseLink(query, em);
-			}
-			case Hibernate3:
-			case Hibernate4:
-			case Hibernate5:
-			case Hibernate5jre8:
-			{
-				return getSelectSQLHibernate5(getCriteriaQuery(), em);
-			}
-			default:
-			{
-				break;
-			}
-		}
-		return "";
-	}
-
 	@SuppressWarnings("unchecked")
 	private void processOrderBys(Attribute key, OrderByType value, CriteriaQuery cq)
 	{
@@ -263,9 +224,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		{
 			query.setFirstResult(getFirstResults());
 		}
-
-		String sqlQuery = getCriteriaBuilderString(query, em);
-		log.info(sqlQuery);
 		List<E> j;
 		j = query.getResultList();
 		for (Object j1 : j)

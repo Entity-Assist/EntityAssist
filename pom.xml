@@ -148,6 +148,7 @@
         <maven.javadoc.version>2.10.4</maven.javadoc.version>
         <maven.source.version>2.1.2</maven.source.version>
         <maven.resources.version>3.0.2</maven.resources.version>
+        <maven.deploy.version></maven.deploy.version>
         <netbeans.hint.license>gpl30</netbeans.hint.license>
 
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -178,6 +179,11 @@
                 <version>3.3.0.603</version>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.5.201505241946</version>
@@ -202,6 +208,12 @@
         </dependency>
 
         <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+            <version>2.2</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.1</version>
@@ -209,28 +221,23 @@
         </dependency>
 
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-            <version>7.0</version>
-            <scope>provided</scope>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
             <groupId>javax.el</groupId>
             <artifactId>javax.el-api</artifactId>
             <version>3.0.0</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.glassfish.web</groupId>
-            <artifactId>el-impl</artifactId>
-            <version>2.2</version>
-            <scope>provided</scope>
-            <type>jar</type>
+            <artifactId>javax.el</artifactId>
+            <version>2.2.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>5.4.2.Final</version>
+            <type>jar</type>
+        </dependency>
 
         <!-- Hibernate -->
 
@@ -239,7 +246,7 @@
             <artifactId>hibernate-core</artifactId>
             <version>5.2.12.Final</version>
             <type>jar</type>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -247,7 +254,7 @@
             <artifactId>hibernate-annotations</artifactId>
             <version>3.5.6-Final</version>
             <type>jar</type>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -255,7 +262,7 @@
             <artifactId>hibernate-jpa-2.1-api</artifactId>
             <version>1.0.0.Final</version>
             <type>jar</type>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -263,7 +270,7 @@
             <artifactId>hibernate-c3p0</artifactId>
             <version>5.2.12.Final</version>
             <type>jar</type>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -271,15 +278,7 @@
             <artifactId>hibernate-jpamodelgen</artifactId>
             <version>5.2.12.Final</version>
             <type>jar</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>5.4.2.Final</version>
-            <type>jar</type>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -287,42 +286,8 @@
             <artifactId>jaxen</artifactId>
             <version>1.1.6</version>
             <type>jar</type>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
-
-        <!-- Eclipse Link -->
-
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>javax.persistence</artifactId>
-            <version>2.2.0</version>
-            <type>jar</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>eclipselink</artifactId>
-            <version>2.7.0</version>
-            <type>jar</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>org.eclipse.persistence.jpa</artifactId>
-            <version>2.7.0</version>
-            <type>jar</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <!--<dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>org.eclipse.persistence.jpa.modelgen.processor</artifactId>
-            <version>2.7.0</version>
-            <type>jar</type>
-            <scope>provided</scope>
-        </dependency>-->
 
         <!-- Test Dependencies -->
         <dependency>
@@ -364,7 +329,6 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-
     </dependencies>
 
 

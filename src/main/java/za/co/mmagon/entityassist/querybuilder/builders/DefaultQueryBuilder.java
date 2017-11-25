@@ -122,43 +122,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	}
 
 	/**
-	 * Joins a specific attribute
-	 *
-	 * @param attribute
-	 * @param <X>
-	 * @param <Y>
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public <X, Y> J join(Attribute<X, Y> attribute, JoinType joinType, Predicate... onFilters)
-	{
-		if (onFilters != null && onFilters.length > 0)
-		{
-			Join join = null;
-			if (isSingularAttribute(attribute))
-			{
-				join = getRoot().join(SingularAttribute.class.cast(attribute), joinType);
-			}
-			else if (isCollectionAttribute(attribute))
-			{
-				join = getRoot().join(CollectionAttribute.class.cast(attribute), joinType);
-			}
-			else if (isMapAttribute(attribute))
-			{
-				join = getRoot().join(MapAttribute.class.cast(attribute), joinType);
-			}
-			else
-			{
-				join = getRoot().join(attribute.getName(), joinType);
-			}
-			join.on(onFilters);
-		}
-		return (J) this;
-	}
-
-
-	/**
 	 * Gets my given root
 	 *
 	 * @return

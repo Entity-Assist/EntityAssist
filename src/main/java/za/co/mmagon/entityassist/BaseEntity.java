@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.jdbc.Work;
 import za.co.mmagon.entityassist.querybuilder.EntityAssistStrings;
 import za.co.mmagon.entityassist.querybuilder.builders.QueryBuilderBase;
 import za.co.mmagon.entityassist.querybuilder.statements.InsertStatement;
@@ -213,37 +212,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 			}
 			else
 			{
-				java.sql.Connection connection = null;
-				switch (builder().getProvider())
-				{
-					case Hibernate3:
-					case Hibernate4:
-					case Hibernate5:
-					case Hibernate5jre8:
-					{
-						org.hibernate.Session session = entityManager.unwrap(org.hibernate.Session.class);
-						session.doWork(new Work()
-						{
-							@Override
-							public void execute(Connection innerConnection) throws SQLException
-							{
-								performInsert(innerConnection, insertString);
-							}
-						});
-						break;
-					}
-					case EcliseLink:
-					{
-						connection = entityManager.unwrap(java.sql.Connection.class);
-						performInsert(connection, insertString);
-						break;
-					}
-					default:
-					{
-						break;
-					}
-				}
-				entityManager.getTransaction().commit();
+				log.warning("Still doing detached inserts, you can use the performInsert() method currently to generate the sql statement.");
 			}
 			setFake(false);
 		}
@@ -344,7 +313,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 * @param connection
 	 * @param insertString
 	 */
-	private void performInsert(Connection connection, String insertString)
+	public void performInsert(Connection connection, String insertString)
 	{
 		String escaped = StringUtils.replace(insertString, STRING_SINGLE_QUOTES, STRING_SINGLE_QUOTES_TWICE);
 		try (PreparedStatement statement = connection.prepareStatement(escaped, Statement.RETURN_GENERATED_KEYS))
