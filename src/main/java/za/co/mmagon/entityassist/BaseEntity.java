@@ -10,6 +10,7 @@ import za.co.mmagon.entityassist.querybuilder.statements.InsertStatement;
 
 import javax.persistence.EntityManager;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Query;
 import javax.persistence.Transient;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -19,6 +20,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -194,21 +196,27 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 			List<String> errors = validateEntity();
 			if (!errors.isEmpty())
 			{
-				throw new SQLException("Constraint Violations in Persist");
+				log.warning("Constraint Errors Occured, Validation might fail : " + errors);
 			}
-
 			String insertString = InsertStatement.buildInsertString(this);
 			log.info(insertString);
 			EntityManager entityManager = getInstance(EntityManager.class);
-
 			if (!entityManager.getTransaction().isActive())
 			{
 				entityManager.getTransaction().begin();
 			}
-
 			if (!isRunDetached())
 			{
-				entityManager.persist(this);
+				entityManager.createNativeQuery(insertString).executeUpdate();
+				if (isIdGenerated())
+				{
+					Query statmentSelectId = entityManager.createNativeQuery("CALL SCOPE_IDENTITY();"); //h2
+					//Query statmentSelectId = entityManager.createNativeQuery("SELECT @@SCOPE_INDENTITY"); //mysql
+					//Query statmentSelectId = entityManager.createNativeQuery("SELECT @@IDENTITY"); //microsoft sql
+					BigInteger generatedId = ((BigInteger) statmentSelectId.getSingleResult());
+					setId((I) (Long) generatedId.longValue());
+					entityManager.getTransaction().commit();
+				}
 			}
 			else
 			{
@@ -259,7 +267,6 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 
 		if (!constraintViolations.isEmpty())
 		{
-			log.info("Constraint Violations Occured\n");
 			for (Object constraintViolation : constraintViolations)
 			{
 				ConstraintViolation contraints = (ConstraintViolation) constraintViolation;

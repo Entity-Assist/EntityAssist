@@ -59,7 +59,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 		catch (NoResultException nre)
 		{
-			log.log(Level.WARNING, "Couldn''t find object with name : " + getClass().getName() + "}\n", nre);
+			log.log(Level.WARNING, "Couldn't find object with name : " + getClass().getName() + "}\n", nre);
 			return Optional.empty();
 		}
 		catch (NonUniqueResultException nure)
