@@ -95,14 +95,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	}
 
 	/**
-	 * Performs the onCreate method setting the effective to date if it wasn't null, the effective from date if it wasn't set and the active flag derived
-	 */
-	@PrePersist
-	public void onCreate()
-	{
-	}
-
-	/**
 	 * Sets the effective from date value for default value
 	 *
 	 * @param effectiveFromDate
@@ -115,6 +107,23 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	{
 		this.effectiveFromDate = effectiveFromDate;
 		return (J) this;
+	}
+
+	/**
+	 * Performs the onCreate method setting the effective to date if it wasn't null, the effective from date if it wasn't set and the active flag derived
+	 */
+	@PrePersist
+	public void onCreate()
+	{
+	}
+
+	/**
+	 * Performs the update command for entities
+	 */
+	@PreUpdate
+	public void onUpdate()
+	{
+		setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 	}
 
 	/**
@@ -142,15 +151,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	{
 		this.effectiveToDate = effectiveToDate;
 		return (J) this;
-	}
-
-	/**
-	 * Performs the update command for entities
-	 */
-	@PreUpdate
-	public void onUpdate()
-	{
-		setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 	}
 
 	/**

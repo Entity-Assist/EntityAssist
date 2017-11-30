@@ -17,25 +17,6 @@ public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Lon
 	@JoinColumn(name = "entityClass")
 	private EntityClassTwo entityClass;
 
-	@Override
-	public Long getId()
-	{
-		return id;
-	}
-
-	@Override
-	protected boolean isIdGenerated()
-	{
-		return true;
-	}
-
-	@Override
-	public EntityClass setId(Long id)
-	{
-		this.id = id;
-		return this;
-	}
-
 	public EntityClassTwo getEntityClass()
 	{
 		return entityClass;
@@ -50,5 +31,24 @@ public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Lon
 	public String toString()
 	{
 		return "EntityTest : " + getId();
+	}
+
+	@Override
+	public Long getId()
+	{
+		return id;
+	}
+
+	@Override
+	public EntityClass setId(Long id)
+	{
+		this.id = id;
+		return this;
+	}
+
+	@Override
+	protected boolean isIdGenerated()
+	{
+		return true;
 	}
 }

@@ -33,53 +33,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 */
 	private boolean selected;
 
-	/**
-	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from a list with the same criteria
-	 *
-	 * @param returnFirst
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public Optional<E> get(boolean returnFirst)
-	{
-		if (!selected)
-		{
-			select();
-		}
-
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
-		TypedQuery<E> query = em.createQuery(getCriteriaQuery());
-		E j = null;
-		try
-		{
-			j = query.getSingleResult();
-			j.setFake(false);
-			return Optional.of(j);
-		}
-		catch (NoResultException nre)
-		{
-			log.log(Level.WARNING, "Couldn't find object with name : " + getClass().getName() + "}\n", nre);
-			return Optional.empty();
-		}
-		catch (NonUniqueResultException nure)
-		{
-			log.log(Level.FINE, "Get didn't return a single result\n", nure);
-			if (returnFirst)
-			{
-				List<E> returnedList = query.getResultList();
-				j = returnedList.get(0);
-				em.detach(j);
-				j.setFake(false);
-				return Optional.of(j);
-			}
-			else
-			{
-				return Optional.empty();
-			}
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	public Long getCount()
 	{
@@ -102,17 +55,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			log.log(Level.WARNING, "Couldn''t find object with name : " + getClass().getName() + "}\n", nre);
 			return 0L;
 		}
-	}
-
-
-	/**
-	 * Returns a non-distinct list and returns an empty optional if a non-unique-result exception is thrown
-	 *
-	 * @return
-	 */
-	public Optional<E> get()
-	{
-		return get(false);
 	}
 
 	/**
@@ -197,6 +139,63 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 					cq.orderBy(getCriteriaBuilder().asc(getRoot().get(PluralAttribute.class.cast(key))));
 				}
 				break;
+			}
+		}
+	}
+
+	/**
+	 * Returns a non-distinct list and returns an empty optional if a non-unique-result exception is thrown
+	 *
+	 * @return
+	 */
+	public Optional<E> get()
+	{
+		return get(false);
+	}
+
+	/**
+	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from a list with the same criteria
+	 *
+	 * @param returnFirst
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Optional<E> get(boolean returnFirst)
+	{
+		if (!selected)
+		{
+			select();
+		}
+
+		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		TypedQuery<E> query = em.createQuery(getCriteriaQuery());
+		E j = null;
+		try
+		{
+			j = query.getSingleResult();
+			j.setFake(false);
+			return Optional.of(j);
+		}
+		catch (NoResultException nre)
+		{
+			log.log(Level.WARNING, "Couldn't find object with name : " + getClass().getName() + "}\n", nre);
+			return Optional.empty();
+		}
+		catch (NonUniqueResultException nure)
+		{
+			log.log(Level.FINE, "Get didn't return a single result\n", nure);
+			if (returnFirst)
+			{
+				List<E> returnedList = query.getResultList();
+				j = returnedList.get(0);
+				em.detach(j);
+				j.setFake(false);
+				return Optional.of(j);
+			}
+			else
+			{
+				return Optional.empty();
 			}
 		}
 	}

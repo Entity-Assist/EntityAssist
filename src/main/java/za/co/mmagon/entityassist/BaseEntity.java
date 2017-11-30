@@ -79,14 +79,6 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	}
 
 	/**
-	 * If this ID is generated from the source and which form to use
-	 * Default is Generated
-	 *
-	 * @return Returns if the id column is a generated type
-	 */
-	protected abstract boolean isIdGenerated();
-
-	/**
 	 * Any DB Transient Maps
 	 * <p>
 	 * Sets any custom properties for this core entity.
@@ -117,6 +109,28 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	public J setProperties(@NotNull Map<Serializable, Serializable> properties)
 	{
 		this.properties = properties;
+		return (J) this;
+	}
+
+	/**
+	 * Sets the fake property
+	 *
+	 * @param fake
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J setFake(boolean fake)
+	{
+		if (fake)
+		{
+			getProperties().put(FAKE_KEY, fake);
+		}
+		else
+		{
+			getProperties().remove(FAKE_KEY);
+		}
 		return (J) this;
 	}
 
@@ -288,6 +302,14 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	}
 
 	/**
+	 * If this ID is generated from the source and which form to use
+	 * Default is Generated
+	 *
+	 * @return Returns if the id column is a generated type
+	 */
+	protected abstract boolean isIdGenerated();
+
+	/**
 	 * If this entity should run in a detached and separate to the entity manager
 	 *
 	 * @param runDetached
@@ -312,6 +334,33 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
 		return getInstance(foundQueryBuilderClass);
 
+	}
+
+	/**
+	 * Returns this classes associated query builder class
+	 *
+	 * @return
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	protected Class<Q> getClassQueryBuilderClass()
+	{
+		if (queryBuilderClass == null)
+		{
+			try
+			{
+				this.queryBuilderClass = (Class<Q>) ((ParameterizedType) getClass()
+						                                                         .getGenericSuperclass()).getActualTypeArguments()[1];
+			}
+			catch (Exception e)
+			{
+				this.queryBuilderClass = null;
+				log.log(Level.SEVERE, "Cannot return the my query builder class - config seems wrong. Check that a builder is attached to this entity as the second generic field type e.g. \n" +
+						                      "public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>\n\n" +
+						                      "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/za/co/mmagon/entityassist/entities", e);
+			}
+		}
+		return queryBuilderClass;
 	}
 
 	/**
@@ -352,55 +401,6 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 		{
 			throw new SQLException("Creating user failed, no ID obtained.");
 		}
-	}
-
-	/**
-	 * Sets the fake property
-	 *
-	 * @param fake
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J setFake(boolean fake)
-	{
-		if (fake)
-		{
-			getProperties().put(FAKE_KEY, fake);
-		}
-		else
-		{
-			getProperties().remove(FAKE_KEY);
-		}
-		return (J) this;
-	}
-
-	/**
-	 * Returns this classes associated query builder class
-	 *
-	 * @return
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	protected Class<Q> getClassQueryBuilderClass()
-	{
-		if (queryBuilderClass == null)
-		{
-			try
-			{
-				this.queryBuilderClass = (Class<Q>) ((ParameterizedType) getClass()
-						                                                         .getGenericSuperclass()).getActualTypeArguments()[1];
-			}
-			catch (Exception e)
-			{
-				this.queryBuilderClass = null;
-				log.log(Level.SEVERE, "Cannot return the my query builder class - config seems wrong. Check that a builder is attached to this entity as the second generic field type e.g. \n" +
-						                      "public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>\n\n" +
-						                      "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/za/co/mmagon/entityassist/entities", e);
-			}
-		}
-		return queryBuilderClass;
 	}
 
 	@SuppressWarnings("unchecked")

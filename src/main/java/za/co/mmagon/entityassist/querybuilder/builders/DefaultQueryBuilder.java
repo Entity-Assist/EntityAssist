@@ -131,11 +131,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 		return root;
 	}
 
-	protected Set<Predicate> getFilters()
-	{
-		return filters;
-	}
-
 	/**
 	 * Where the field name is equal to the value
 	 *
@@ -152,24 +147,9 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 		return (J) this;
 	}
 
-	/**
-	 * Gets the selections that are going to be applied, leave empty for all columns
-	 *
-	 * @return
-	 */
-	protected Set<Selection> getSelections()
+	protected Set<Predicate> getFilters()
 	{
-		return selections;
-	}
-
-	/**
-	 * Gets the criteria builder
-	 *
-	 * @return
-	 */
-	protected CriteriaBuilder getCriteriaBuilder()
-	{
-		return criteriaBuilder;
+		return filters;
 	}
 
 	/**
@@ -196,16 +176,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	}
 
 	/**
-	 * Gets the havingn list for this builder
-	 *
-	 * @return
-	 */
-	protected Set<Expression> getHaving()
-	{
-		return having;
-	}
-
-	/**
 	 * Returns the current list of order by's
 	 *
 	 * @return
@@ -213,6 +183,16 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	protected Map<Attribute, OrderByType> getOrderBys()
 	{
 		return orderBys;
+	}
+
+	/**
+	 * Gets the havingn list for this builder
+	 *
+	 * @return
+	 */
+	protected Set<Expression> getHaving()
+	{
+		return having;
 	}
 
 	protected Set<Join<E, ? extends BaseEntity>> getJoins()
@@ -228,6 +208,16 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	protected CriteriaQuery getCriteriaQuery()
 	{
 		return criteriaQuery;
+	}
+
+	/**
+	 * Sets the criteria query for this instance
+	 *
+	 * @param criteriaQuery
+	 */
+	protected void setCriteriaQuery(CriteriaQuery criteriaQuery)
+	{
+		this.criteriaQuery = criteriaQuery;
 	}
 
 	/**
@@ -265,16 +255,6 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	}
 
 	/**
-	 * Sets the criteria query for this instance
-	 *
-	 * @param criteriaQuery
-	 */
-	protected void setCriteriaQuery(CriteriaQuery criteriaQuery)
-	{
-		this.criteriaQuery = criteriaQuery;
-	}
-
-	/**
 	 * Selects a given column
 	 *
 	 * @param selectColumn
@@ -297,6 +277,16 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	}
 
 	/**
+	 * Gets the selections that are going to be applied, leave empty for all columns
+	 *
+	 * @return
+	 */
+	protected Set<Selection> getSelections()
+	{
+		return selections;
+	}
+
+	/**
 	 * Selects the minimum min() of a column
 	 *
 	 * @param attribute
@@ -316,6 +306,16 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 			getSelections().add(getCriteriaBuilder().min(getRoot().get(PluralAttribute.class.cast(attribute))));
 		}
 		return (J) this;
+	}
+
+	/**
+	 * Gets the criteria builder
+	 *
+	 * @return
+	 */
+	protected CriteriaBuilder getCriteriaBuilder()
+	{
+		return criteriaBuilder;
 	}
 
 	/**

@@ -219,18 +219,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	}
 
 	/**
-	 * Returns if the attribute is plural or map
-	 *
-	 * @param attribute
-	 *
-	 * @return
-	 */
-	protected boolean isCollectionAttribute(Attribute attribute)
-	{
-		return CollectionAttribute.class.isAssignableFrom(attribute.getClass());
-	}
-
-	/**
 	 * Returns if the class is a singular attribute
 	 *
 	 * @param attribute
@@ -252,5 +240,17 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	protected boolean isMapAttribute(Attribute attribute)
 	{
 		return MapAttribute.class.isAssignableFrom(attribute.getClass());
+	}
+
+	/**
+	 * Returns if the attribute is plural or map
+	 *
+	 * @param attribute
+	 *
+	 * @return
+	 */
+	protected boolean isCollectionAttribute(Attribute attribute)
+	{
+		return CollectionAttribute.class.isAssignableFrom(attribute.getClass());
 	}
 }

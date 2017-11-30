@@ -213,6 +213,10 @@ public class InsertStatement implements EntityAssistStrings
 		return insertString.toString();
 	}
 
+	public static InsertStatement getInsertStatement()
+	{
+		return insertStatement;
+	}
 
 	/**
 	 * Returns the sdf format
@@ -245,10 +249,5 @@ public class InsertStatement implements EntityAssistStrings
 	public DateTimeFormatter getDateTimeFormat()
 	{
 		return dateTimeFormat;
-	}
-
-	public static InsertStatement getInsertStatement()
-	{
-		return insertStatement;
 	}
 }

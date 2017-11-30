@@ -17,10 +17,20 @@ public class EntityClassTwo extends CoreEntity<EntityClassTwo, EntityClassTwoBui
 	@JoinColumn(referencedColumnName = "entityClass", name = "entityClass")
 	private EntityClass entityClass;
 
-	@Override
-	protected boolean isIdGenerated()
+	public EntityClass getEntityClass()
 	{
-		return true;
+		return entityClass;
+	}
+
+	public void setEntityClass(EntityClass entityClass)
+	{
+		this.entityClass = entityClass;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "EntityClassTwoTest : " + getId();
 	}
 
 	@Override
@@ -36,19 +46,9 @@ public class EntityClassTwo extends CoreEntity<EntityClassTwo, EntityClassTwoBui
 		return this;
 	}
 
-	public EntityClass getEntityClass()
-	{
-		return entityClass;
-	}
-
-	public void setEntityClass(EntityClass entityClass)
-	{
-		this.entityClass = entityClass;
-	}
-
 	@Override
-	public String toString()
+	protected boolean isIdGenerated()
 	{
-		return "EntityClassTwoTest : " + getId();
+		return true;
 	}
 }
