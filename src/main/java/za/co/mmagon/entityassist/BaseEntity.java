@@ -20,7 +20,6 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -224,10 +223,10 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 				entityManager.createNativeQuery(insertString).executeUpdate();
 				if (isIdGenerated())
 				{
-					Query statmentSelectId = entityManager.createNativeQuery("CALL SCOPE_IDENTITY();"); //h2
+					//Query statmentSelectId = entityManager.createNativeQuery("CALL SCOPE_IDENTITY();"); //h2
 					//Query statmentSelectId = entityManager.createNativeQuery("SELECT @@SCOPE_INDENTITY"); //mysql
-					//Query statmentSelectId = entityManager.createNativeQuery("SELECT @@IDENTITY"); //microsoft sql
-					BigInteger generatedId = ((BigInteger) statmentSelectId.getSingleResult());
+					Query statmentSelectId = entityManager.createNativeQuery("SELECT @@IDENTITY"); //microsoft sql
+					BigDecimal generatedId = ((BigDecimal) statmentSelectId.getSingleResult());
 					setId((I) (Long) generatedId.longValue());
 					entityManager.getTransaction().commit();
 				}
