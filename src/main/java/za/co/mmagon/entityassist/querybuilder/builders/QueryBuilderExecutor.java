@@ -1,6 +1,5 @@
 package za.co.mmagon.entityassist.querybuilder.builders;
 
-import com.armineasy.injection.GuiceContext;
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.CoreEntity;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
@@ -41,8 +40,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			select();
 		}
 
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
-		TypedQuery<Long> query = em.createQuery(getCriteriaQuery());
+		TypedQuery<Long> query = getEntityManager().createQuery(getCriteriaQuery());
 
 		Long j = null;
 		try
@@ -52,7 +50,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 		catch (NoResultException nre)
 		{
-			log.log(Level.WARNING, "Couldn''t find object with name : " + getClass().getName() + "}\n", nre);
+			log.log(Level.WARNING, "Couldn''t find object with name : " + getEntityClass().getName() + "}\n", nre);
 			return 0L;
 		}
 	}
@@ -75,7 +73,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		CriteriaQuery<E> cq = getCriteriaQuery();
 
 		getCriteriaQuery().where(preds);
-
 
 		if (!getGroupBys().isEmpty())
 		{
@@ -153,6 +150,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		return get(false);
 	}
 
+	public abstract EntityManager getEntityManager();
+
 	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from a list with the same criteria
 	 *
@@ -167,9 +166,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		{
 			select();
 		}
-
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
-		TypedQuery<E> query = em.createQuery(getCriteriaQuery());
+		TypedQuery<E> query = getEntityManager().createQuery(getCriteriaQuery());
 		E j = null;
 		try
 		{
@@ -179,17 +176,18 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 		catch (NoResultException nre)
 		{
-			log.log(Level.WARNING, "Couldn't find object with name : " + getClass().getName() + "}\n", nre);
+			log.log(Level.WARNING, "Couldn't find object for class : " + getEntityClass().getName() + "}\n");
+			log.log(Level.FINEST, "Couldn't find object : " + getEntityClass().getName() + "}\n", nre);
 			return Optional.empty();
 		}
 		catch (NonUniqueResultException nure)
 		{
-			log.log(Level.FINE, "Get didn't return a single result\n", nure);
+			log.log(Level.WARNING, "Get didn't return a single result\n");
+			log.log(Level.FINEST, "Couldn't find object for class : " + getEntityClass().getName() + "}\n", nure);
 			if (returnFirst)
 			{
 				List<E> returnedList = query.getResultList();
 				j = returnedList.get(0);
-				em.detach(j);
 				j.setFake(false);
 				return Optional.of(j);
 			}
@@ -212,8 +210,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		{
 			select();
 		}
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
-		TypedQuery<E> query = em.createQuery(getCriteriaQuery());
+		TypedQuery<E> query = getEntityManager().createQuery(getCriteriaQuery());
 
 		if (getMaxResults() != null)
 		{
@@ -229,7 +226,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		{
 			CoreEntity wct = (CoreEntity) j1;
 			wct.setFake(false);
-			em.detach(wct);
 		}
 		return j;
 	}
