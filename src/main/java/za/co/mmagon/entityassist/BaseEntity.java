@@ -195,9 +195,6 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @return
 	 *
-	 * @throws za.co.mmagon.entityassist.exceptions.QueryNotValidException
-	 * @throws za.co.mmagon.entityassist.exceptions.EntityNotValidException
-	 * @throws za.co.mmagon.entityassist.exceptions.ConstraintsNotMetException
 	 */
 	@NotNull
 	@SuppressWarnings("all")
