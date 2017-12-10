@@ -5,7 +5,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * Active Range ordered from Unknown -> Removed -> Archived/Visible -> Active -> Highlighted -> Permanent
+ * Active Range ordered from Unknown to Removed to Archived/Visible to Active to Highlighted to Permanent
  * <p>
  * Meant as text with indexer for support on Gen 3 and Gen 4 databases
  */
