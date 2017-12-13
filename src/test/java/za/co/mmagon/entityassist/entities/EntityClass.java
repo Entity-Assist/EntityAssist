@@ -46,9 +46,4 @@ public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Lon
 		return this;
 	}
 
-	@Override
-	protected boolean isIdGenerated()
-	{
-		return true;
-	}
 }

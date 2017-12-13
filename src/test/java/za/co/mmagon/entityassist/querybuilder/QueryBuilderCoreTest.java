@@ -1,9 +1,9 @@
 package za.co.mmagon.entityassist.querybuilder;
 
-import com.armineasy.injection.GuiceContext;
 import org.junit.jupiter.api.Test;
 import za.co.mmagon.entityassist.entities.EntityClass;
 import za.co.mmagon.entityassist.entities.EntityClassTwo_;
+import za.co.mmagon.guiceinjection.GuiceContext;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;

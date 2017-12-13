@@ -1,11 +1,11 @@
 package za.co.mmagon.entityassist;
 
-import com.armineasy.injection.GuiceContext;
 import org.junit.jupiter.api.Test;
 import za.co.mmagon.entityassist.entities.EntityClass;
 import za.co.mmagon.entityassist.entities.EntityClassTwo_;
 import za.co.mmagon.entityassist.entities.EntityClass_;
 import za.co.mmagon.entityassist.enumerations.Operand;
+import za.co.mmagon.guiceinjection.GuiceContext;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;
@@ -27,7 +27,7 @@ public class TestEntities
 		EntityClass ec = new EntityClass();
 		ec.setId(1L);
 
-		ec.persist();
+		ec.builder().persist();
 		Optional<EntityClass> ec1 = new EntityClass().find(1L);
 		System.out.println("ec : " + ec1);
 	}
@@ -44,8 +44,8 @@ public class TestEntities
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(3L);
 
-		ec.persistNow();
-		ec2.persistNow();
+		ec.builder().persistNow();
+		ec2.builder().persistNow();
 
 		Optional<EntityClass> ec1 = new EntityClass().find(2L);
 		System.out.println("ec after find: " + ec1);
@@ -64,11 +64,11 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		EntityClass ec = new EntityClass();
 		ec.setId(4L);
-		ec.persistNow();
+		ec.builder().persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(5L);
-		ec2.persistNow();
+		ec2.builder().persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(4);
@@ -83,11 +83,11 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		EntityClass ec = new EntityClass();
 		ec.setId(6L);
-		ec.persistNow();
+		ec.builder().persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(7L);
-		ec2.persistNow();
+		ec2.builder().persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(6);
@@ -102,11 +102,11 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		EntityClass ec = new EntityClass();
 		ec.setId(8L);
-		ec.persistNow();
+		ec.builder().persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(9L);
-		ec2.persistNow();
+		ec2.builder().persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(8);
@@ -123,11 +123,11 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		EntityClass ec = new EntityClass();
 		ec.setId(10L);
-		ec.persistNow();
+		ec.builder().persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(11L);
-		ec2.persistNow();
+		ec2.builder().persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(10);
@@ -144,11 +144,11 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		EntityClass ec = new EntityClass();
 		ec.setId(12L);
-		ec.persistNow();
+		ec.builder().persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(13L);
-		ec2.persistNow();
+		ec2.builder().persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(12);
@@ -164,11 +164,11 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		EntityClass ec = new EntityClass();
 		ec.setId(14L);
-		ec.persistNow();
+		ec.builder().persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(15L);
-		ec2.persistNow();
+		ec2.builder().persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(14);
@@ -184,11 +184,11 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		EntityClass ec = new EntityClass();
 		ec.setId(17L);
-		ec.persistNow();
+		ec.builder().persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(18L);
-		ec2.persistNow();
+		ec2.builder().persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(17);
@@ -204,11 +204,11 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(EntityManager.class);
 		EntityClass ec = new EntityClass();
 		ec.setId(19L);
-		ec.persistNow();
+		ec.builder().persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(20L);
-		ec2.persistNow();
+		ec2.builder().persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(20);

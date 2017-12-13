@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.sql.Date;
 import java.time.LocalDate;
 
-@Converter(autoApply = true)
+@Converter()
 public class LocalDateAttributeConverter implements AttributeConverter<LocalDate, Date>, Serializable
 {
 

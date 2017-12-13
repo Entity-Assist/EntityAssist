@@ -45,10 +45,4 @@ public class EntityClassTwo extends CoreEntity<EntityClassTwo, EntityClassTwoBui
 		this.id = id;
 		return this;
 	}
-
-	@Override
-	protected boolean isIdGenerated()
-	{
-		return true;
-	}
 }

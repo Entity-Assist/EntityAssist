@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-@Converter(autoApply = true)
+@Converter()
 public class LocalDateTimestampAttributeConverter implements AttributeConverter<LocalDate, Timestamp>
 {
 	@Override

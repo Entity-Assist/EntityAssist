@@ -1,6 +1,5 @@
 package za.co.mmagon.entityassist.querybuilder.builders;
 
-import com.armineasy.injection.GuiceContext;
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.Operand;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
@@ -15,7 +14,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
+public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 		extends QueryBuilderBase<J, E, I>
 {
 	private static final Logger log = Logger.getLogger(DefaultQueryBuilder.class.getName());
@@ -58,6 +57,8 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	 */
 	private CriteriaQuery criteriaQuery;
 
+	private EntityManager entityManager;
+
 	/**
 	 * Constructs a new query builder core with typed classes instantiated
 	 */
@@ -70,7 +71,7 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 		orderBys = new LinkedHashMap<>();
 		having = new HashSet<>();
 		joins = new HashSet<>();
-		this.criteriaBuilder = GuiceContext.getInstance(EntityManager.class).getCriteriaBuilder();
+		this.criteriaBuilder = getEntityManager().getCriteriaBuilder();
 		this.criteriaQuery = criteriaBuilder.createQuery();
 		root = criteriaQuery.from(getEntityClass());
 	}
@@ -230,7 +231,18 @@ public class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E exten
 	@SuppressWarnings("unchecked")
 	public J find(I id)
 	{
-		Optional<Field> idField = GuiceContext.reflect().getFieldAnnotatedWithOfType(Id.class, id.getClass(), getEntityClass());
+		Field found = null;
+		Field[] allFields = id.getClass().getFields();
+		for (Field allField : allFields)
+		{
+			if (allField.isAnnotationPresent(Id.class))
+			{
+				found = allField;
+				break;
+			}
+		}
+
+		Optional<Field> idField = Optional.ofNullable(found);
 		if (!idField.isPresent())
 		{
 			Field[] fields = getEntityClass().getDeclaredFields();
