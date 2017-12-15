@@ -3,7 +3,6 @@ package za.co.mmagon.entityassist.querybuilder.builders;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 import za.co.mmagon.entityassist.BaseEntity;
-import za.co.mmagon.entityassist.enumerations.Provider;
 import za.co.mmagon.entityassist.querybuilder.statements.InsertStatement;
 
 import javax.annotation.Nullable;
@@ -26,8 +25,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static za.co.mmagon.entityassist.querybuilder.EntityAssistStrings.STRING_SINGLE_QUOTES;
-import static za.co.mmagon.entityassist.querybuilder.EntityAssistStrings.STRING_SINGLE_QUOTES_TWICE;
+import static za.co.mmagon.entityassist.querybuilder.EntityAssistStrings.*;
 
 /**
  * Builds a Query Base
@@ -64,10 +62,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	private boolean logInsertSql;
 
-	/**
-	 * Static provider to generate sql for
-	 */
-	private Provider provider;
+	private String selectIdentityString = "SELECT @@IDENTITY";
 
 	private E entity;
 
@@ -82,7 +77,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	protected QueryBuilderBase()
 	{
 		this.entityClass = getEntityClass();
-		provider = Provider.Hibernate5jre8;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -162,30 +156,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	public J setMaxResults(Integer maxResults)
 	{
 		this.maxResults = maxResults;
-		return (J) this;
-	}
-
-	/**
-	 * Returns the current sql generator provider
-	 *
-	 * @return
-	 */
-	public Provider getProvider()
-	{
-		return provider;
-	}
-
-	/**
-	 * Returns the current sql generator provider
-	 *
-	 * @param provider
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J setProvider(@NotNull Provider provider)
-	{
-		this.provider = provider;
 		return (J) this;
 	}
 
@@ -280,9 +250,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				entityManager.createNativeQuery(insertString).executeUpdate();
 				if (isIdGenerated())
 				{
-					//Query statmentSelectId = entityManager.createNativeQuery("CALL SCOPE_IDENTITY();"); //h2
-					//Query statmentSelectId = entityManager.createNativeQuery("SELECT @@SCOPE_INDENTITY"); //mysql
-					Query statmentSelectId = entityManager.createNativeQuery("SELECT @@IDENTITY"); //microsoft sql
+					Query statmentSelectId = entityManager.createNativeQuery(selectIdentityString);
 					BigDecimal generatedId = ((BigDecimal) statmentSelectId.getSingleResult());
 					entity.setId((I) (Long) generatedId.longValue());
 					entityManager.getTransaction().commit();
@@ -337,7 +305,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			for (Object constraintViolation : constraintViolations)
 			{
 				ConstraintViolation contraints = (ConstraintViolation) constraintViolation;
-				String error = contraints.getRootBeanClass().getSimpleName() + "." + contraints.getPropertyPath() + " " + contraints.getMessage();
+				String error = contraints.getRootBeanClass().getSimpleName() + STRING_DOT + contraints.getPropertyPath() + STRING_EMPTY + contraints.getMessage();
 				errors.add(error);
 			}
 		}

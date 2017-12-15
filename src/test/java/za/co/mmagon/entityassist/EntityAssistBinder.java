@@ -2,7 +2,7 @@ package za.co.mmagon.entityassist;
 
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import za.co.mmagon.guiceinjection.GuiceDefaultBinding;
+import za.co.mmagon.guiceinjection.abstractions.GuiceDefaultBinding;
 import za.co.mmagon.guiceinjection.abstractions.GuiceInjectorModule;
 
 import javax.persistence.EntityManager;
