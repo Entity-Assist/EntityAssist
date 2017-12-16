@@ -141,6 +141,7 @@
             <artifactId>hibernate-core</artifactId>
             <version>5.2.12.Final</version>
             <type>jar</type>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
