@@ -4,18 +4,23 @@ package za.co.mmagon.entityassist;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.istack.internal.Nullable;
 import za.co.mmagon.entityassist.converters.LocalDateTimeAttributeConverter;
 import za.co.mmagon.entityassist.enumerations.ActiveFlag;
 import za.co.mmagon.entityassist.querybuilder.QueryBuilderCore;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 /**
  * @param <J>
@@ -28,8 +33,8 @@ import java.util.Optional;
  * @since 06 Dec 2016
  */
 @MappedSuperclass()
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
+@JsonInclude(NON_NULL)
 public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryBuilderCore<Q, J, I>, I extends Serializable>
 		extends BaseEntity<J, Q, I>
 		implements Serializable
@@ -46,27 +51,28 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	private String referenceId;
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
-	@Column(nullable = false, name = "EffectiveFromDate", columnDefinition = "datetime")
+	@Column(nullable = false, name = "EffectiveFromDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime effectiveFromDate;
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
-	@Column(nullable = false, name = "EffectiveToDate", columnDefinition = "datetime")
+	@Column(nullable = false, name = "EffectiveToDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime effectiveToDate;
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
-	@Column(nullable = false, name = "WarehouseCreatedTimestamp", columnDefinition = "datetime")
+	@Column(nullable = false, name = "WarehouseCreatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime warehouseCreatedTimestamp;
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
-	@Column(nullable = false, name = "WarehouseLastUpdatedTimestamp", columnDefinition = "datetime")
+	@Column(nullable = false, name = "WarehouseLastUpdatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime warehouseLastUpdatedTimestamp;
 	@Basic(optional = false, fetch = FetchType.EAGER)
-	@Column(nullable = false, name = "ActiveFlag", columnDefinition = "varchar(max)")
+	@Column(nullable = false, name = "ActiveFlag")
 	@Enumerated(value = EnumType.STRING)
+	@Size(max = 50)
 	@NotNull
 	private ActiveFlag activeFlag;
 

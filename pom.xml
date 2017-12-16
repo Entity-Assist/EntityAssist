@@ -40,8 +40,6 @@
 
         <maven.jackson.version>2.9.2</maven.jackson.version>
         <maven.fastclasspath.version>2.9.3</maven.fastclasspath.version>
-
-
     </properties>
 
     <build>
@@ -253,7 +251,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.196</version>
+            <version>1.4.195</version>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
