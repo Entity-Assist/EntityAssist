@@ -684,17 +684,11 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		Set output = new LinkedHashSet();
 		if (isArray)
 		{
-			for (Object o : (Object[]) object)
-			{
-				output.add(o);
-			}
+			Collections.addAll(output, (Object[]) object);
 		}
 		if (isCollection)
 		{
-			for (Object o : (Collection) object)
-			{
-				output.add(o);
-			}
+			output.addAll((Collection) object);
 		}
 		for (Object o : output)
 		{
