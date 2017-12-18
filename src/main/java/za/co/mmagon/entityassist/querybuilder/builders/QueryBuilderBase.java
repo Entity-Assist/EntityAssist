@@ -180,10 +180,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			String insertString = InsertStatement.buildInsertString(entity);
 			log.info(insertString);
 			EntityManager entityManager = getEntityManager();
-			if (!entityManager.getTransaction().isActive())
-			{
-				entityManager.getTransaction().begin();
-			}
 			if (isRunDetached())
 			{
 				entityManager.createNativeQuery(insertString).executeUpdate();
@@ -192,13 +188,11 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 					Query statmentSelectId = entityManager.createNativeQuery(selectIdentityString);
 					BigDecimal generatedId = ((BigDecimal) statmentSelectId.getSingleResult());
 					entity.setId((I) (Long) generatedId.longValue());
-					entityManager.getTransaction().commit();
 				}
 			}
 			else
 			{
 				getEntityManager().persist(entity);
-				getEntityManager().flush();
 			}
 			entity.setFake(false);
 		}
@@ -364,13 +358,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			onUpdate(entity);
 			if (isRunDetached())
 			{
-				if (!(getEntityManager().getTransaction().isActive()))
-				{
-					getEntityManager().getTransaction().begin();
-				}
 				getEntityManager().merge(this);
-				getEntityManager().flush();
-				getEntityManager().getTransaction().commit();
 			}
 			else
 			{
