@@ -14,8 +14,14 @@ public class EntityClassTwoBuilder extends QueryBuilderCore<EntityClassTwoBuilde
 		return GuiceContext.getInstance(EntityManager.class);
 	}
 
+
+	protected void onCreate(EntityClassTwo entity)
+	{
+
+	}
+
 	@Override
-	protected void onCreate()
+	protected void onUpdate(EntityClassTwo entity)
 	{
 
 	}

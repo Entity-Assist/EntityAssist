@@ -3,10 +3,9 @@ package za.co.mmagon.entityassist;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
 import za.co.mmagon.entityassist.querybuilder.EntityAssistStrings;
 import za.co.mmagon.entityassist.querybuilder.builders.QueryBuilderBase;
+import za.co.mmagon.guiceinjection.GuiceContext;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
@@ -45,10 +44,6 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	@Transient
 	@JsonIgnore
 	private Map<Serializable, Serializable> properties;
-
-	@Transient
-	@Inject
-	private Injector injector;
 
 	/**
 	 * Constructs a new base entity type
@@ -178,7 +173,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	public Q builder()
 	{
 		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
-		QueryBuilderBase<?, ?, ?> instance = injector.getInstance(foundQueryBuilderClass);
+		QueryBuilderBase<?, ?, ?> instance = GuiceContext.getInstance(foundQueryBuilderClass);
 		instance.setEntity(this);
 		return (Q) instance;
 
@@ -238,6 +233,4 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 		}
 		return idTypeClass;
 	}
-
-	public abstract void onUpdate();
 }

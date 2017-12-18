@@ -11,16 +11,22 @@
     <description>Allows for instant query builders and constructs statements for nicer output to the console
     </description>
     <url>https://github.com/GedMarc/EntityAssist</url>
-
-
     <repositories>
-
         <repository>
             <id>jwebswing-snapshot</id>
             <name>JWebSwingArtifactory-snapshots</name>
             <url>https://jwebswing.com/artifactory/libs-snapshot</url>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jwebswing-snapshot-plugins</id>
+            <name>JWebSwingArtifactory-snapshots-plugins</name>
+            <url>https://jwebswing.com/artifactory/libs-snapshot</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -32,8 +38,14 @@
         <maven.resources.version>3.0.2</maven.resources.version>
         <netbeans.hint.license>gpl30</netbeans.hint.license>
 
+        <maven.hibernate.version>5.2.12.Final</maven.hibernate.version>
+        <maven.hibernate.validator.version>5.4.2.Final</maven.hibernate.validator.version>
+        <maven.hibernate.annotations.version>5.0.1.Final</maven.hibernate.annotations.version>
+
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
+
         <sonar.host.url>https://jwebswing.com/sonar</sonar.host.url>
         <sonar.exclusions>**bower_components</sonar.exclusions>
         <sonar.exclusions>**bower_components</sonar.exclusions>
@@ -44,6 +56,17 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -72,42 +95,43 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.5.201505241946</version>
             </plugin>
-
+            <plugin><!--path were to generate model, add to -->
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>2.2.4</version>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <outputDirectory>target/generated-sources/annotations</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>processtest</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-test-sources</phase>
+                        <configuration>
+                            <outputDirectory>target/generated-test-sources/test-annotations</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <dependencies>
         <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>4.1.0</version>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>2.0.3</version>
-            <type>jar</type>
-        </dependency>
-
-
-        <dependency>
             <groupId>za.co.mmagon</groupId>
             <artifactId>guice-injection</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
             <type>jar</type>
         </dependency>
-
-        <dependency>
-            <groupId>za.co.mmagon</groupId>
-            <artifactId>guice-injection</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-            <type>test-jar</type>
-        </dependency>
-
 
         <dependency>
             <groupId>javax.persistence</groupId>
@@ -131,7 +155,7 @@
         <dependency>
             <groupId>org.glassfish.web</groupId>
             <artifactId>javax.el</artifactId>
-            <version>2.2.4</version>
+            <version>2.2.6</version>
         </dependency>
 
         <!-- Hibernate -->
@@ -139,7 +163,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>5.2.12.Final</version>
+            <version>${maven.hibernate.version}</version>
             <type>jar</type>
             <scope>test</scope>
         </dependency>
@@ -147,21 +171,21 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>5.4.2.Final</version>
+            <version>${maven.hibernate.validator.version}</version>
             <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
-            <version>5.2.12.Final</version>
+            <version>${maven.hibernate.version}</version>
             <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate.common</groupId>
             <artifactId>hibernate-commons-annotations</artifactId>
-            <version>5.0.1.Final</version>
+            <version>${maven.hibernate.annotations.version}</version>
             <type>jar</type>
             <scope>test</scope>
         </dependency>
@@ -177,7 +201,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-c3p0</artifactId>
-            <version>5.2.12.Final</version>
+            <version>${maven.hibernate.version}</version>
             <type>jar</type>
             <scope>test</scope>
         </dependency>
@@ -244,7 +268,7 @@
         <dependency>
             <groupId>com.jcabi</groupId>
             <artifactId>jcabi-aspects</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.22.6</version>
             <type>jar</type>
         </dependency>
 

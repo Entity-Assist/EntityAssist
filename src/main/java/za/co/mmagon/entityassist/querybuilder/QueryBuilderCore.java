@@ -1,6 +1,6 @@
 package za.co.mmagon.entityassist.querybuilder;
 
-import za.co.mmagon.entityassist.BaseEntity;
+import za.co.mmagon.entityassist.CoreEntity;
 import za.co.mmagon.entityassist.enumerations.ActiveFlag;
 import za.co.mmagon.entityassist.querybuilder.builders.QueryBuilderExecutor;
 
@@ -19,10 +19,9 @@ import java.util.Set;
  *
  * @author Marc Magon
  */
-public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
+public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E extends CoreEntity<E, J, I>, I extends Serializable>
 		extends QueryBuilderExecutor<J, E, I>
 {
-
 
 	@SuppressWarnings("unchecked")
 	public J inActiveRange()
@@ -80,5 +79,9 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		return (J) this;
 	}
 
+	public void onUpdate(CoreEntity<E, J, I> entity)
+	{
+		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+	}
 
 }

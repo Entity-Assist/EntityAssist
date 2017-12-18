@@ -53,14 +53,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 * The given entity class
 	 */
 	private Class<E> entityClass;
-	/**
-	 * Whether or not to log the rendered select sql
-	 */
-	private boolean logSelectSql;
-	/**
-	 * Whether or not to log the insert sql statement
-	 */
-	private boolean logInsertSql;
 
 	private String selectIdentityString = "SELECT @@IDENTITY";
 
@@ -160,63 +152,15 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	}
 
 	/**
-	 * Whether or not the select queries should be logged out
-	 *
-	 * @return
-	 */
-	protected boolean isLogSelectSql()
-	{
-		return logSelectSql;
-	}
-
-	/**
-	 * Whether or not the select queries should be logged out
-	 *
-	 * @param logSelectSql
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	protected J setLogSelectSql(boolean logSelectSql)
-	{
-		this.logSelectSql = logSelectSql;
-		return (J) this;
-	}
-
-	/**
-	 * Whether or not the insert sql must be logged
-	 *
-	 * @return
-	 */
-	protected boolean isLogInsertSql()
-	{
-		return logInsertSql;
-	}
-
-	/**
-	 * Whether or not to insert sql must be logged
-	 *
-	 * @param logInsertSql
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	protected J setLogInsertSql(boolean logInsertSql)
-	{
-		this.logInsertSql = logInsertSql;
-		return (J) this;
-	}
-
-	/**
 	 * Persist and Flush
 	 *
 	 * @return
 	 */
 	@SuppressWarnings("all")
 	@NotNull
-	public J persistNow()
+	public J persistNow(E entity)
 	{
-		persist();
+		persist(entity);
 		getEntityManager().flush();
 		return (J) this;
 	}
@@ -228,24 +172,19 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	public J persist()
+	public J persist(E entity)
 	{
 		try
 		{
-			onCreate();
-			List<String> errors = validateEntity();
-			if (!errors.isEmpty())
-			{
-				log.warning("Constraint Errors Occured, Validation might fail : " + errors);
-			}
-			String insertString = InsertStatement.buildInsertString(this);
+			onCreate(entity);
+			String insertString = InsertStatement.buildInsertString(entity);
 			log.info(insertString);
 			EntityManager entityManager = getEntityManager();
 			if (!entityManager.getTransaction().isActive())
 			{
 				entityManager.getTransaction().begin();
 			}
-			if (!isRunDetached())
+			if (isRunDetached())
 			{
 				entityManager.createNativeQuery(insertString).executeUpdate();
 				if (isIdGenerated())
@@ -258,7 +197,8 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			}
 			else
 			{
-				log.warning("Still doing detached inserts, you can use the performInsert() method currently to generate the sql statement.");
+				getEntityManager().persist(entity);
+				getEntityManager().flush();
 			}
 			entity.setFake(false);
 		}
@@ -282,7 +222,9 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	@Transient
 	protected abstract EntityManager getEntityManager();
 
-	protected abstract void onCreate();
+	protected abstract void onCreate(E entity);
+
+	protected abstract void onUpdate(E entity);
 
 	/**
 	 * Performs the constraint validation and returns a list of all constraint errors.
@@ -293,12 +235,12 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	@NotNull
 	@SuppressWarnings("unused")
-	public List<String> validateEntity()
+	public List<String> validateEntity(E entity)
 	{
 		List<String> errors = new ArrayList<>();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		Validator validator = factory.getValidator();
-		Set constraintViolations = validator.validate(this);
+		Set constraintViolations = validator.validate(entity);
 
 		if (!constraintViolations.isEmpty())
 		{
@@ -415,18 +357,11 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	public J update()
+	public J update(E entity)
 	{
 		try
 		{
-			entity.onUpdate();
-
-			List<String> errors = validateEntity();
-			if (!errors.isEmpty())
-			{
-				throw new SQLException("Constraint Violations in Update");
-			}
-
+			onUpdate(entity);
 			if (isRunDetached())
 			{
 				if (!(getEntityManager().getTransaction().isActive()))

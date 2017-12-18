@@ -1,37 +1,29 @@
 package za.co.mmagon.entityassist;
 
+import com.google.inject.Key;
 import org.junit.jupiter.api.Test;
 import za.co.mmagon.entityassist.entities.EntityClass;
-import za.co.mmagon.entityassist.entities.EntityClassTwo_;
-import za.co.mmagon.entityassist.entities.EntityClass_;
-import za.co.mmagon.entityassist.enumerations.Operand;
 import za.co.mmagon.guiceinjection.GuiceContext;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.JoinType;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class TestEntities
 {
 	@Test
 	public void testEntity()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class,TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 
 		EntityClass ec = new EntityClass();
 		ec.setId(1L);
 
-		ec.builder().persist();
+		ec.builder().persist(ec);
 		Optional<EntityClass> ec1 = new EntityClass().find(1L);
 		System.out.println("ec : " + ec1);
 	}
-
+/*
 	@Test
 	public void testEntity2()
 	{
@@ -267,5 +259,5 @@ public class TestEntities
 		{
 			fail("Rows not inserted?");
 		}
-	}
+	}*/
 }

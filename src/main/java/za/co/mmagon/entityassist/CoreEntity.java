@@ -11,7 +11,6 @@ import za.co.mmagon.entityassist.querybuilder.QueryBuilderCore;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -45,7 +44,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * Returns the date time formatter
 	 */
 	private static final transient DateTimeFormatter dateTimeOffsetFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-
 	@JsonProperty(value = "$jwid")
 	@Transient
 	private String referenceId;
@@ -72,7 +70,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	@Basic(optional = false, fetch = FetchType.EAGER)
 	@Column(nullable = false, name = "ActiveFlag")
 	@Enumerated(value = EnumType.STRING)
-	@Size(max = 50)
 	@NotNull
 	private ActiveFlag activeFlag;
 
@@ -113,23 +110,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	{
 		this.effectiveFromDate = effectiveFromDate;
 		return (J) this;
-	}
-
-	/**
-	 * Performs the onCreate method setting the effective to date if it wasn't null, the effective from date if it wasn't set and the active flag derived
-	 */
-	@PrePersist
-	public void onCreate()
-	{
-	}
-
-	/**
-	 * Performs the update command for entities
-	 */
-	@PreUpdate
-	public void onUpdate()
-	{
-		setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 	}
 
 	/**
@@ -291,5 +271,29 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	protected DateTimeFormatter getDateTimeOffsetFormatter()
 	{
 		return dateTimeOffsetFormatter;
+	}
+
+	/**
+	 * Persists this object through the builder
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J persist()
+	{
+		builder().persist((J) this);
+		return (J) this;
+	}
+
+	/**
+	 * Updates this object through the builder
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J update()
+	{
+		builder().update((J) this);
+		return (J) this;
 	}
 }

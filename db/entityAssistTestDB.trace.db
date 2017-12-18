@@ -1,0 +1,9 @@
+2017-12-17 17:23:03 jdbc[8]: exception
+org.h2.jdbc.JdbcSQLException: Table "ENTITYCLASSBUILDER" not found; SQL statement:
+INSERT INTO EntityClassBuilder) VALUES); [42102-195]
+2017-12-18 16:00:54 jdbc[8]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT @@[*]IDENTITY"; expected "identifier"; SQL statement:
+SELECT @@IDENTITY [42001-195]
+2017-12-18 16:02:12 jdbc[8]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT @@[*]IDENTITY"; expected "identifier"; SQL statement:
+SELECT @@IDENTITY [42001-195]
