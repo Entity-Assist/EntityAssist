@@ -1,15 +1,8 @@
 package za.co.mmagon.entityassist;
 
-import com.google.inject.Key;
-import org.junit.jupiter.api.Test;
-import za.co.mmagon.entityassist.entities.EntityClass;
-import za.co.mmagon.guiceinjection.GuiceContext;
-
-import javax.persistence.EntityManager;
-import java.util.Optional;
-
 public class TestEntities
 {
+	/*
 	@Test
 	public void testEntity()
 	{
@@ -22,7 +15,7 @@ public class TestEntities
 		ec.builder().persist(ec);
 		Optional<EntityClass> ec1 = new EntityClass().find(1L);
 		System.out.println("ec : " + ec1);
-	}
+	}*/
 /*
 	@Test
 	public void testEntity2()
