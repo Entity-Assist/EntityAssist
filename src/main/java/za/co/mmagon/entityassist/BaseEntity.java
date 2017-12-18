@@ -7,6 +7,7 @@ import za.co.mmagon.entityassist.querybuilder.EntityAssistStrings;
 import za.co.mmagon.entityassist.querybuilder.builders.QueryBuilderBase;
 
 import javax.persistence.MappedSuperclass;
+import javax.persistence.NoResultException;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -110,7 +111,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	{
 		if (fake)
 		{
-			getProperties().put(FAKE_KEY, fake);
+			getProperties().put(FAKE_KEY, true);
 		}
 		else
 		{
@@ -168,7 +169,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "notnull"})
 	@NotNull
 	public Q builder()
 	{
@@ -183,10 +184,8 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 		catch (InstantiationException | IllegalAccessException e)
 		{
 			log.log(Level.SEVERE, "Unable to instantiate the query builder class. Make sure there is a blank constructor", e);
+			throw new NoResultException("Unable to construct builder");
 		}
-
-		return (Q) instance;
-
 	}
 
 	/**
