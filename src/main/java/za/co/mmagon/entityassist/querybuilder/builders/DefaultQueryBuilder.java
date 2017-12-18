@@ -4,7 +4,6 @@ import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.Operand;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.*;
@@ -56,8 +55,6 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 * The physical criteria query
 	 */
 	private CriteriaQuery criteriaQuery;
-
-	private EntityManager entityManager;
 
 	/**
 	 * Constructs a new query builder core with typed classes instantiated
