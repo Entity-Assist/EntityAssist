@@ -79,7 +79,8 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		return (J) this;
 	}
 
-	public void onUpdate(CoreEntity<E, J, I> entity)
+	@Override
+	protected void onUpdate(E entity)
 	{
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 	}
