@@ -26,6 +26,9 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="guice-injection" />
     <orderEntry type="library" name="Maven: io.github.lukehutch:fast-classpath-scanner:2.9.3" level="project" />
+    <orderEntry type="library" name="Maven: com.jcabi:jcabi-aspects:0.22.6" level="project" />
+    <orderEntry type="library" name="Maven: com.jcabi:jcabi-log:0.17" level="project" />
+    <orderEntry type="library" name="Maven: org.aspectj:aspectjrt:1.8.7" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:23.4-jre" level="project" />
     <orderEntry type="library" name="Maven: com.google.errorprone:error_prone_annotations:2.0.18" level="project" />
     <orderEntry type="library" name="Maven: com.google.j2objc:j2objc-annotations:1.1" level="project" />
@@ -39,8 +42,16 @@
     <orderEntry type="library" name="Maven: com.google.inject.extensions:guice-persist:4.1.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.inject.extensions:guice-jndi:4.1.0" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:javax.servlet-api:3.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.javassist:javassist:3.22.0-CR1" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:2.0.3" level="project" />
     <orderEntry type="library" name="Maven: javax.ws.rs:jsr311-api:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.module:jackson-module-parameter-names:2.9.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.module:jackson-module-guice:2.9.2" level="project" />
     <orderEntry type="library" name="Maven: javax.cache:cache-api:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: javax.transaction:jta:1.1" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.btm:btm:2.1.4" level="project" />
@@ -66,17 +77,6 @@
     <orderEntry type="library" name="Maven: com.mchange:c3p0:0.9.5.2" level="project" />
     <orderEntry type="library" name="Maven: com.mchange:mchange-commons-java:0.2.11" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: jaxen:jaxen:1.1.6" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.module:jackson-module-parameter-names:2.9.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.module:jackson-module-guice:2.9.2" level="project" />
-    <orderEntry type="library" name="Maven: org.javassist:javassist:3.22.0-CR1" level="project" />
-    <orderEntry type="library" name="Maven: com.jcabi:jcabi-aspects:0.22.6" level="project" />
-    <orderEntry type="library" name="Maven: com.jcabi:jcabi-log:0.17" level="project" />
-    <orderEntry type="library" name="Maven: org.aspectj:aspectjrt:1.8.7" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.h2database:h2:1.4.195" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-api:5.0.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.opentest4j:opentest4j:1.0.0" level="project" />
