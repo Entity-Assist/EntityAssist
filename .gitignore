@@ -11,4 +11,4 @@ persistence.xml
 /javadoc/
 /nbproject/
 /-nbproject/
-**/**.iml
+**/*.iml

@@ -38,6 +38,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		if (!selected)
 		{
 			selectCount();
+			select();
 		}
 
 		TypedQuery<Long> query = getEntityManager().createQuery(getCriteriaQuery());
