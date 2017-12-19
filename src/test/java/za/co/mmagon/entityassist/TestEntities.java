@@ -1,26 +1,42 @@
 package za.co.mmagon.entityassist;
 
+import com.google.inject.Key;
+import org.junit.jupiter.api.Test;
+import za.co.mmagon.entityassist.entities.EntityClass;
+import za.co.mmagon.entityassist.entities.EntityClassTwo_;
+import za.co.mmagon.entityassist.entities.EntityClass_;
+import za.co.mmagon.entityassist.enumerations.Operand;
+import za.co.mmagon.guiceinjection.GuiceContext;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.JoinType;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestEntities
 {
-	/*
+
 	@Test
 	public void testEntity()
 	{
-		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class,TestEntityAssistCustomPersistenceLoader.class));
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 
 		EntityClass ec = new EntityClass();
 		ec.setId(1L);
-
-		ec.builder().persist(ec);
+		ec.persistNow();
 		Optional<EntityClass> ec1 = new EntityClass().find(1L);
 		System.out.println("ec : " + ec1);
-	}*/
-/*
+	}
+
 	@Test
 	public void testEntity2()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 
 		EntityClass ec = new EntityClass();
@@ -29,8 +45,8 @@ public class TestEntities
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(3L);
 
-		ec.builder().persistNow();
-		ec2.builder().persistNow();
+		ec.persistNow();
+		ec2.persistNow();
 
 		Optional<EntityClass> ec1 = new EntityClass().find(2L);
 		System.out.println("ec after find: " + ec1);
@@ -46,14 +62,14 @@ public class TestEntities
 	@Test
 	public void testWhereInList()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(4L);
-		ec.builder().persistNow();
+		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(5L);
-		ec2.builder().persistNow();
+		ec2.persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(4);
@@ -65,14 +81,14 @@ public class TestEntities
 	@Test
 	public void testWhereEquals()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(6L);
-		ec.builder().persistNow();
+		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(7L);
-		ec2.builder().persistNow();
+		ec2.persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(6);
@@ -84,14 +100,14 @@ public class TestEntities
 	@Test
 	public void testWhereGreaterThanEquals()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(8L);
-		ec.builder().persistNow();
+		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(9L);
-		ec2.builder().persistNow();
+		ec2.persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(8);
@@ -105,35 +121,35 @@ public class TestEntities
 	@Test
 	public void testWhereGreater()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(10L);
-		ec.builder().persistNow();
+		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(11L);
-		ec2.builder().persistNow();
+		ec2.persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(10);
 		resultList.add(11);
 		long resultCount = ec.builder().where(EntityClass_.id, Operand.GreaterThan, 10)
 				                   .where(EntityClass_.id, Operand.InList, resultList)
-				                   .selectCount().getCount();
+				                   .getCount();
 		assertEquals(1L, resultCount);
 	}
 
 	@Test
 	public void testWhereLessThanEquals()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(12L);
-		ec.builder().persistNow();
+		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(13L);
-		ec2.builder().persistNow();
+		ec2.persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(12);
@@ -146,14 +162,14 @@ public class TestEntities
 	@Test
 	public void testWhereLessThan()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(14L);
-		ec.builder().persistNow();
+		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(15L);
-		ec2.builder().persistNow();
+		ec2.persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(14);
@@ -166,14 +182,14 @@ public class TestEntities
 	@Test
 	public void testNotNull()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(17L);
-		ec.builder().persistNow();
+		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(18L);
-		ec2.builder().persistNow();
+		ec2.persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(17);
@@ -186,14 +202,14 @@ public class TestEntities
 	@Test
 	public void testNull()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(19L);
-		ec.builder().persistNow();
+		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(20L);
-		ec2.builder().persistNow();
+		ec2.persistNow();
 
 		List resultList = new ArrayList();
 		resultList.add(20);
@@ -206,7 +222,7 @@ public class TestEntities
 	@Test
 	public void testGetAll()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder().getAll();
 		if (list.size() < 1)
@@ -218,7 +234,7 @@ public class TestEntities
 	@Test
 	public void testJoin()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
 				                         .join(EntityClassTwo_.entityClass)
@@ -232,7 +248,7 @@ public class TestEntities
 	@Test
 	public void testJoinLeft()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
 				                         .join(EntityClassTwo_.entityClass, JoinType.LEFT)
@@ -242,7 +258,7 @@ public class TestEntities
 	@Test
 	public void testInRangeSpecified()
 	{
-		EntityManager em = GuiceContext.getInstance(EntityManager.class);
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
 				                         .inDateRange(LocalDateTime.now(), LocalDateTime.now())
@@ -252,5 +268,5 @@ public class TestEntities
 		{
 			fail("Rows not inserted?");
 		}
-	}*/
+	}
 }

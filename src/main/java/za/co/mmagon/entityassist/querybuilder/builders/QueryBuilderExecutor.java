@@ -37,7 +37,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	{
 		if (!selected)
 		{
-			select();
+			selectCount();
 		}
 
 		TypedQuery<Long> query = getEntityManager().createQuery(getCriteriaQuery());
@@ -64,43 +64,46 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	@NotNull
 	private J select()
 	{
-		List<Predicate> allWheres = new ArrayList<>();
-		allWheres.addAll(getFilters());
-
-		Predicate[] preds = new Predicate[allWheres.size()];
-		preds = allWheres.toArray(preds);
-
-		CriteriaQuery<E> cq = getCriteriaQuery();
-
-		getCriteriaQuery().where(preds);
-
-		if (!getGroupBys().isEmpty())
+		if (!selected)
 		{
-			for (Expression p : getGroupBys())
+			List<Predicate> allWheres = new ArrayList<>();
+			allWheres.addAll(getFilters());
+
+			Predicate[] preds = new Predicate[allWheres.size()];
+			preds = allWheres.toArray(preds);
+
+			CriteriaQuery<E> cq = getCriteriaQuery();
+
+			getCriteriaQuery().where(preds);
+
+			if (!getGroupBys().isEmpty())
 			{
-				cq.groupBy(p);
+				for (Expression p : getGroupBys())
+				{
+					cq.groupBy(p);
+				}
 			}
-		}
 
-		if (!getHaving().isEmpty())
-		{
-			for (Expression expression : getHaving())
+			if (!getHaving().isEmpty())
 			{
-				cq.having(expression);
+				for (Expression expression : getHaving())
+				{
+					cq.having(expression);
+				}
 			}
-		}
 
-		if (!getOrderBys().isEmpty())
-		{
-			getOrderBys().forEach((key, value) -> processOrderBys(key, value, cq));
-		}
-		if (getSelections().isEmpty())
-		{
-			getCriteriaQuery().select(getRoot());
-		}
-		else
-		{
-			getSelections().forEach(a -> getCriteriaQuery().select(a));
+			if (!getOrderBys().isEmpty())
+			{
+				getOrderBys().forEach((key, value) -> processOrderBys(key, value, cq));
+			}
+			if (getSelections().isEmpty())
+			{
+				getCriteriaQuery().select(getRoot());
+			}
+			else
+			{
+				getSelections().forEach(a -> getCriteriaQuery().select(a));
+			}
 		}
 		selected = true;
 		return (J) this;

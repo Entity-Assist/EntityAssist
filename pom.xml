@@ -95,33 +95,6 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.5.201505241946</version>
             </plugin>
-            <plugin><!--path were to generate model, add to -->
-                <groupId>org.bsc.maven</groupId>
-                <artifactId>maven-processor-plugin</artifactId>
-                <version>2.2.4</version>
-                <executions>
-                    <execution>
-                        <id>process</id>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <outputDirectory>target/generated-sources/annotations</outputDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>processtest</id>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <phase>generate-test-sources</phase>
-                        <configuration>
-                            <outputDirectory>target/generated-test-sources/test-annotations</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -165,7 +138,6 @@
             <artifactId>hibernate-core</artifactId>
             <version>${maven.hibernate.version}</version>
             <type>jar</type>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -187,7 +159,6 @@
             <artifactId>hibernate-commons-annotations</artifactId>
             <version>${maven.hibernate.annotations.version}</version>
             <type>jar</type>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -195,7 +166,6 @@
             <artifactId>hibernate-jpa-2.1-api</artifactId>
             <version>1.0.0.Final</version>
             <type>jar</type>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -203,7 +173,6 @@
             <artifactId>hibernate-c3p0</artifactId>
             <version>${maven.hibernate.version}</version>
             <type>jar</type>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import za.co.mmagon.entityassist.querybuilder.EntityAssistStrings;
 import za.co.mmagon.entityassist.querybuilder.builders.QueryBuilderBase;
+import za.co.mmagon.guiceinjection.GuiceContext;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.NoResultException;
@@ -177,11 +178,11 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 		QueryBuilderBase<?, ?, ?> instance = null;
 		try
 		{
-			instance = foundQueryBuilderClass.newInstance();
+			instance = GuiceContext.getInstance(foundQueryBuilderClass);
 			instance.setEntity(this);
 			return (Q) instance;
 		}
-		catch (InstantiationException | IllegalAccessException e)
+		catch (Exception e)
 		{
 			log.log(Level.SEVERE, "Unable to instantiate the query builder class. Make sure there is a blank constructor", e);
 			throw new NoResultException("Unable to construct builder");

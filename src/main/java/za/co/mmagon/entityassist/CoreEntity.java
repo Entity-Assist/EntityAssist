@@ -296,4 +296,16 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 		builder().update((J) this);
 		return (J) this;
 	}
+
+	/**
+	 * Persists this object through the builder
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J persistNow()
+	{
+		builder().persistNow((J) this);
+		return (J) this;
+	}
 }

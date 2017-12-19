@@ -1,6 +1,7 @@
 package za.co.mmagon.entityassist.querybuilder.builders;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.inject.persist.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.querybuilder.statements.InsertStatement;
@@ -158,10 +159,12 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	@SuppressWarnings("all")
 	@NotNull
+	@Transactional
 	public J persistNow(E entity)
 	{
+		checkForTransaction();
 		persist(entity);
-		getEntityManager().flush();
+		commitTransaction();
 		return (J) this;
 	}
 
@@ -172,10 +175,12 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	@NotNull
 	@SuppressWarnings("all")
+	@Transactional
 	public J persist(E entity)
 	{
 		try
 		{
+			checkForTransaction();
 			onCreate(entity);
 			String insertString = InsertStatement.buildInsertString(entity);
 			log.info(insertString);
@@ -183,6 +188,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			if (isRunDetached())
 			{
 				entityManager.createNativeQuery(insertString).executeUpdate();
+				commitTransaction();
 				if (isIdGenerated())
 				{
 					Query statmentSelectId = entityManager.createNativeQuery(selectIdentityString);
@@ -203,6 +209,69 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		catch (Exception e)
 		{
 			log.log(Level.SEVERE, "Unable to persist, exception occured\n", e);
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Performs the actual insert
+	 *
+	 * @param connection
+	 * @param insertString
+	 */
+	@Transactional
+	public void performInsert(Connection connection, String insertString)
+	{
+		String escaped = StringUtils.replace(insertString, STRING_SINGLE_QUOTES, STRING_SINGLE_QUOTES_TWICE);
+		try (PreparedStatement statement = connection.prepareStatement(escaped, Statement.RETURN_GENERATED_KEYS))
+		{
+			int affectedRows = statement.executeUpdate();
+			if (affectedRows == 0)
+			{
+				throw new SQLException("Insert Failed, no rows affected.");
+			}
+			try (ResultSet generatedKeys = statement.getGeneratedKeys())
+			{
+				iterateThroughResultSetForGeneratedIDs(generatedKeys);
+			}
+		}
+		catch (SQLException sql)
+		{
+			log.log(Level.SEVERE, "Fix the query....", sql);
+		}
+	}
+
+	/**
+	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
+	 *
+	 * @return
+	 */
+	@NotNull
+	@SuppressWarnings("all")
+	@Transactional
+	public J update(E entity)
+	{
+		try
+		{
+			checkForTransaction();
+			onUpdate(entity);
+			if (isRunDetached())
+			{
+				getEntityManager().merge(this);
+			}
+			else
+			{
+				getEntityManager().merge(this);
+			}
+			commitTransaction();
+		}
+		catch (IllegalStateException ise)
+		{
+			log.log(Level.SEVERE, "Cannot update this entity the state of this object is not ready : \n", ise);
+		}
+		catch (Exception e)
+		{
+			log.log(Level.SEVERE, "Cannot update this entity the state of this object is not ready : \n", e);
 		}
 		return (J) this;
 	}
@@ -280,30 +349,11 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		return (J) this;
 	}
 
-	/**
-	 * Performs the actual insert
-	 *
-	 * @param connection
-	 * @param insertString
-	 */
-	public void performInsert(Connection connection, String insertString)
+	private void checkForTransaction()
 	{
-		String escaped = StringUtils.replace(insertString, STRING_SINGLE_QUOTES, STRING_SINGLE_QUOTES_TWICE);
-		try (PreparedStatement statement = connection.prepareStatement(escaped, Statement.RETURN_GENERATED_KEYS))
+		if (getEntityManager().getTransaction() != null && !(getEntityManager().getTransaction().isActive()))
 		{
-			int affectedRows = statement.executeUpdate();
-			if (affectedRows == 0)
-			{
-				throw new SQLException("Insert Failed, no rows affected.");
-			}
-			try (ResultSet generatedKeys = statement.getGeneratedKeys())
-			{
-				iterateThroughResultSetForGeneratedIDs(generatedKeys);
-			}
-		}
-		catch (SQLException sql)
-		{
-			log.log(Level.SEVERE, "Fix the query....", sql);
+			getEntityManager().getTransaction().begin();
 		}
 	}
 
@@ -344,36 +394,12 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 	}
 
-	/**
-	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
-	 *
-	 * @return
-	 */
-	@NotNull
-	@SuppressWarnings("all")
-	public J update(E entity)
+	private void commitTransaction()
 	{
-		try
+		if (getEntityManager().getTransaction() != null && getEntityManager().getTransaction().isActive())
 		{
-			onUpdate(entity);
-			if (isRunDetached())
-			{
-				getEntityManager().merge(this);
-			}
-			else
-			{
-				getEntityManager().merge(this);
-			}
+			getEntityManager().getTransaction().commit();
 		}
-		catch (IllegalStateException ise)
-		{
-			log.log(Level.SEVERE, "Cannot update this entity the state of this object is not ready : \n", ise);
-		}
-		catch (Exception e)
-		{
-			log.log(Level.SEVERE, "Cannot update this entity the state of this object is not ready : \n", e);
-		}
-		return (J) this;
 	}
 
 
