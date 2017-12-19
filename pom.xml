@@ -172,6 +172,14 @@
         </dependency>
 
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jpamodelgen</artifactId>
+            <version>${maven.hibernate.version}</version>
+            <type>jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.hibernate.common</groupId>
             <artifactId>hibernate-commons-annotations</artifactId>
             <version>${maven.hibernate.annotations.version}</version>
@@ -255,22 +263,27 @@
             <url>https://jwebswing.com/artifactory/libs-release-local</url>
         </repository>
     </distributionManagement>
+
     <organization>
         <name>Marc Magon</name>
         <url>http://jwebswing.com</url>
     </organization>
+
     <scm>
         <url>https://github.com/GedMarc?tab=repositories</url>
         <developerConnection>Marc Magon</developerConnection>
     </scm>
+
     <issueManagement>
         <system>Github</system>
         <url>https://github.com/GedMarc/EntityAssist/issues</url>
     </issueManagement>
+
     <ciManagement>
         <system>TeamCity</system>
         <url>http://jwebswing.com/teamcity</url>
     </ciManagement>
+
     <reporting>
         <plugins>
             <plugin>

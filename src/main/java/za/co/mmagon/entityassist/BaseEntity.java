@@ -54,6 +54,75 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 		//No configuration needed
 	}
 
+
+	/**
+	 * Returns the id of the given type in the generic decleration
+	 *
+	 * @return Returns the ID
+	 */
+	@NotNull
+	public abstract I getId();
+
+	/**
+	 * Returns the id of the given type in the generic decleration
+	 *
+	 * @param id
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("all")
+	@NotNull
+	public abstract J setId(@NotNull I id);
+
+
+	/**
+	 * Persists this object through the builder
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J persist()
+	{
+		builder().persist((J) this);
+		return (J) this;
+	}
+
+	/**
+	 * Updates this object through the builder
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J update()
+	{
+		builder().update((J) this);
+		return (J) this;
+	}
+
+	/**
+	 * Persists this object through the builder
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J persistNow()
+	{
+		builder().persistNow((J) this);
+		return (J) this;
+	}
+
+	/**
+	 * Validates this entity according to any validation rules
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J validate()
+	{
+		builder().validateEntity((J) this);
+		return (J) this;
+	}
+
 	/**
 	 * Returns if this entity is operating as a fake or not (testing or dto)
 	 *
@@ -120,25 +189,6 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 		}
 		return (J) this;
 	}
-
-	/**
-	 * Returns the id of the given type in the generic decleration
-	 *
-	 * @return Returns the ID
-	 */
-	@NotNull
-	public abstract I getId();
-
-	/**
-	 * Returns the id of the given type in the generic decleration
-	 *
-	 * @param id
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("all")
-	@NotNull
-	public abstract J setId(@NotNull I id);
 
 	/**
 	 * Returns this classes specific entity type

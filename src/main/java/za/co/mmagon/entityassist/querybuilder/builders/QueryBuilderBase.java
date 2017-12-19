@@ -66,6 +66,30 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	@Transient
 	private boolean runDetached;
 
+
+	/**
+	 * Returns the assigned entity manager
+	 *
+	 * @return
+	 */
+	@NotNull
+	@Transient
+	protected abstract EntityManager getEntityManager();
+
+	/**
+	 * Performed on create/persist
+	 *
+	 * @param entity
+	 */
+	protected abstract void onCreate(E entity);
+
+	/**
+	 * Performed on update/persist
+	 *
+	 * @param entity
+	 */
+	protected abstract void onUpdate(E entity);
+
 	@SuppressWarnings("unchecked")
 	protected QueryBuilderBase()
 	{
@@ -275,19 +299,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 		return (J) this;
 	}
-
-	/**
-	 * Returns the assigned entity manager
-	 *
-	 * @return
-	 */
-	@NotNull
-	@Transient
-	protected abstract EntityManager getEntityManager();
-
-	protected abstract void onCreate(E entity);
-
-	protected abstract void onUpdate(E entity);
 
 	/**
 	 * Performs the constraint validation and returns a list of all constraint errors.

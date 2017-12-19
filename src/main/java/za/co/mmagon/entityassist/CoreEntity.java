@@ -272,40 +272,4 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	{
 		return dateTimeOffsetFormatter;
 	}
-
-	/**
-	 * Persists this object through the builder
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J persist()
-	{
-		builder().persist((J) this);
-		return (J) this;
-	}
-
-	/**
-	 * Updates this object through the builder
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J update()
-	{
-		builder().update((J) this);
-		return (J) this;
-	}
-
-	/**
-	 * Persists this object through the builder
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J persistNow()
-	{
-		builder().persistNow((J) this);
-		return (J) this;
-	}
 }
