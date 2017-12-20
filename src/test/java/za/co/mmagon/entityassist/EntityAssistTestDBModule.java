@@ -10,7 +10,7 @@ public class EntityAssistTestDBModule extends H2DefaultConnectionBaseBuilder
 	@Override
 	protected String getJndiMapping()
 	{
-		return "jdbc/eatest";
+		return "jdbc:eatest";
 	}
 
 	@Override

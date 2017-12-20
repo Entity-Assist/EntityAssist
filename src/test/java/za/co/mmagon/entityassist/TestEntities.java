@@ -16,13 +16,32 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 
-		EntityClass ec = new EntityClass();
-		ec.setId(1L);
-		ec.persistNow();
+		TestEntities te = GuiceContext.getInstance(TestEntities.class);
+
+		try
+		{
+			BitronixContext ic = new BitronixContext();
+			BitronixTransactionManager btm = (BitronixTransactionManager) ic.lookup("java:comp/UserTransaction");
+			System.out.println(ic);
+		}
+		catch (NamingException e)
+		{
+			e.printStackTrace();
+		}
+		te.testMethodInterception();
+
 		Optional<EntityClass> ec1 = new EntityClass().find(1L);
 		System.out.println("ec : " + ec1);
 	}
 
+	@Transactional
+	public void testMethodInterception()
+	{
+		EntityClass ec = new EntityClass();
+		ec.setId(1L);
+		ec.persistNow();
+	}
+/*
 	@Test
 	public void testEntity2()
 	{

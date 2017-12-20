@@ -10,6 +10,10 @@ import javax.persistence.EntityManager;
 
 public class EntityClassBuilder extends QueryBuilderCore<EntityClassBuilder, EntityClass, Long>
 {
+	public EntityClassBuilder()
+	{
+	}
+
 	@Override
 	public EntityManager getEntityManager()
 	{

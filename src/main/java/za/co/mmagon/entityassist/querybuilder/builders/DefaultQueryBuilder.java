@@ -25,7 +25,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	/**
 	 * Returns the root object of this entity
 	 */
-	private final Root<E> root;
+	private Root<E> root;
 	/**
 	 * A set of all the joins applied to this specific entity
 	 */
@@ -70,7 +70,13 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		joins = new HashSet<>();
 		this.criteriaBuilder = getEntityManager().getCriteriaBuilder();
 		this.criteriaQuery = criteriaBuilder.createQuery();
-		root = criteriaQuery.from(getEntityClass());
+	}
+
+	@Override
+	public void setEntity(Object entity)
+	{
+		super.setEntity(entity);
+		root = criteriaQuery.from(entity.getClass());
 	}
 
 	/**

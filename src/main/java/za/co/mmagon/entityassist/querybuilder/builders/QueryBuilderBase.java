@@ -1,7 +1,6 @@
 package za.co.mmagon.entityassist.querybuilder.builders;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.inject.persist.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.querybuilder.statements.InsertStatement;
@@ -17,7 +16,6 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
@@ -66,6 +64,11 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	@Transient
 	private boolean runDetached;
 
+	@SuppressWarnings("unchecked")
+	protected QueryBuilderBase()
+	{
+		this.entityClass = getEntityClass();
+	}
 
 	/**
 	 * Returns the assigned entity manager
@@ -90,16 +93,12 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	protected abstract void onUpdate(E entity);
 
-	@SuppressWarnings("unchecked")
-	protected QueryBuilderBase()
-	{
-		this.entityClass = getEntityClass();
-	}
 
 	@SuppressWarnings("unchecked")
 	public void setEntity(Object entity)
 	{
 		this.entity = (E) entity;
+		this.entityClass = (Class<E>) entity.getClass();
 	}
 
 	/**
@@ -110,19 +109,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	@SuppressWarnings("unchecked")
 	protected Class<E> getEntityClass()
 	{
-		if (entityClass == null)
-		{
-			try
-			{
-				this.entityClass = (Class<E>) ((ParameterizedType) getClass()
-						                                                   .getGenericSuperclass()).getActualTypeArguments()[1];
-			}
-			catch (Exception e)
-			{
-				this.entityClass = null;
-				log.log(Level.SEVERE, "Unable to read the entity class that this query builder core is built for\n", e);
-			}
-		}
 		return entityClass;
 	}
 
@@ -183,7 +169,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	@SuppressWarnings("all")
 	@NotNull
-	@Transactional
 	public J persistNow(E entity)
 	{
 		checkForTransaction();
@@ -199,7 +184,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	@Transactional
 	public J persist(E entity)
 	{
 		try
@@ -243,7 +227,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 * @param connection
 	 * @param insertString
 	 */
-	@Transactional
 	public void performInsert(Connection connection, String insertString)
 	{
 		String escaped = StringUtils.replace(insertString, STRING_SINGLE_QUOTES, STRING_SINGLE_QUOTES_TWICE);
@@ -272,7 +255,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	@Transactional
 	public J update(E entity)
 	{
 		try
@@ -362,9 +344,20 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 
 	private void checkForTransaction()
 	{
-		if (getEntityManager().getTransaction() != null && !(getEntityManager().getTransaction().isActive()))
+		if (getEntityManager().isJoinedToTransaction())
 		{
-			getEntityManager().getTransaction().begin();
+			return;
+		}
+		try
+		{
+			if (getEntityManager().getTransaction() != null && !(getEntityManager().getTransaction().isActive()))
+			{
+				getEntityManager().getTransaction().begin();
+			}
+		}
+		catch (IllegalStateException ise)
+		{
+			log.log(Level.FINEST, "Excepted error : Running JTA not JPA", ise);
 		}
 	}
 
@@ -407,9 +400,16 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 
 	private void commitTransaction()
 	{
-		if (getEntityManager().getTransaction() != null && getEntityManager().getTransaction().isActive())
+		try
 		{
-			getEntityManager().getTransaction().commit();
+			if (getEntityManager().getTransaction() != null && getEntityManager().getTransaction().isActive())
+			{
+				getEntityManager().getTransaction().commit();
+			}
+		}
+		catch (IllegalStateException ise)
+		{
+			log.log(Level.FINEST, "Excepted error : Running JTA not JPA", ise);
 		}
 	}
 

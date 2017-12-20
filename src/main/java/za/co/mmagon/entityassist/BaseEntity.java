@@ -191,31 +191,6 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	}
 
 	/**
-	 * Returns this classes specific entity type
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	protected Class<J> getClassEntityType()
-	{
-		if (myClass == null)
-		{
-			try
-			{
-				this.myClass = (Class<J>) ((ParameterizedType) getClass()
-						                                               .getGenericSuperclass()).getActualTypeArguments()[0];
-			}
-			catch (Exception e)
-			{
-				this.myClass = null;
-				log.log(Level.SEVERE, "Cannot return the my class generic type? this class is not extended?", e);
-			}
-		}
-		return myClass;
-	}
-
-
-	/**
 	 * Returns the builder associated with this entity
 	 *
 	 * @return
