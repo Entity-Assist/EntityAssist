@@ -9,7 +9,8 @@ public class TestEntities
 	{
 		System.out.println("Override for server builds?");
 	}
-/*
+
+	/*
 	@Test
 	public void testEntity()
 	{
@@ -34,7 +35,7 @@ public class TestEntities
 		System.out.println("ec : " + ec1);
 	}
 
-	@Transactional
+	@Transactional()
 	public void testMethodInterception()
 	{
 		EntityClass ec = new EntityClass();
