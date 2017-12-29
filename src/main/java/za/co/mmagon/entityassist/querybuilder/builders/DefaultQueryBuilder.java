@@ -4,6 +4,7 @@ import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.Operand;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
 
+import javax.annotation.Nullable;
 import javax.persistence.Id;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.*;
@@ -13,7 +14,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.Logger;
 
-public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
+abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilderExecutor, I>, I extends Serializable>
 		extends QueryBuilderBase<J, E, I>
 {
 	private static final Logger log = Logger.getLogger(DefaultQueryBuilder.class.getName());
@@ -57,6 +58,11 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private CriteriaQuery criteriaQuery;
 
 	/**
+	 * The physical criteria query
+	 */
+	private CriteriaDelete criteriaDelete;
+
+	/**
 	 * Constructs a new query builder core with typed classes instantiated
 	 */
 	@SuppressWarnings("unchecked")
@@ -70,9 +76,11 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		joins = new HashSet<>();
 		this.criteriaBuilder = getEntityManager().getCriteriaBuilder();
 		this.criteriaQuery = criteriaBuilder.createQuery();
+
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void setEntity(Object entity)
 	{
 		super.setEntity(entity);
@@ -215,13 +223,37 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	}
 
 	/**
+	 * Returns the criteria delete, which is nullable
+	 *
+	 * @return
+	 */
+	@Nullable
+	protected CriteriaDelete getCriteriaDelete()
+	{
+		return criteriaDelete;
+	}
+
+	/**
+	 * Sets the criteria delete
+	 *
+	 * @param criteriaDelete
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public J setCriteriaDelete(CriteriaDelete criteriaDelete)
+	{
+		this.criteriaDelete = criteriaDelete;
+		return (J) this;
+	}
+
+	/**
 	 * Sets the criteria query for this instance
 	 *
-	 * @param criteriaQuery
+	 * @param criteriaDelete
 	 */
-	protected void setCriteriaQuery(CriteriaQuery criteriaQuery)
+	protected void setCriteriaQuery(CriteriaDelete criteriaDelete)
 	{
-		this.criteriaQuery = criteriaQuery;
+		this.criteriaDelete = criteriaDelete;
 	}
 
 	/**

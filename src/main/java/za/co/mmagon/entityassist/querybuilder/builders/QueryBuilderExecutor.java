@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
@@ -43,9 +44,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			selectCount();
 			select();
 		}
-
 		TypedQuery<Long> query = getEntityManager().createQuery(getCriteriaQuery());
-
 		Long j = null;
 		try
 		{
@@ -70,43 +69,40 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	{
 		if (!selected)
 		{
-			List<Predicate> allWheres = new ArrayList<>();
-			allWheres.addAll(getFilters());
-
+			List<Predicate> allWheres = new ArrayList<>(getFilters());
 			Predicate[] preds = new Predicate[allWheres.size()];
 			preds = allWheres.toArray(preds);
-
-			CriteriaQuery<E> cq = getCriteriaQuery();
-
-			getCriteriaQuery().where(preds);
-
-			if (!getGroupBys().isEmpty())
+			if (getCriteriaDelete() == null)
 			{
+				CriteriaQuery<E> cq = getCriteriaQuery();
+				getCriteriaQuery().where(preds);
 				for (Expression p : getGroupBys())
 				{
 					cq.groupBy(p);
 				}
-			}
 
-			if (!getHaving().isEmpty())
-			{
 				for (Expression expression : getHaving())
 				{
 					cq.having(expression);
 				}
-			}
 
-			if (!getOrderBys().isEmpty())
-			{
-				getOrderBys().forEach((key, value) -> processOrderBys(key, value, cq));
-			}
-			if (getSelections().isEmpty())
-			{
-				getCriteriaQuery().select(getRoot());
+				if (!getOrderBys().isEmpty())
+				{
+					getOrderBys().forEach((key, value) -> processOrderBys(key, value, cq));
+				}
+				if (getSelections().isEmpty())
+				{
+					getCriteriaQuery().select(getRoot());
+				}
+				else
+				{
+					getSelections().forEach(a -> getCriteriaQuery().select(a));
+				}
 			}
 			else
 			{
-				getSelections().forEach(a -> getCriteriaQuery().select(a));
+				CriteriaDelete cq = getCriteriaDelete();
+				cq.where(preds);
 			}
 		}
 		selected = true;
@@ -226,7 +222,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			select();
 		}
 		TypedQuery<E> query = getEntityManager().createQuery(getCriteriaQuery());
-
 		if (getMaxResults() != null)
 		{
 			query.setMaxResults(getMaxResults());
@@ -250,6 +245,40 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	}
 
 	/**
+	 * Returns the list as the selected class type (for when specifying single select columns)
+	 *
+	 * @param returnClassType
+	 * @param <T>
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends BaseEntity<E, J, I>> List<T> getAll(Class<T> returnClassType)
+	{
+		if (!selected)
+		{
+			select();
+		}
+		TypedQuery<E> query = getEntityManager().createQuery(getCriteriaQuery());
+		if (getMaxResults() != null)
+		{
+			query.setMaxResults(getMaxResults());
+		}
+		if (getFirstResults() != null)
+		{
+			query.setFirstResult(getFirstResults());
+		}
+		List<T> j;
+		j = (List<T>) query.getResultList();
+		for (Object j1 : j)
+		{
+			T wct = (T) j1;
+			wct.setFake(false);
+		}
+		return j;
+	}
+
+	/**
 	 * Sets whether or not to detach the selected entity/ies
 	 *
 	 * @return
@@ -260,4 +289,51 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		this.detach = true;
 		return (J) this;
 	}
+
+	/**
+	 * Returns the number of rows affected by the delete.
+	 * WARNING : Be very careful if you haven't added a filter this will truncate the table or throw a unsupported exception if no filters.
+	 *
+	 * @return
+	 */
+	public int delete()
+	{
+		if (getFilters().isEmpty())
+		{
+			throw new UnsupportedOperationException("Calling the delete method with no filters. This will truncate the table. Rather call truncate()");
+		}
+		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
+		setCriteriaDelete(deletion);
+		select();
+		return getEntityManager().createQuery(deletion).executeUpdate();
+	}
+
+	/**
+	 * Deletes the given entity through the entity manager
+	 *
+	 * @param entity
+	 *
+	 * @return
+	 */
+	public int delete(E entity)
+	{
+		getEntityManager().remove(entity);
+		return 1;
+	}
+
+	/**
+	 * Returns the number of rows affected by the delete.
+	 * WARNING : Be very careful if you haven't added a filter this will truncate the table or throw a unsupported exception if no filters.
+	 *
+	 * @return
+	 */
+	public int truncate()
+	{
+		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
+		setCriteriaDelete(deletion);
+		getFilters().clear();
+		select();
+		return getEntityManager().createQuery(deletion).executeUpdate();
+	}
+
 }

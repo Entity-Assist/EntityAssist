@@ -36,7 +36,7 @@ import static za.co.mmagon.entityassist.querybuilder.EntityAssistStrings.*;
  * @param <I>
  * 		The entity ID type
  */
-public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
+abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilderExecutor, I>, I extends Serializable>
 {
 
 	private static final Logger log = Logger.getLogger("QueryBuilderCore");

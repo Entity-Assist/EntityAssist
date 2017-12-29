@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import za.co.mmagon.entityassist.querybuilder.EntityAssistStrings;
-import za.co.mmagon.entityassist.querybuilder.builders.QueryBuilderBase;
+import za.co.mmagon.entityassist.querybuilder.builders.QueryBuilderExecutor;
 import za.co.mmagon.guiceinjection.GuiceContext;
 
 import javax.persistence.MappedSuperclass;
@@ -25,7 +25,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @MappedSuperclass()
 @JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
 @JsonInclude(NON_NULL)
-public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryBuilderBase<Q, J, I>, I extends Serializable>
+public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryBuilderExecutor<Q, J, I>, I extends Serializable>
 		implements EntityAssistStrings
 {
 	private static final Logger log = Logger.getLogger(BaseEntity.class.getName());
@@ -72,7 +72,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 */
 	@SuppressWarnings("all")
 	@NotNull
-	public abstract J setId(@NotNull I id);
+	public abstract J setId(I id);
 
 
 	/**
@@ -81,6 +81,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
+	@NotNull
 	public J persist()
 	{
 		builder().persist((J) this);
@@ -93,6 +94,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
+	@NotNull
 	public J update()
 	{
 		builder().update((J) this);
@@ -105,6 +107,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
+	@NotNull
 	public J persistNow()
 	{
 		builder().persistNow((J) this);
@@ -117,9 +120,23 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
+	@NotNull
 	public J validate()
 	{
 		builder().validateEntity((J) this);
+		return (J) this;
+	}
+
+	/**
+	 * Deletes this entity with the entity mananger. This will remove the row.
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J delete()
+	{
+		QueryBuilderExecutor.class.cast(builder()).delete((J) this);
 		return (J) this;
 	}
 
@@ -200,7 +217,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	public Q builder()
 	{
 		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
-		QueryBuilderBase<?, ?, ?> instance = null;
+		QueryBuilderExecutor<?, ?, ?> instance = null;
 		try
 		{
 			instance = GuiceContext.getInstance(foundQueryBuilderClass);
