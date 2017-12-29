@@ -7,18 +7,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -336,4 +332,53 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		return getEntityManager().createQuery(deletion).executeUpdate();
 	}
 
+	/**
+	 * Returns the number of rows or an unsupported exception if there are no filters added
+	 *
+	 * @param updateFields
+	 *
+	 * @return
+	 */
+	public int bulkUpdate(E updateFields)
+	{
+		if (getFilters().isEmpty())
+		{
+			throw new UnsupportedOperationException("Calling the bulk update method with no filters. This will update the entire table.");
+		}
+		CriteriaUpdate update = getCriteriaBuilder().createCriteriaUpdate(getEntityClass());
+		Map<String, Object> updateFieldMap = getUpdateFieldMap(updateFields);
+		updateFieldMap.forEach(update::set);
+		select();
+		return getEntityManager().createQuery(update).executeUpdate();
+	}
+
+	/**
+	 * Goes through the object looking for fields, returns a set where the field name is mapped to the object
+	 *
+	 * @param updateFields
+	 *
+	 * @return
+	 */
+	protected Map<String, Object> getUpdateFieldMap(E updateFields)
+	{
+		Map<String, Object> map = new HashMap<>();
+				                              Field[] fields = updateFields.getClass().getDeclaredFields();
+				                              Arrays.asList(fields).forEach(a ->
+				                                                            {
+					                                                            a.setAccessible(true);
+					                                                            try
+					                                                            {
+						                                                            Object o = a.get(updateFields);
+						                                                            if (o != null)
+						                                                            {
+							                                                            map.put(a.getName(), o);
+						                                                            }
+					                                                            }
+					                                                            catch (IllegalAccessException e)
+					                                                            {
+				                              log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
+			                              }
+		                              });
+		return map;
+	}
 }
