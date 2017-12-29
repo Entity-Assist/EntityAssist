@@ -63,6 +63,11 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	private CriteriaDelete criteriaDelete;
 
 	/**
+	 * The physical criteria query
+	 */
+	private CriteriaUpdate criteriaUpdate;
+
+	/**
 	 * Constructs a new query builder core with typed classes instantiated
 	 */
 	@SuppressWarnings("unchecked")
@@ -231,6 +236,32 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	protected CriteriaDelete getCriteriaDelete()
 	{
 		return criteriaDelete;
+	}
+
+	/**
+	 * Gets the criteria update object
+	 *
+	 * @return
+	 */
+	@Nullable
+	public CriteriaUpdate getCriteriaUpdate()
+	{
+		return criteriaUpdate;
+	}
+
+	/**
+	 * Sets the criteria update object
+	 *
+	 * @param criteriaUpdate
+	 *
+	 * @return
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public J setCriteriaUpdate(CriteriaUpdate criteriaUpdate)
+	{
+		this.criteriaUpdate = criteriaUpdate;
+		return (J) this;
 	}
 
 	/**

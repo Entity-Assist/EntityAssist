@@ -95,9 +95,14 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 					getSelections().forEach(a -> getCriteriaQuery().select(a));
 				}
 			}
-			else
+			else if (getCriteriaDelete() != null && getCriteriaUpdate() == null)
 			{
 				CriteriaDelete cq = getCriteriaDelete();
+				cq.where(preds);
+			}
+			else if (getCriteriaUpdate() != null)
+			{
+				CriteriaUpdate cq = getCriteriaUpdate();
 				cq.where(preds);
 			}
 		}
@@ -301,7 +306,10 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
 		setCriteriaDelete(deletion);
 		select();
-		return getEntityManager().createQuery(deletion).executeUpdate();
+		checkForTransaction();
+		int results = getEntityManager().createQuery(deletion).executeUpdate();
+		commitTransaction();
+		return results;
 	}
 
 	/**
@@ -313,7 +321,9 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 */
 	public int delete(E entity)
 	{
+		checkForTransaction();
 		getEntityManager().remove(entity);
+		commitTransaction();
 		return 1;
 	}
 
@@ -329,7 +339,10 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		setCriteriaDelete(deletion);
 		getFilters().clear();
 		select();
-		return getEntityManager().createQuery(deletion).executeUpdate();
+		checkForTransaction();
+		int results = getEntityManager().createQuery(deletion).executeUpdate();
+		commitTransaction();
+		return results;
 	}
 
 	/**
@@ -349,7 +362,10 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		Map<String, Object> updateFieldMap = getUpdateFieldMap(updateFields);
 		updateFieldMap.forEach(update::set);
 		select();
-		return getEntityManager().createQuery(update).executeUpdate();
+		checkForTransaction();
+		int results = getEntityManager().createQuery(update).executeUpdate();
+		commitTransaction();
+		return results;
 	}
 
 	/**
@@ -362,20 +378,20 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	protected Map<String, Object> getUpdateFieldMap(E updateFields)
 	{
 		Map<String, Object> map = new HashMap<>();
-				                              Field[] fields = updateFields.getClass().getDeclaredFields();
-				                              Arrays.asList(fields).forEach(a ->
-				                                                            {
-					                                                            a.setAccessible(true);
-					                                                            try
-					                                                            {
-						                                                            Object o = a.get(updateFields);
-						                                                            if (o != null)
-						                                                            {
-							                                                            map.put(a.getName(), o);
-						                                                            }
-					                                                            }
-					                                                            catch (IllegalAccessException e)
-					                                                            {
+		Field[] fields = updateFields.getClass().getDeclaredFields();
+		Arrays.asList(fields).forEach(a ->
+		                              {
+			                              a.setAccessible(true);
+			                              try
+			                              {
+				                              Object o = a.get(updateFields);
+				                              if (o != null)
+				                              {
+					                              map.put(a.getName(), o);
+				                              }
+			                              }
+			                              catch (IllegalAccessException e)
+			                              {
 				                              log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
 			                              }
 		                              });

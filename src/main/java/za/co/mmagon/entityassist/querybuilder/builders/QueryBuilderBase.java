@@ -342,7 +342,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		return (J) this;
 	}
 
-	private void checkForTransaction()
+	protected void checkForTransaction()
 	{
 		if (getEntityManager().isJoinedToTransaction())
 		{
@@ -398,7 +398,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		}
 	}
 
-	private void commitTransaction()
+	protected void commitTransaction()
 	{
 		try
 		{

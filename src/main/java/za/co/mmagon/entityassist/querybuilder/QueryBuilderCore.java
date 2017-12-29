@@ -134,4 +134,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		persist(entity);
 		return 1;
 	}
+
+
 }
