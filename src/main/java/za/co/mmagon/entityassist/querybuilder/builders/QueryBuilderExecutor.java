@@ -1,7 +1,6 @@
 package za.co.mmagon.entityassist.querybuilder.builders;
 
 import za.co.mmagon.entityassist.BaseEntity;
-import za.co.mmagon.entityassist.CoreEntity;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
 
 import javax.persistence.EntityManager;
@@ -31,6 +30,10 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 * Marks if this query is selected
 	 */
 	private boolean selected;
+	/**
+	 * Whether or not to detach after select
+	 */
+	private boolean detach;
 
 	@SuppressWarnings("unchecked")
 	public Long getCount()
@@ -176,6 +179,10 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		{
 			j = query.getSingleResult();
 			j.setFake(false);
+			if (detach)
+			{
+				getEntityManager().detach(j);
+			}
 			return Optional.of(j);
 		}
 		catch (NoResultException nre)
@@ -193,6 +200,10 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 				List<E> returnedList = query.getResultList();
 				j = returnedList.get(0);
 				j.setFake(false);
+				if (detach)
+				{
+					getEntityManager().detach(j);
+				}
 				return Optional.of(j);
 			}
 			else
@@ -228,9 +239,25 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		j = query.getResultList();
 		for (Object j1 : j)
 		{
-			CoreEntity wct = (CoreEntity) j1;
+			E wct = (E) j1;
+			if (detach)
+			{
+				getEntityManager().detach(wct);
+			}
 			wct.setFake(false);
 		}
 		return j;
+	}
+
+	/**
+	 * Sets whether or not to detach the selected entity/ies
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J detach()
+	{
+		this.detach = true;
+		return (J) this;
 	}
 }
