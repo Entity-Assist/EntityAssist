@@ -263,11 +263,11 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			onUpdate(entity);
 			if (isRunDetached())
 			{
-				getEntityManager().merge(this);
+				getEntityManager().merge(entity);
 			}
 			else
 			{
-				getEntityManager().merge(this);
+				getEntityManager().merge(entity);
 			}
 			commitTransaction();
 		}
