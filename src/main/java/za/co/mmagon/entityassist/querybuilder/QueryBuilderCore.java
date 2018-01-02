@@ -98,8 +98,9 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveToDate(LocalDateTime.now());
 		entity.setActiveFlag(newActiveFlagType);
-		update(entity);
+		getEntityManager().merge(entity);
 		getEntityManager().detach(entity);
+
 		entity.setId(null);
 		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
@@ -107,6 +108,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setEffectiveToDate(LocalDateTime.of(2999, 12, 31, 11, 59, 59, 999));
 		entity.setActiveFlag(ActiveFlag.Active);
 		persist(entity);
+
 		return entity;
 	}
 
@@ -123,8 +125,10 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveToDate(LocalDateTime.now());
 		entity.setActiveFlag(ActiveFlag.Deleted);
-		update(entity);
+
+		getEntityManager().merge(entity);
 		getEntityManager().detach(entity);
+
 		entity.setId(null);
 		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
@@ -132,8 +136,28 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setEffectiveToDate(LocalDateTime.of(2999, 12, 31, 11, 59, 59, 999));
 		entity.setActiveFlag(ActiveFlag.Active);
 		persist(entity);
+
 		return entity;
 	}
 
+	public E archive(E entity)
+	{
+		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		entity.setEffectiveToDate(LocalDateTime.now());
+		entity.setActiveFlag(ActiveFlag.Archived);
+
+		getEntityManager().merge(entity);
+		getEntityManager().detach(entity);
+
+		entity.setId(null);
+		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
+		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		entity.setEffectiveFromDate(LocalDateTime.now());
+		entity.setEffectiveToDate(LocalDateTime.of(2999, 12, 31, 11, 59, 59, 999));
+		entity.setActiveFlag(ActiveFlag.Active);
+		persist(entity);
+
+		return entity;
+	}
 
 }
