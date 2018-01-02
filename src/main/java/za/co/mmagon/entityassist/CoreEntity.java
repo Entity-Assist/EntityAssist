@@ -47,26 +47,31 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	@JsonProperty(value = "$jwid")
 	@Transient
 	private String referenceId;
+
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
 	@Column(nullable = false, name = "EffectiveFromDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
+
 	private LocalDateTime effectiveFromDate;
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
 	@Column(nullable = false, name = "EffectiveToDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
+
 	private LocalDateTime effectiveToDate;
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
 	@Column(nullable = false, name = "WarehouseCreatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime warehouseCreatedTimestamp;
+
 	@Basic(optional = false, fetch = FetchType.LAZY)
 	@NotNull
 	@Column(nullable = false, name = "WarehouseLastUpdatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime warehouseLastUpdatedTimestamp;
+
 	@Basic(optional = false, fetch = FetchType.EAGER)
 	@Column(nullable = false, name = "ActiveFlag")
 	@Enumerated(value = EnumType.STRING)

@@ -93,7 +93,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 *
 	 * @return
 	 */
-	public int delete(ActiveFlag newActiveFlagType, E entity)
+	public E delete(ActiveFlag newActiveFlagType, E entity)
 	{
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveToDate(LocalDateTime.now());
@@ -107,7 +107,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setEffectiveToDate(LocalDateTime.of(2999, 12, 31, 11, 59, 59, 999));
 		entity.setActiveFlag(ActiveFlag.Active);
 		persist(entity);
-		return 1;
+		return entity;
 	}
 
 	/**
@@ -118,7 +118,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	 * @return
 	 */
 	@Override
-	public int delete(E entity)
+	public E delete(E entity)
 	{
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveToDate(LocalDateTime.now());
@@ -132,7 +132,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setEffectiveToDate(LocalDateTime.of(2999, 12, 31, 11, 59, 59, 999));
 		entity.setActiveFlag(ActiveFlag.Active);
 		persist(entity);
-		return 1;
+		return entity;
 	}
 
 

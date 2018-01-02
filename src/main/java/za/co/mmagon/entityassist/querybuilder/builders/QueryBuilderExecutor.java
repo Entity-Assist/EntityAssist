@@ -293,6 +293,9 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 
 	/**
 	 * Returns the number of rows affected by the delete.
+	 * <p>
+	 * Bulk Delete Operation
+	 * <p>
 	 * WARNING : Be very careful if you haven't added a filter this will truncate the table or throw a unsupported exception if no filters.
 	 *
 	 * @return
@@ -313,18 +316,31 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	}
 
 	/**
+	 * Removes the entity using the entity manager
+	 *
+	 * @return
+	 */
+	public E deleteEntity(E entity)
+	{
+		checkForTransaction();
+		getEntityManager().remove(entity);
+		commitTransaction();
+		return entity;
+	}
+
+	/**
 	 * Deletes the given entity through the entity manager
 	 *
 	 * @param entity
 	 *
 	 * @return
 	 */
-	public int delete(E entity)
+	public E delete(E entity)
 	{
 		checkForTransaction();
 		getEntityManager().remove(entity);
 		commitTransaction();
-		return 1;
+		return entity;
 	}
 
 	/**
