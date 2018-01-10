@@ -30,7 +30,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	/**
 	 * A set of all the joins applied to this specific entity
 	 */
-	private final Set<Join<E, ? extends BaseEntity>> joins;
+	private final Set<Join<? extends BaseEntity, E>> joins;
 	/**
 	 * A predefined list of filters for this entity
 	 */
@@ -102,7 +102,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <X, Y> J join(Attribute<X, Y> attribute)
+	public <X, Y> Join<X, Y> join(Attribute<X, Y> attribute)
 	{
 		return join(attribute, JoinType.INNER);
 	}
@@ -117,25 +117,26 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <X, Y> J join(Attribute<X, Y> attribute, JoinType joinType)
+	public <X, Y> Join<X, Y> join(Attribute<X, Y> attribute, JoinType joinType)
 	{
+		Join<X, Y> join;
 		if (isSingularAttribute(attribute))
 		{
-			getRoot().join(SingularAttribute.class.cast(attribute), joinType);
+			join = getRoot().join(SingularAttribute.class.cast(attribute), joinType);
 		}
 		else if (isCollectionAttribute(attribute))
 		{
-			getRoot().join(CollectionAttribute.class.cast(attribute), joinType);
+			join = getRoot().join(CollectionAttribute.class.cast(attribute), joinType);
 		}
 		else if (isMapAttribute(attribute))
 		{
-			getRoot().join(MapAttribute.class.cast(attribute), joinType);
+			join = getRoot().join(MapAttribute.class.cast(attribute), joinType);
 		}
 		else
 		{
-			getRoot().join(attribute.getName(), joinType);
+			join = getRoot().join(attribute.getName(), joinType);
 		}
-		return (J) this;
+		return join;
 	}
 
 	/**
@@ -143,7 +144,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 *
 	 * @return
 	 */
-	protected Root<? extends BaseEntity> getRoot()
+	protected Root<E> getRoot()
 	{
 		return root;
 	}
@@ -212,7 +213,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return having;
 	}
 
-	protected Set<Join<E, ? extends BaseEntity>> getJoins()
+	protected Set<Join<? extends BaseEntity, E>> getJoins()
 	{
 		return joins;
 	}
@@ -233,7 +234,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 * @return
 	 */
 	@Nullable
-	protected CriteriaDelete getCriteriaDelete()
+	protected CriteriaDelete<E> getCriteriaDelete()
 	{
 		return criteriaDelete;
 	}
@@ -244,7 +245,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 * @return
 	 */
 	@Nullable
-	public CriteriaUpdate getCriteriaUpdate()
+	public CriteriaUpdate<E> getCriteriaUpdate()
 	{
 		return criteriaUpdate;
 	}
@@ -722,7 +723,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 			case GreaterThanEqualTo:
 			default:
 			{
-				return where(attribute, operator, (Number) value);
+				where(attribute, operator, (Comparable) value, true);
 			}
 		}
 
@@ -780,7 +781,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 */
 	@NotNull
 	@SuppressWarnings("unchecked")
-	private <N extends Number> J where(Attribute attribute, Operand operator, N value)
+	private <T extends Comparable<T>> J where(Attribute attribute, Operand operator, T value, boolean gtlt)
 	{
 		switch (operator)
 		{
@@ -788,11 +789,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getFilters().add(getCriteriaBuilder().lt(getRoot().get((SingularAttribute) attribute), value));
-				}
-				else if (isPluralOrMapAttribute(attribute))
-				{
-					getFilters().add(getCriteriaBuilder().lt(getRoot().get((PluralAttribute) attribute), value));
+					getFilters().add(getCriteriaBuilder().lessThan(getRoot().get((SingularAttribute<E, T>) attribute), value));
 				}
 				break;
 			}
@@ -800,12 +797,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 			{
 				if (isSingularAttribute(attribute))
 				{
-					Expression<? extends Number> path = getRoot().get(SingularAttribute.class.cast(attribute));
-					getFilters().add(getCriteriaBuilder().le(path, value));
-				}
-				else if (isPluralOrMapAttribute(attribute))
-				{
-					getFilters().add(getCriteriaBuilder().le(getRoot().get((PluralAttribute) attribute), value));
+					getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get((SingularAttribute<E, T>) attribute), value));
 				}
 				break;
 			}
@@ -813,11 +805,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getFilters().add(getCriteriaBuilder().gt(getRoot().get((SingularAttribute) attribute), value));
-				}
-				else if (isPluralOrMapAttribute(attribute))
-				{
-					getFilters().add(getCriteriaBuilder().gt(getRoot().get((PluralAttribute) attribute), value));
+					getFilters().add(getCriteriaBuilder().greaterThan(getRoot().get((SingularAttribute<E, T>) attribute), value));
 				}
 				break;
 			}
@@ -825,11 +813,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 			{
 				if (isSingularAttribute(attribute))
 				{
-					getFilters().add(getCriteriaBuilder().ge(getRoot().get((SingularAttribute) attribute), value));
-				}
-				else if (isPluralOrMapAttribute(attribute))
-				{
-					getFilters().add(getCriteriaBuilder().ge(getRoot().get((PluralAttribute) attribute), value));
+					getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get((SingularAttribute<E, T>) attribute), value));
 				}
 				break;
 			}
@@ -840,5 +824,4 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		}
 		return (J) this;
 	}
-
 }
