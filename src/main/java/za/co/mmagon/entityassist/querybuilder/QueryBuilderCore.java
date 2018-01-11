@@ -34,7 +34,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 				flags.add(flag);
 			}
 		}
-		getFilters().add(getRoot().get("activeFlag").in(flags));
+		getFilters().add(getCriteriaBuilder().in(getRoot().get("activeFlag")).value(flags));
 		return (J) this;
 	}
 

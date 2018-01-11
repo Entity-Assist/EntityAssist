@@ -65,12 +65,32 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	{
 		if (!selected)
 		{
-			List<Predicate> allWheres = new ArrayList<>(getFilters());
-			Predicate[] preds = new Predicate[allWheres.size()];
-			preds = allWheres.toArray(preds);
 			if (getCriteriaDelete() == null)
 			{
 				CriteriaQuery<E> cq = getCriteriaQuery();
+				//Join Logic
+				getJoinExecutors().forEach((executor) ->
+				                           {
+					                           Attribute value = executor.getAttribute();
+					                           JoinType jt = executor.getJoinType();
+					                           Join join = getRoot().join((SingularAttribute) value, jt);
+
+					                           QueryBuilderExecutor key = executor.getExecutor();
+					                           if (key != null)
+					                           {
+						                           key.reset(join);
+						                           key.select();
+
+						                           //  key.getFilters().forEach(a -> getCriteriaQuery().where((Predicate) a));
+
+						                           getSelections().addAll(key.getSelections());
+						                           getFilters().addAll(key.getFilters());
+						                           getOrderBys().putAll(key.getOrderBys());
+					                           }
+				                           });
+				List<Predicate> allWheres = new ArrayList<>(getFilters());
+				Predicate[] preds = new Predicate[allWheres.size()];
+				preds = allWheres.toArray(preds);
 				getCriteriaQuery().where(preds);
 				for (Expression p : getGroupBys())
 				{
@@ -86,9 +106,14 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 				{
 					getOrderBys().forEach((key, value) -> processOrderBys(key, value, cq));
 				}
-				if (getSelections().isEmpty())
+
+				if (getSelections().isEmpty() && getSelections().size() <= 1)
 				{
 					getCriteriaQuery().select(getRoot());
+				}
+				else if (getSelections().isEmpty() && getSelections().size() > 1)
+				{
+					getCriteriaQuery().multiselect(new ArrayList(getSelections()));
 				}
 				else
 				{
@@ -98,11 +123,17 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			else if (getCriteriaDelete() != null && getCriteriaUpdate() == null)
 			{
 				CriteriaDelete cq = getCriteriaDelete();
+				List<Predicate> allWheres = new ArrayList<>(getFilters());
+				Predicate[] preds = new Predicate[allWheres.size()];
+				preds = allWheres.toArray(preds);
 				cq.where(preds);
 			}
 			else if (getCriteriaUpdate() != null)
 			{
 				CriteriaUpdate cq = getCriteriaUpdate();
+				List<Predicate> allWheres = new ArrayList<>(getFilters());
+				Predicate[] preds = new Predicate[allWheres.size()];
+				preds = allWheres.toArray(preds);
 				cq.where(preds);
 			}
 		}
@@ -261,7 +292,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		{
 			select();
 		}
-		TypedQuery<E> query = getEntityManager().createQuery(getCriteriaQuery());
+		TypedQuery<T> query = getEntityManager().createQuery(getCriteriaQuery());
 		if (getMaxResults() != null)
 		{
 			query.setMaxResults(getMaxResults());
@@ -271,7 +302,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			query.setFirstResult(getFirstResults());
 		}
 		List<T> j;
-		j = (List<T>) query.getResultList();
+		j = query.getResultList();
 		for (Object j1 : j)
 		{
 			T wct = (T) j1;

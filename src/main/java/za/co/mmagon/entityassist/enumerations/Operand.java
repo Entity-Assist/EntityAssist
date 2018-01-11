@@ -14,5 +14,6 @@ public enum Operand
 	GreaterThan,
 	GreaterThanEqualTo,
 	InList,
+	NotInList,
 
 }

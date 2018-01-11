@@ -1,5 +1,7 @@
 package za.co.mmagon.entityassist.entities.builders;
 
+import com.google.inject.Key;
+import za.co.mmagon.entityassist.TestEntityAssistCustomPersistenceLoader;
 import za.co.mmagon.entityassist.entities.EntityClassTwo;
 import za.co.mmagon.entityassist.querybuilder.QueryBuilderCore;
 import za.co.mmagon.guiceinjection.GuiceContext;
@@ -11,9 +13,8 @@ public class EntityClassTwoBuilder extends QueryBuilderCore<EntityClassTwoBuilde
 	@Override
 	public EntityManager getEntityManager()
 	{
-		return GuiceContext.getInstance(EntityManager.class);
+		return GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 	}
-
 
 	protected void onCreate(EntityClassTwo entity)
 	{

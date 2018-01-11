@@ -71,6 +71,16 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	}
 
 	/**
+	 * Returns a mapped entity on this builder
+	 *
+	 * @return
+	 */
+	public E getEntity()
+	{
+		return entity;
+	}
+
+	/**
 	 * Returns the assigned entity manager
 	 *
 	 * @return
