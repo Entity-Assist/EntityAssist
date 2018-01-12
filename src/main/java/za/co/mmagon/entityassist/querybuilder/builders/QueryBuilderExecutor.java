@@ -80,9 +80,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 					                           {
 						                           key.reset(join);
 						                           key.select();
-
-						                           //  key.getFilters().forEach(a -> getCriteriaQuery().where((Predicate) a));
-
 						                           getSelections().addAll(key.getSelections());
 						                           getFilters().addAll(key.getFilters());
 						                           getOrderBys().putAll(key.getOrderBys());
