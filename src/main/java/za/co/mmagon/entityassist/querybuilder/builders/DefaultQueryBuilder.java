@@ -30,7 +30,10 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	/**
 	 * The set of joins to apply
 	 */
-	private final Set<JoinExpression> joinExecutors;
+	private final Set<JoinExpression> joins;
+	/**
+	 * Select Expressions
+	 */
 	private final Set<SelectExpression> selectExpressions;
 	/**
 	 * A predefined list of filters for this entity
@@ -86,7 +89,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		this.criteriaBuilder = getEntityManager().getCriteriaBuilder();
 		this.criteriaQuery = criteriaBuilder.createQuery();
 
-		joinExecutors = new LinkedHashSet<>();
+		joins = new LinkedHashSet<>();
 		this.selectExpressions = new LinkedHashSet<>();
 		this.whereExpressions = new LinkedHashSet<>();
 		this.orderByExpressions = new LinkedHashSet<>();
@@ -426,6 +429,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return (J) this;
 	}
 
+
 	@SuppressWarnings("unchecked")
 	private boolean processSelectExpressionNone(SelectExpression selectExpression)
 	{
@@ -639,7 +643,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilderExecutor builder, JoinType joinType)
 	{
 		JoinExpression joinExpression = new JoinExpression(builder, joinType, attribute);
-		joinExecutors.add(joinExpression);
+		joins.add(joinExpression);
 		return (J) this;
 	}
 
@@ -764,8 +768,11 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 				}
 				return true;
 			}
+			default:
+			{
+				return false;
+			}
 		}
-		return false;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -800,8 +807,11 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 				}
 				return true;
 			}
+			default:
+			{
+				return false;
+			}
 		}
-		return false;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -835,8 +845,11 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 				}
 				return true;
 			}
+			default:
+			{
+				return false;
+			}
 		}
-		return false;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -879,8 +892,11 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 				}
 				return true;
 			}
+			default:
+			{
+				return false;
+			}
 		}
-		return false;
 	}
 
 	/**
@@ -960,7 +976,6 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		{
 			case InList:
 			{
-				CriteriaBuilder.In<Object> in = null;
 				Expression<Object> path = null;
 				if (isSingularAttribute(attribute))
 				{
@@ -970,14 +985,13 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 				{
 					path = getRoot().get(PluralAttribute.class.cast(attribute));
 				}
-				in = getCriteriaBuilder().in(path);
+				CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
 				buildInObject(in, value);
 				getFilters().add(in);
 				return true;
 			}
 			case NotInList:
 			{
-				CriteriaBuilder.In<Object> in = null;
 				Expression<Object> path = null;
 				if (isSingularAttribute(attribute))
 				{
@@ -987,13 +1001,16 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 				{
 					path = getRoot().get(PluralAttribute.class.cast(attribute));
 				}
-				in = getCriteriaBuilder().in(path);
+				CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
 				buildInObject(in, value);
 				getFilters().add(getCriteriaBuilder().not(in));
 				return true;
 			}
+			default:
+			{
+				return false;
+			}
 		}
-		return false;
 	}
 
 	/**
@@ -1041,9 +1058,9 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 * @return
 	 */
 	@NotNull
-	public Set<JoinExpression> getJoinExecutors()
+	public Set<JoinExpression> getJoins()
 	{
-		return joinExecutors;
+		return joins;
 	}
 
 	/**

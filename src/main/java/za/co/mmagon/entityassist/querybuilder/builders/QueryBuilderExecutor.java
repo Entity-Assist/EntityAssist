@@ -55,6 +55,28 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	}
 
 	/**
+	 * Processors the join section
+	 *
+	 * @param executor
+	 */
+	private void processJoins(JoinExpression executor)
+	{
+		Attribute value = executor.getAttribute();
+		JoinType jt = executor.getJoinType();
+		Join join = getRoot().join((SingularAttribute) value, jt);
+
+		QueryBuilderExecutor key = executor.getExecutor();
+		if (key != null)
+		{
+			key.reset(join);
+			key.select();
+			getSelections().addAll(key.getSelections());
+			getFilters().addAll(key.getFilters());
+			getOrderBys().putAll(key.getOrderBys());
+		}
+	}
+
+	/**
 	 * Prepares the select statement
 	 *
 	 * @return
@@ -67,55 +89,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		{
 			if (getCriteriaDelete() == null)
 			{
-				CriteriaQuery<E> cq = getCriteriaQuery();
-				//Join Logic
-				getJoinExecutors().forEach((executor) ->
-				                           {
-					                           Attribute value = executor.getAttribute();
-					                           JoinType jt = executor.getJoinType();
-					                           Join join = getRoot().join((SingularAttribute) value, jt);
-
-					                           QueryBuilderExecutor key = executor.getExecutor();
-					                           if (key != null)
-					                           {
-						                           key.reset(join);
-						                           key.select();
-						                           getSelections().addAll(key.getSelections());
-						                           getFilters().addAll(key.getFilters());
-						                           getOrderBys().putAll(key.getOrderBys());
-					                           }
-				                           });
-				List<Predicate> allWheres = new ArrayList<>(getFilters());
-				Predicate[] preds = new Predicate[allWheres.size()];
-				preds = allWheres.toArray(preds);
-				getCriteriaQuery().where(preds);
-				for (Expression p : getGroupBys())
-				{
-					cq.groupBy(p);
-				}
-
-				for (Expression expression : getHaving())
-				{
-					cq.having(expression);
-				}
-
-				if (!getOrderBys().isEmpty())
-				{
-					getOrderBys().forEach((key, value) -> processOrderBys(key, value, cq));
-				}
-
-				if (getSelections().isEmpty() && getSelections().size() <= 1)
-				{
-					getCriteriaQuery().select(getRoot());
-				}
-				else if (getSelections().isEmpty() && getSelections().size() > 1)
-				{
-					getCriteriaQuery().multiselect(new ArrayList(getSelections()));
-				}
-				else
-				{
-					getSelections().forEach(a -> getCriteriaQuery().select(a));
-				}
+				getJoins().forEach(this::processJoins);
+				processCriteriaQuery();
 			}
 			else if (getCriteriaDelete() != null && getCriteriaUpdate() == null)
 			{
@@ -136,6 +111,42 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 		selected = true;
 		return (J) this;
+	}
+
+	private void processCriteriaQuery()
+	{
+		CriteriaQuery<E> cq = getCriteriaQuery();
+		List<Predicate> allWheres = new ArrayList<>(getFilters());
+		Predicate[] preds = new Predicate[allWheres.size()];
+		preds = allWheres.toArray(preds);
+		getCriteriaQuery().where(preds);
+		for (Expression p : getGroupBys())
+		{
+			cq.groupBy(p);
+		}
+
+		for (Expression expression : getHaving())
+		{
+			cq.having(expression);
+		}
+
+		if (!getOrderBys().isEmpty())
+		{
+			getOrderBys().forEach((key, value) -> processOrderBys(key, value, cq));
+		}
+
+		if (getSelections().isEmpty() && getSelections().size() <= 1)
+		{
+			getCriteriaQuery().select(getRoot());
+		}
+		else if (getSelections().isEmpty() && getSelections().size() > 1)
+		{
+			getCriteriaQuery().multiselect(new ArrayList(getSelections()));
+		}
+		else
+		{
+			getSelections().forEach(a -> getCriteriaQuery().select(a));
+		}
 	}
 
 	@SuppressWarnings("unchecked")

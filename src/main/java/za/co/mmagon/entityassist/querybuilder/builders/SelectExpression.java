@@ -9,7 +9,7 @@ final class SelectExpression implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	private Attribute attribute;
+	private transient Attribute attribute;
 	private SelectAggregrate aggregrate;
 
 	SelectExpression()

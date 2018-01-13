@@ -7,7 +7,7 @@ final class GroupByExpression implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	private Attribute attribute;
+	private transient Attribute attribute;
 
 
 	GroupByExpression()

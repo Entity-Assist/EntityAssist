@@ -8,9 +8,9 @@ final class JoinExpression implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	private QueryBuilderExecutor executor;
+	private transient QueryBuilderExecutor executor;
 	private JoinType joinType;
-	private Attribute attribute;
+	private transient Attribute attribute;
 
 	public JoinExpression()
 	{
