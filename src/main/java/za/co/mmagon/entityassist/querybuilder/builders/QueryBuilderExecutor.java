@@ -113,6 +113,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		return (J) this;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void processCriteriaQuery()
 	{
 		CriteriaQuery<E> cq = getCriteriaQuery();
@@ -139,7 +140,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		{
 			getCriteriaQuery().select(getRoot());
 		}
-		else if (getSelections().isEmpty() && getSelections().size() > 1)
+		else if (!getSelections().isEmpty() && getSelections().size() > 1)
 		{
 			getCriteriaQuery().multiselect(new ArrayList(getSelections()));
 		}
