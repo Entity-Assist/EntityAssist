@@ -87,9 +87,9 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	{
 		if (!selected)
 		{
+			getJoins().forEach(this::processJoins);
 			if (getCriteriaDelete() == null)
 			{
-				getJoins().forEach(this::processJoins);
 				processCriteriaQuery();
 			}
 			else if (getCriteriaDelete() != null && getCriteriaUpdate() == null)
@@ -121,6 +121,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		Predicate[] preds = new Predicate[allWheres.size()];
 		preds = allWheres.toArray(preds);
 		getCriteriaQuery().where(preds);
+
 		for (Expression p : getGroupBys())
 		{
 			cq.groupBy(p);
@@ -136,13 +137,23 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			getOrderBys().forEach((key, value) -> processOrderBys(key, value, cq));
 		}
 
-		if (getSelections().isEmpty() && getSelections().size() <= 1)
+		if (getSelections().isEmpty())
 		{
 			getCriteriaQuery().select(getRoot());
 		}
-		else if (!getSelections().isEmpty() && getSelections().size() > 1)
+		else if (getSelections().size() > 1)
 		{
-			getCriteriaQuery().multiselect(new ArrayList(getSelections()));
+			if (getConstruct() != null)
+			{
+				ArrayList<Selection> aS = new ArrayList(getSelections());
+				Selection[] selections = aS.toArray(new Selection[0]);
+				CompoundSelection cs = getCriteriaBuilder().construct(getConstruct(), selections);
+				getCriteriaQuery().select(cs);
+			}
+			else
+			{
+				getCriteriaQuery().multiselect(new ArrayList(getSelections()));
+			}
 		}
 		else
 		{

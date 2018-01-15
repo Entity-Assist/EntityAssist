@@ -70,6 +70,9 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	private final Set<WhereExpression> whereExpressions;
 	private final Set<OrderByExpression> orderByExpressions;
 	private final Set<GroupByExpression> groupByExpressions;
+
+	private Class<? extends BaseEntity> construct;
+
 	/**
 	 * Returns the root object of this entity
 	 */
@@ -445,6 +448,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean processSelectAverage(SelectExpression selectExpression)
 	{
 		Attribute attribute = selectExpression.getAttribute();
@@ -459,6 +463,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean processSelectCount(SelectExpression selectExpression)
 	{
 		Attribute attribute = selectExpression.getAttribute();
@@ -473,6 +478,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean processSelectCountDistinct(SelectExpression selectExpression)
 	{
 		Attribute attribute = selectExpression.getAttribute();
@@ -487,6 +493,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean processSelectExpressionMax(SelectExpression selectExpression)
 	{
 		Attribute attribute = selectExpression.getAttribute();
@@ -527,6 +534,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return (J) this;
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean processSelectExpressionMin(SelectExpression selectExpression)
 	{
 		Attribute attribute = selectExpression.getAttribute();
@@ -541,6 +549,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean processSelectSum(SelectExpression selectExpression)
 	{
 		Attribute attribute = selectExpression.getAttribute();
@@ -555,6 +564,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean processSelectSumAsDouble(SelectExpression selectExpression)
 	{
 		Attribute attribute = selectExpression.getAttribute();
@@ -569,6 +579,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean processSelectSumAsLong(SelectExpression selectExpression)
 	{
 		Attribute attribute = selectExpression.getAttribute();
@@ -1113,7 +1124,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 * @return
 	 */
 	@Nullable
-	public CriteriaUpdate<E> getCriteriaUpdate()
+	protected CriteriaUpdate<E> getCriteriaUpdate()
 	{
 		return criteriaUpdate;
 	}
@@ -1127,7 +1138,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 */
 	@NotNull
 	@SuppressWarnings("unchecked")
-	public J setCriteriaUpdate(CriteriaUpdate criteriaUpdate)
+	protected J setCriteriaUpdate(CriteriaUpdate criteriaUpdate)
 	{
 		this.criteriaUpdate = criteriaUpdate;
 		return (J) this;
@@ -1149,5 +1160,18 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	Set<GroupByExpression> getGroupByExpressions()
 	{
 		return groupByExpressions;
+	}
+
+	protected Class<? extends BaseEntity> getConstruct()
+	{
+		return construct;
+	}
+
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J construct(@Nullable Class<? extends BaseEntity> construct)
+	{
+		this.construct = construct;
+		return (J) this;
 	}
 }
