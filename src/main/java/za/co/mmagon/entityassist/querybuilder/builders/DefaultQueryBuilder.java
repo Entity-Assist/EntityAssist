@@ -741,6 +741,10 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		}
 		if (!result)
 		{
+			result = processWhereLists(whereExpression);
+		}
+		if (!result)
+		{
 			result = processWhereCompare(whereExpression);
 		}
 		if (!result)
