@@ -119,7 +119,6 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		getSelectExpressions()
 				.forEach(this::redoSelectExpression);
 
-
 	}
 
 	/**
