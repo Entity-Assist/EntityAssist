@@ -307,6 +307,13 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
+
+        <dependency>
+            <groupId>za.co.mmagon</groupId>
+            <artifactId>guiced-persistence</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 
 
