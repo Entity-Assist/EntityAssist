@@ -31,6 +31,10 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 * Whether or not to detach after select
 	 */
 	private boolean detach;
+	/**
+	 * Force no lock on the query built
+	 */
+	private boolean noLock;
 
 	@SuppressWarnings("unchecked")
 	public Long getCount()
@@ -306,7 +310,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends BaseEntity<E, J, I>> List<T> getAll(Class<T> returnClassType)
+	public <T> List<T> getAll(Class<T> returnClassType)
 	{
 		if (!selected)
 		{
@@ -323,12 +327,18 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 		List<T> j;
 		j = query.getResultList();
-		for (Object j1 : j)
-		{
-			T wct = (T) j1;
-			wct.setFake(false);
-		}
 		return j;
+	}
+
+	/**
+	 * Force No Lock on the Criteria Query
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J noLock() {
+		noLock = true;
+		return (J) this;
 	}
 
 	/**
