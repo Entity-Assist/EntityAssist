@@ -200,11 +200,11 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		{
 			checkForTransaction();
 			onCreate(entity);
-			String insertString = InsertStatement.buildInsertString(entity);
-			log.info(insertString);
 			EntityManager entityManager = getEntityManager();
 			if (isRunDetached())
 			{
+				String insertString = InsertStatement.buildInsertString(entity);
+				log.fine(insertString);
 				entityManager.createNativeQuery(insertString).executeUpdate();
 				commitTransaction();
 				if (isIdGenerated())
@@ -216,7 +216,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			}
 			else
 			{
-				getEntityManager().persist(entity);
+				entityManager.persist(entity);
 			}
 			entity.setFake(false);
 		}
