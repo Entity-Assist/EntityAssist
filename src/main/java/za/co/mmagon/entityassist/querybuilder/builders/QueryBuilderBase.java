@@ -36,10 +36,11 @@ import static za.co.mmagon.entityassist.querybuilder.EntityAssistStrings.*;
  * @param <I>
  * 		The entity ID type
  */
+@SuppressWarnings("unchecked")
 abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilderExecutor, I>, I extends Serializable>
 {
 
-	private static final Logger log = Logger.getLogger("QueryBuilderCore");
+	private static final Logger log = Logger.getLogger("QueryBuilderBase");
 	/**
 	 * The maximum number of results
 	 */
