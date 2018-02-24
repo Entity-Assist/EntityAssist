@@ -212,7 +212,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	public abstract EntityManager getEntityManager();
 
 	/**
-	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from a list with the same criteria
+	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from
+	 * a list with the same criteria
 	 *
 	 * @param returnFirst
 	 *
@@ -239,14 +240,14 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 		catch (NoResultException nre)
 		{
-			log.log(Level.WARNING, "Couldn't find object for class : " + getEntityClass().getName() + "}\n");
-			log.log(Level.FINEST, "Couldn't find object : " + getEntityClass().getName() + "}\n", nre);
+			log.log(Level.WARNING, "Couldn't find object for class : " + getEntityClass().getName() + "}");
+			log.log(Level.FINEST, "Couldn't find object : " + getEntityClass().getName() + "}", nre);
 			return Optional.empty();
 		}
 		catch (NonUniqueResultException nure)
 		{
-			log.log(Level.WARNING, "Get didn't return a single result\n");
-			log.log(Level.FINEST, "Couldn't find object for class : " + getEntityClass().getName() + "}\n", nure);
+			log.log(Level.WARNING, "Get didn't return a single result");
+			log.log(Level.FINEST, "Couldn't find object for class : " + getEntityClass().getName() + "}", nure);
 			if (returnFirst)
 			{
 				List<E> returnedList = query.getResultList();
@@ -336,7 +337,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public J noLock() {
+	public J noLock()
+	{
 		noLock = true;
 		return (J) this;
 	}
@@ -366,13 +368,15 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	{
 		if (getFilters().isEmpty())
 		{
-			throw new UnsupportedOperationException("Calling the delete method with no filters. This will truncate the table. Rather call truncate()");
+			throw new UnsupportedOperationException(
+					"Calling the delete method with no filters. This will truncate the table. Rather call truncate()");
 		}
 		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
 		setCriteriaDelete(deletion);
 		select();
 		checkForTransaction();
-		int results = getEntityManager().createQuery(deletion).executeUpdate();
+		int results = getEntityManager().createQuery(deletion)
+				              .executeUpdate();
 		commitTransaction();
 		return results;
 	}
@@ -418,7 +422,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		getFilters().clear();
 		select();
 		checkForTransaction();
-		int results = getEntityManager().createQuery(deletion).executeUpdate();
+		int results = getEntityManager().createQuery(deletion)
+				              .executeUpdate();
 		commitTransaction();
 		return results;
 	}
@@ -441,7 +446,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		updateFieldMap.forEach(update::set);
 		select();
 		checkForTransaction();
-		int results = getEntityManager().createQuery(update).executeUpdate();
+		int results = getEntityManager().createQuery(update)
+				              .executeUpdate();
 		commitTransaction();
 		return results;
 	}
@@ -456,23 +462,25 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	protected Map<String, Object> getUpdateFieldMap(E updateFields)
 	{
 		Map<String, Object> map = new HashMap<>();
-		Field[] fields = updateFields.getClass().getDeclaredFields();
-		Arrays.asList(fields).forEach(a ->
-		                              {
-			                              a.setAccessible(true);
-			                              try
-			                              {
-				                              Object o = a.get(updateFields);
-				                              if (o != null)
-				                              {
-					                              map.put(a.getName(), o);
-				                              }
-			                              }
-			                              catch (IllegalAccessException e)
-			                              {
-				                              log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
-			                              }
-		                              });
+		Field[] fields = updateFields.getClass()
+				                 .getDeclaredFields();
+		Arrays.asList(fields)
+				.forEach(a ->
+				         {
+					         a.setAccessible(true);
+					         try
+					         {
+						         Object o = a.get(updateFields);
+						         if (o != null)
+						         {
+							         map.put(a.getName(), o);
+						         }
+					         }
+					         catch (IllegalAccessException e)
+					         {
+						         log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
+					         }
+				         });
 		return map;
 	}
 }
