@@ -228,6 +228,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		catch (Exception e)
 		{
 			log.log(Level.SEVERE, "Unable to persist, exception occured\n", e);
+			throw new UnsupportedOperationException(e);
 		}
 		return (J) this;
 	}
