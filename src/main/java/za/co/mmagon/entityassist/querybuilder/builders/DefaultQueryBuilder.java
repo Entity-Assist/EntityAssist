@@ -55,6 +55,9 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 * A list of having clauses
 	 */
 	private final Set<Expression> having;
+	private final Set<WhereExpression> whereExpressions;
+	private final Set<OrderByExpression> orderByExpressions;
+	private final Set<GroupByExpression> groupByExpressions;
 	/**
 	 * The physical criteria query
 	 */
@@ -67,10 +70,6 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 * The physical criteria query
 	 */
 	private CriteriaUpdate criteriaUpdate;
-	private final Set<WhereExpression> whereExpressions;
-	private final Set<OrderByExpression> orderByExpressions;
-	private final Set<GroupByExpression> groupByExpressions;
-
 	private Class<? extends BaseEntity> construct;
 
 	/**
@@ -84,19 +83,19 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	@SuppressWarnings("unchecked")
 	public DefaultQueryBuilder()
 	{
-		this.filters = new HashSet<>();
+		filters = new HashSet<>();
 		selections = new HashSet<>();
 		groupBys = new HashSet<>();
 		orderBys = new LinkedHashMap<>();
 		having = new HashSet<>();
-		this.criteriaBuilder = getEntityManager().getCriteriaBuilder();
-		this.criteriaQuery = criteriaBuilder.createQuery();
+		criteriaBuilder = getEntityManager().getCriteriaBuilder();
+		criteriaQuery = criteriaBuilder.createQuery();
 
 		joins = new LinkedHashSet<>();
-		this.selectExpressions = new LinkedHashSet<>();
-		this.whereExpressions = new LinkedHashSet<>();
-		this.orderByExpressions = new LinkedHashSet<>();
-		this.groupByExpressions = new LinkedHashSet<>();
+		selectExpressions = new LinkedHashSet<>();
+		whereExpressions = new LinkedHashSet<>();
+		orderByExpressions = new LinkedHashSet<>();
+		groupByExpressions = new LinkedHashSet<>();
 	}
 
 	/**
@@ -113,11 +112,9 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		getOrderBys().clear();
 		getHaving().clear();
 
-		getWhereExpressions()
-				.forEach(this::where);
+		getWhereExpressions().forEach(this::where);
 
-		getSelectExpressions()
-				.forEach(this::redoSelectExpression);
+		getSelectExpressions().forEach(this::redoSelectExpression);
 
 	}
 
@@ -247,51 +244,6 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		SelectExpression selectExpression = new SelectExpression(selectColumn, None);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionNone(selectExpression);
-		return (J) this;
-	}
-
-	/**
-	 * Where the "id" field is in
-	 *
-	 * @param id
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J find(I id)
-	{
-		Field found = null;
-		Field[] allFields = id.getClass().getFields();
-		for (Field allField : allFields)
-		{
-			if (allField.isAnnotationPresent(Id.class))
-			{
-				found = allField;
-				break;
-			}
-		}
-
-		Optional<Field> idField = Optional.ofNullable(found);
-		if (!idField.isPresent())
-		{
-			Field[] fields = getEntityClass().getDeclaredFields();
-			for (Field field : fields)
-			{
-				if (field.isAnnotationPresent(Id.class))
-				{
-					idField = Optional.of(field);
-				}
-			}
-		}
-
-		if (idField.isPresent())
-		{
-			getFilters().add(getRoot().get(idField.get().getName()).in(id));
-		}
-		else
-		{
-			getFilters().add(getRoot().get("id").in(id));
-		}
 		return (J) this;
 	}
 
@@ -431,7 +383,6 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return (J) this;
 	}
 
-
 	@SuppressWarnings("unchecked")
 	private boolean processSelectExpressionNone(SelectExpression selectExpression)
 	{
@@ -505,32 +456,6 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 			getSelections().add(getCriteriaBuilder().max(getRoot().get(PluralAttribute.class.cast(attribute))));
 		}
 		return true;
-	}
-
-	/**
-	 * Selects the minimum count of the root object (select count(*))
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J selectCount()
-	{
-		getSelections().add(getCriteriaBuilder().count(getRoot()));
-		return (J) this;
-	}
-
-	/**
-	 * Selects the minimum count distinct of the root object (select distinct count(*))
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J selectCountDistinct()
-	{
-		getSelections().add(getCriteriaBuilder().count(getRoot()));
-		return (J) this;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -621,6 +546,81 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	public void setRoot(From root)
 	{
 		this.root = root;
+	}
+
+	/**
+	 * Where the "id" field is in
+	 *
+	 * @param id
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J find(I id)
+	{
+		Field found = null;
+		Field[] allFields = id.getClass()
+		                      .getFields();
+		for (Field allField : allFields)
+		{
+			if (allField.isAnnotationPresent(Id.class))
+			{
+				found = allField;
+				break;
+			}
+		}
+
+		Optional<Field> idField = Optional.ofNullable(found);
+		if (!idField.isPresent())
+		{
+			Field[] fields = getEntityClass().getDeclaredFields();
+			for (Field field : fields)
+			{
+				if (field.isAnnotationPresent(Id.class))
+				{
+					idField = Optional.of(field);
+				}
+			}
+		}
+
+		if (idField.isPresent())
+		{
+			getFilters().add(getRoot().get(idField.get()
+			                                      .getName())
+			                          .in(id));
+		}
+		else
+		{
+			getFilters().add(getRoot().get("id")
+			                          .in(id));
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum count of the root object (select count(*))
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCount()
+	{
+		getSelections().add(getCriteriaBuilder().count(getRoot()));
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum count distinct of the root object (select distinct count(*))
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCountDistinct()
+	{
+		getSelections().add(getCriteriaBuilder().count(getRoot()));
+		return (J) this;
 	}
 
 	/**
@@ -718,7 +718,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 */
 	@NotNull
 	@SuppressWarnings("unchecked")
-	public J where(Attribute attribute, Operand operator, Object value)
+	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Y value)
 	{
 		WhereExpression whereExpression = new WhereExpression(attribute, operator, value);
 		whereExpressions.add(whereExpression);
@@ -867,6 +867,52 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	}
 
 	@SuppressWarnings("unchecked")
+	private boolean processWhereLists(WhereExpression whereExpression)
+	{
+		Attribute attribute = whereExpression.getAttribute();
+		Object value = whereExpression.getValue();
+		switch (whereExpression.getOperand())
+		{
+			case InList:
+			{
+				Expression<Object> path = null;
+				if (isSingularAttribute(attribute))
+				{
+					path = getRoot().get(SingularAttribute.class.cast(attribute));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					path = getRoot().get(PluralAttribute.class.cast(attribute));
+				}
+				CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
+				buildInObject(in, value);
+				getFilters().add(in);
+				return true;
+			}
+			case NotInList:
+			{
+				Expression<Object> path = null;
+				if (isSingularAttribute(attribute))
+				{
+					path = getRoot().get(SingularAttribute.class.cast(attribute));
+				}
+				else if (isPluralOrMapAttribute(attribute))
+				{
+					path = getRoot().get(PluralAttribute.class.cast(attribute));
+				}
+				CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
+				buildInObject(in, value);
+				getFilters().add(getCriteriaBuilder().not(in));
+				return true;
+			}
+			default:
+			{
+				return false;
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	@NotNull
 	private <T extends Comparable<T>> boolean processWhereCompare(WhereExpression whereExpression)
 	{
@@ -911,6 +957,46 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 				return false;
 			}
 		}
+	}
+
+	/**
+	 * Builds the in cluase query
+	 *
+	 * @param inClause
+	 * 		The in clause to add the values to
+	 * @param object
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	private Set buildInObject(CriteriaBuilder.In<Object> inClause, @NotNull Object object)
+	{
+		boolean isArray = object.getClass()
+		                        .isArray();
+		boolean isCollection = Collection.class.isAssignableFrom(object.getClass());
+		boolean isMap = Map.class.isAssignableFrom(object.getClass());
+
+		if (!(isArray || isCollection || isMap))
+		{
+			log.warning("Where In List Clause was not an array collection or map");
+			return new HashSet();
+		}
+
+		Set output = new LinkedHashSet();
+		if (isArray)
+		{
+			Collections.addAll(output, (Object[]) object);
+		}
+		if (isCollection)
+		{
+			output.addAll((Collection) object);
+		}
+		for (Object o : output)
+		{
+			inClause.value(o);
+		}
+		return output;
 	}
 
 	/**
@@ -979,91 +1065,6 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	{
 		processWhereExpression(whereExpression);
 		return (J) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	private boolean processWhereLists(WhereExpression whereExpression)
-	{
-		Attribute attribute = whereExpression.getAttribute();
-		Object value = whereExpression.getValue();
-		switch (whereExpression.getOperand())
-		{
-			case InList:
-			{
-				Expression<Object> path = null;
-				if (isSingularAttribute(attribute))
-				{
-					path = getRoot().get(SingularAttribute.class.cast(attribute));
-				}
-				else if (isPluralOrMapAttribute(attribute))
-				{
-					path = getRoot().get(PluralAttribute.class.cast(attribute));
-				}
-				CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
-				buildInObject(in, value);
-				getFilters().add(in);
-				return true;
-			}
-			case NotInList:
-			{
-				Expression<Object> path = null;
-				if (isSingularAttribute(attribute))
-				{
-					path = getRoot().get(SingularAttribute.class.cast(attribute));
-				}
-				else if (isPluralOrMapAttribute(attribute))
-				{
-					path = getRoot().get(PluralAttribute.class.cast(attribute));
-				}
-				CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
-				buildInObject(in, value);
-				getFilters().add(getCriteriaBuilder().not(in));
-				return true;
-			}
-			default:
-			{
-				return false;
-			}
-		}
-	}
-
-	/**
-	 * Builds the in cluase query
-	 *
-	 * @param inClause
-	 * 		The in clause to add the values to
-	 * @param object
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	private Set buildInObject(CriteriaBuilder.In<Object> inClause, @NotNull Object object)
-	{
-		boolean isArray = object.getClass().isArray();
-		boolean isCollection = Collection.class.isAssignableFrom(object.getClass());
-		boolean isMap = Map.class.isAssignableFrom(object.getClass());
-
-		if (!(isArray || isCollection || isMap))
-		{
-			log.warning("Where In List Clause was not an array collection or map");
-			return new HashSet();
-		}
-
-		Set output = new LinkedHashSet();
-		if (isArray)
-		{
-			Collections.addAll(output, (Object[]) object);
-		}
-		if (isCollection)
-		{
-			output.addAll((Collection) object);
-		}
-		for (Object o : output)
-		{
-			inClause.value(o);
-		}
-		return output;
 	}
 
 	/**

@@ -27,35 +27,6 @@ Direct Link : https://jwebswing.com/artifactory/list/libs-snapshot-local/za/co/m
 ```
 *Deployment to maven central scheduled for April
 
-# Configuring An Entity
-Entities are configured through type safety and CRP, and are strictly tied to a builder (QueryBuilderExecutor)
-
-```
-class Entity<J,Q,I> extends BaseEntity
-```
-J> is always the type of the type being referenced (CRP)
-
-Q> is the query builder instance that must extend QueryBuilderExecutor
-
-I> is the serializable that identifies they Entity Key. Embedded and Mapped keys are of course allowed
-
-```
-class EntityBuilder<J,E,I> extends QueryBuilderExecutor
-```
-J> is always the type being referred (EntityBuilder in the example)
-
-E> is the entity type that maps properly to the strictly typed class
-
-I> is the key type (Forced type safety between builder and entity
-
-## Example
-https://github.com/GedMarc/EntityAssist/tree/master/src/test/java/za/co/mmagon/entityassist/entities
-
-```
-public class EntityClass extends BaseEntity<EntityClass, EntityClassBuilder, Long>
-
-public class EntityClassBuilder extends QueryBuilderCore<EntityClassBuilder, EntityClass, Long>
-```
 
 # Creating your queries
 Standard operation allows for simplistic query writing.
@@ -104,59 +75,82 @@ builder()
 The builder class can also be used to dynamic query generation to group commonly used expressions into an easy-to-read format
 
 ```
-new Subscribers().builder.findByEmail("mailaddress@from.com").get();
+Optional<Subscribers> found = new Subscribers().builder.findByEmail("mailaddress@from.com").get();
+Optional<Subscribers> authenticated = new Subscribers().builder.findByEmail("mailaddress@from.com").withPassword("encryptedPassword1").get();
+Optional<Subscribers> accountConfirmed = new Subscribers().builder.withUnconfirmedKey().get();
 ```
 
-
-
 ```
 
-public class SubscribersBuilder extends QueryBuilderCore<SubscribersBuilder, Subscribers, Long>
+public SubscribersBuilder findByEmail(String email)
 {
+    where(Subscribers_.emailAddress, Equals, email);
+    return this;
+}
 
-	public SubscribersBuilder findByEmail(String email)
-	{
-		Predicate equalsPredicate = getCriteriaBuilder().equal(getRoot().get((SingularAttribute) Subscribers_.emailAddress), email);
-		getFilters().add(equalsPredicate);
-		return this;
-	}
+public SubscribersBuilder findByConfirmationKey(String confirmationKey)
+{
+    where(Subscribers_.confirmationKey, Equals, confirmationKey);
+    return this;
+}
 
-	public SubscribersBuilder findByConfirmationKey(String confirmationKey)
-	{
-		Predicate equalsPredicate = getCriteriaBuilder().equal(getRoot().get((SingularAttribute) Subscribers_.confirmationKey), confirmationKey);
-		getFilters().add(equalsPredicate);
-		return this;
-	}
+public SubscribersBuilder withUnconfirmedKey()
+{
+    where(Subscribers_.confirmed, Equals, false);
+    return this;
+}
 
-	public SubscribersBuilder withUnconfirmedKey()
-	{
-		Predicate equalsPredicate = getCriteriaBuilder().equal(getRoot().get((SingularAttribute) Subscribers_.confirmed), false);
-		getFilters().add(equalsPredicate);
-		return this;
-	}
+public SubscribersBuilder findNewSubscribed()
+{
+    where(Subscribers_.unsubscribed, Equals, false);
+    return this;
+}
 
-	public SubscribersBuilder findNewSubscribed()
-	{
-		Predicate equalsPredicate = getCriteriaBuilder().equal(getRoot().get((SingularAttribute) Subscribers_.unsubscribed), false);
-		getFilters().add(equalsPredicate);
-		return this;
-	}
+public SubscribersBuilder findNewsUnsubscribed()
+{
+    where(Subscribers_.unsubscribed, Equals, true);
+    return this;
+}
 
-	public SubscribersBuilder findNewsUnsubscribed()
-	{
-		Predicate equalsPredicate = getCriteriaBuilder().equal(getRoot().get((SingularAttribute) Subscribers_.unsubscribed), true);
-		getFilters().add(equalsPredicate);
-		return this;
-	}
-
-	public SubscribersBuilder withPassword(String password)
-	{
-		Predicate equalsPredicate = getCriteriaBuilder().equal(getRoot().get((SingularAttribute) Subscribers_.password), password);
-		getFilters().add(equalsPredicate);
-		return this;
-	}
+public SubscribersBuilder withPassword(String password)
+{
+    where(Subscribers_.password, Equals, password);
+    return this;
+}
 
 ```
+
+
+# Configuring An Entity
+Entities are configured through type safety and CRP, and are strictly tied to a builder (QueryBuilderExecutor)
+
+```
+class Entity<J,Q,I> extends BaseEntity
+```
+J> is always the type of the type being referenced (CRP)
+
+Q> is the query builder instance that must extend QueryBuilderExecutor
+
+I> is the serializable that identifies they Entity Key. Embedded and Mapped keys are of course allowed
+
+```
+class EntityBuilder<J,E,I> extends QueryBuilderExecutor
+```
+J> is always the type being referred (EntityBuilder in the example)
+
+E> is the entity type that maps properly to the strictly typed class
+
+I> is the key type (Forced type safety between builder and entity
+
+## Example
+https://github.com/GedMarc/EntityAssist/tree/master/src/test/java/za/co/mmagon/entityassist/entities
+
+```
+public class EntityClass extends BaseEntity<EntityClass, EntityClassBuilder, Long>
+
+public class EntityClassBuilder extends QueryBuilderCore<EntityClassBuilder, EntityClass, Long>
+```
+
 
 # It has everything
 The API is incredibly easy to use, and while we write out the wiki, you are more than free to log issues, make requests and improve on the stability (Although we are already using this in production)

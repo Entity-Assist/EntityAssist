@@ -34,7 +34,8 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 				flags.add(flag);
 			}
 		}
-		getFilters().add(getCriteriaBuilder().in(getRoot().get("activeFlag")).value(flags));
+		getFilters().add(getCriteriaBuilder().in(getRoot().get("activeFlag"))
+		                                     .value(flags));
 		return (J) this;
 	}
 
@@ -44,10 +45,10 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	}
 
 	@SuppressWarnings("unchecked")
-	public J inDateRange(LocalDateTime date)
+	public J inDateRange(LocalDateTime effectiveFromAndToDate)
 	{
-		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get("effectiveFromDate"), date));
-		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), date));
+		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get("effectiveFromDate"), effectiveFromAndToDate));
+		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), effectiveFromAndToDate));
 		return (J) this;
 	}
 
@@ -62,7 +63,8 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 				flags.add(flag);
 			}
 		}
-		getFilters().add(getRoot().get("activeFlag").in(flags));
+		getFilters().add(getRoot().get("activeFlag")
+		                          .in(flags));
 		return (J) this;
 	}
 
