@@ -2,6 +2,7 @@ package za.co.mmagon.entityassist.querybuilder.builders;
 
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
+import za.co.mmagon.guiceinjection.Pair;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -35,6 +36,23 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 * Force no lock on the query built
 	 */
 	private boolean noLock;
+	/**
+	 * If the first result must be returned from a list
+	 */
+	private boolean returnFirst;
+	/**
+	 * Specifies the query cache to be used.
+	 * Cache Region/
+	 */
+	private Pair<String, String> queryCache;
+	/**
+	 * The actual cache name
+	 */
+	private String cacheName;
+	/**
+	 * If this query must refresh the cache
+	 */
+	private boolean refreshCache;
 
 	@SuppressWarnings("unchecked")
 	public Long getCount()
@@ -213,26 +231,43 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	}
 
 	/**
-	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from
-	 * a list with the same criteria
+	 * Returns the first result returned
 	 *
 	 * @param returnFirst
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@NotNull
 	public Optional<E> get(boolean returnFirst)
+	{
+		this.returnFirst = returnFirst;
+		return get(getEntityClass());
+	}
+
+	/**
+	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from
+	 * a list with the same criteria
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public <T> Optional<T> get(@NotNull @SuppressWarnings("unused") Class<T> asType)
 	{
 		if (!selected)
 		{
 			select();
 		}
-		TypedQuery<E> query = getEntityManager().createQuery(getCriteriaQuery());
-		E j = null;
+		TypedQuery<T> query = getEntityManager().createQuery(getCriteriaQuery());
+		T j = null;
 		try
 		{
 			j = query.getSingleResult();
-			j.setFake(false);
+			if (BaseEntity.class.isAssignableFrom(j.getClass()))
+			{
+				BaseEntity.class.cast(j)
+				                .setFake(false);
+			}
 			if (detach)
 			{
 				getEntityManager().detach(j);
@@ -241,19 +276,21 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 		catch (NoResultException nre)
 		{
-			log.log(Level.WARNING, "Couldn't find object for class : " + getEntityClass().getName() + "}");
-			log.log(Level.FINEST, "Couldn't find object : " + getEntityClass().getName() + "}", nre);
+			log.log(Level.FINER, "Couldn't find object : " + getEntityClass().getName() + "}", nre);
 			return Optional.empty();
 		}
 		catch (NonUniqueResultException nure)
 		{
-			log.log(Level.WARNING, "Get didn't return a single result");
-			log.log(Level.FINEST, "Couldn't find object for class : " + getEntityClass().getName() + "}", nure);
+			log.log(Level.FINER, "Non Unique Result. Couldn't find object for class : " + getEntityClass().getName() + "}", nure);
 			if (returnFirst)
 			{
-				List<E> returnedList = query.getResultList();
+				List<T> returnedList = query.getResultList();
 				j = returnedList.get(0);
-				j.setFake(false);
+				if (BaseEntity.class.isAssignableFrom(j.getClass()))
+				{
+					BaseEntity.class.cast(j)
+					                .setFake(false);
+				}
 				if (detach)
 				{
 					getEntityManager().detach(j);
@@ -267,6 +304,25 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 	}
 
+	/**
+	 * Assigns a cache for 2nd level caching to this query
+	 *
+	 * @param region
+	 * @param prefix
+	 * @param cacheName
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J cacheQuery(String region, String prefix, String cacheName, boolean refreshCache)
+	{
+		this.refreshCache = refreshCache;
+		queryCache = new Pair<>(region, prefix);
+		this.cacheName = cacheName;
+		return (J) this;
+	}
+
 
 	/**
 	 * Returns a list of entities from a distinct or non distinct list
@@ -276,31 +332,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	@SuppressWarnings("unchecked")
 	public List<E> getAll()
 	{
-		if (!selected)
-		{
-			select();
-		}
-		TypedQuery<E> query = getEntityManager().createQuery(getCriteriaQuery());
-		if (getMaxResults() != null)
-		{
-			query.setMaxResults(getMaxResults());
-		}
-		if (getFirstResults() != null)
-		{
-			query.setFirstResult(getFirstResults());
-		}
-		List<E> j;
-		j = query.getResultList();
-		for (Object j1 : j)
-		{
-			E wct = (E) j1;
-			if (detach)
-			{
-				getEntityManager().detach(wct);
-			}
-			wct.setFake(false);
-		}
-		return j;
+		return getAll(getEntityClass());
 	}
 
 	/**
@@ -312,7 +344,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> List<T> getAll(Class<T> returnClassType)
+	@NotNull
+	public <T> List<T> getAll(@SuppressWarnings("unused") Class<T> returnClassType)
 	{
 		if (!selected)
 		{
@@ -329,6 +362,19 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		}
 		List<T> j;
 		j = query.getResultList();
+		if (!j.isEmpty())
+		{
+			if (detach)
+			{
+				getEntityManager().detach(j);
+			}
+			if (BaseEntity.class.isAssignableFrom(j.get(0)
+			                                       .getClass()))
+			{
+				BaseEntity.class.cast(j.get(0))
+				                .setFake(false);
+			}
+		}
 		return j;
 	}
 

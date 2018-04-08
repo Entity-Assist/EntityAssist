@@ -51,7 +51,7 @@
         <sonar.exclusions>**bower_components</sonar.exclusions>
 
         <maven.jackson.version>2.9.2</maven.jackson.version>
-        <maven.fastclasspath.version>2.9.3</maven.fastclasspath.version>
+        <maven.fastclasspath.version>2.18.1</maven.fastclasspath.version>
     </properties>
 
     <build>
@@ -332,7 +332,7 @@
 
     <organization>
         <name>Marc Magon</name>
-        <url>http://jwebswing.com</url>
+        <url>http://jwebmp.com</url>
     </organization>
 
     <scm>
@@ -347,7 +347,7 @@
 
     <ciManagement>
         <system>TeamCity</system>
-        <url>http://jwebswing.com/teamcity</url>
+        <url>http://jwebmp.com/teamcity</url>
     </ciManagement>
 
     <reporting>
