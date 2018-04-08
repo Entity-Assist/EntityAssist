@@ -59,28 +59,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	}
 
 	/**
-	 * Processors the join section
-	 *
-	 * @param executor
-	 */
-	private void processJoins(JoinExpression executor)
-	{
-		Attribute value = executor.getAttribute();
-		JoinType jt = executor.getJoinType();
-		Join join = getRoot().join((SingularAttribute) value, jt);
-
-		QueryBuilderExecutor key = executor.getExecutor();
-		if (key != null)
-		{
-			key.reset(join);
-			key.select();
-			getSelections().addAll(key.getSelections());
-			getFilters().addAll(key.getFilters());
-			getOrderBys().putAll(key.getOrderBys());
-		}
-	}
-
-	/**
 	 * Prepares the select statement
 	 *
 	 * @return
@@ -116,6 +94,9 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		selected = true;
 		return (J) this;
 	}
+
+	@Override
+	public abstract EntityManager getEntityManager();
 
 	@SuppressWarnings("unchecked")
 	private void processCriteriaQuery()
@@ -200,6 +181,28 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	}
 
 	/**
+	 * Processors the join section
+	 *
+	 * @param executor
+	 */
+	private void processJoins(JoinExpression executor)
+	{
+		Attribute value = executor.getAttribute();
+		JoinType jt = executor.getJoinType();
+		Join join = getRoot().join((SingularAttribute) value, jt);
+
+		QueryBuilderExecutor key = executor.getExecutor();
+		if (key != null)
+		{
+			key.reset(join);
+			key.select();
+			getSelections().addAll(key.getSelections());
+			getFilters().addAll(key.getFilters());
+			getOrderBys().putAll(key.getOrderBys());
+		}
+	}
+
+	/**
 	 * Returns a non-distinct list and returns an empty optional if a non-unique-result exception is thrown
 	 *
 	 * @return
@@ -208,8 +211,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	{
 		return get(false);
 	}
-
-	public abstract EntityManager getEntityManager();
 
 	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from
@@ -351,7 +352,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	@SuppressWarnings("unchecked")
 	public J detach()
 	{
-		this.detach = true;
+		detach = true;
 		return (J) this;
 	}
 
@@ -368,15 +369,14 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	{
 		if (getFilters().isEmpty())
 		{
-			throw new UnsupportedOperationException(
-					"Calling the delete method with no filters. This will truncate the table. Rather call truncate()");
+			throw new UnsupportedOperationException("Calling the delete method with no filters. This will truncate the table. Rather call truncate()");
 		}
 		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
 		setCriteriaDelete(deletion);
 		select();
 		checkForTransaction();
 		int results = getEntityManager().createQuery(deletion)
-				              .executeUpdate();
+		                                .executeUpdate();
 		commitTransaction();
 		return results;
 	}
@@ -423,7 +423,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		select();
 		checkForTransaction();
 		int results = getEntityManager().createQuery(deletion)
-				              .executeUpdate();
+		                                .executeUpdate();
 		commitTransaction();
 		return results;
 	}
@@ -447,7 +447,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		select();
 		checkForTransaction();
 		int results = getEntityManager().createQuery(update)
-				              .executeUpdate();
+		                                .executeUpdate();
 		commitTransaction();
 		return results;
 	}
@@ -463,24 +463,24 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	{
 		Map<String, Object> map = new HashMap<>();
 		Field[] fields = updateFields.getClass()
-				                 .getDeclaredFields();
+		                             .getDeclaredFields();
 		Arrays.asList(fields)
-				.forEach(a ->
-				         {
-					         a.setAccessible(true);
-					         try
-					         {
-						         Object o = a.get(updateFields);
-						         if (o != null)
-						         {
-							         map.put(a.getName(), o);
-						         }
-					         }
-					         catch (IllegalAccessException e)
-					         {
-						         log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
-					         }
-				         });
+		      .forEach(a ->
+		               {
+			               a.setAccessible(true);
+			               try
+			               {
+				               Object o = a.get(updateFields);
+				               if (o != null)
+				               {
+					               map.put(a.getName(), o);
+				               }
+			               }
+			               catch (IllegalAccessException e)
+			               {
+				               log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
+			               }
+		               });
 		return map;
 	}
 }
