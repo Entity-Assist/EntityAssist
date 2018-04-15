@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>za.co.mmagon</groupId>
+    <groupId>com.jwebmp</groupId>
     <artifactId>entity-assist</artifactId>
     <version>0.0.0_0</version>
     <packaging>jar</packaging>
@@ -184,7 +184,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>za.co.mmagon</groupId>
+            <groupId>com.jwebmp</groupId>
             <artifactId>guice-injection</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
@@ -309,7 +309,7 @@
         </dependency>
 
         <dependency>
-            <groupId>za.co.mmagon</groupId>
+            <groupId>com.jwebmp</groupId>
             <artifactId>guiced-persistence</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -19,7 +19,7 @@ Direct Link : https://jwebswing.com/artifactory/list/libs-snapshot-local/za/co/m
     </repositories>
     
     <dependency>
-        <groupId>za.co.mmagon</groupId>
+        <groupId>com.jwebmp</groupId>
         <artifactId>entity-assist</artifactId>
         <version>[0.32.0.1,)</version>
     </dependency>
