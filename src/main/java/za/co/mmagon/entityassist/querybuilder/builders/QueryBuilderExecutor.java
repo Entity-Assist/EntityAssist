@@ -2,7 +2,6 @@ package za.co.mmagon.entityassist.querybuilder.builders;
 
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
-import za.co.mmagon.guiceinjection.Pair;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -40,19 +39,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 * If the first result must be returned from a list
 	 */
 	private boolean returnFirst;
-	/**
-	 * Specifies the query cache to be used.
-	 * Cache Region/
-	 */
-	private Pair<String, String> queryCache;
-	/**
-	 * The actual cache name
-	 */
-	private String cacheName;
-	/**
-	 * If this query must refresh the cache
-	 */
-	private boolean refreshCache;
 
 	@SuppressWarnings("unchecked")
 	public Long getCount()
@@ -203,6 +189,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 *
 	 * @param executor
 	 */
+	@SuppressWarnings("unchecked")
 	private void processJoins(JoinExpression executor)
 	{
 		Attribute value = executor.getAttribute();
@@ -303,26 +290,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			}
 		}
 	}
-
-	/**
-	 * Assigns a cache for 2nd level caching to this query
-	 *
-	 * @param region
-	 * @param prefix
-	 * @param cacheName
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J cacheQuery(String region, String prefix, String cacheName, boolean refreshCache)
-	{
-		this.refreshCache = refreshCache;
-		queryCache = new Pair<>(region, prefix);
-		this.cacheName = cacheName;
-		return (J) this;
-	}
-
 
 	/**
 	 * Returns a list of entities from a distinct or non distinct list
