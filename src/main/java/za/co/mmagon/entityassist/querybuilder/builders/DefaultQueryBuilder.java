@@ -726,44 +726,6 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		return (J) this;
 	}
 
-	/**
-	 * Where the operand is the type of collection or list
-	 * @param attribute
-	 * @param operator
-	 * @param value
-	 * @param <X>
-	 * @param <Y>
-	 * @return
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Collection<Y> value)
-	{
-		WhereExpression whereExpression = new WhereExpression(attribute, operator, value);
-		whereExpressions.add(whereExpression);
-		processWhereExpression(whereExpression);
-		return (J) this;
-	}
-
-	/**
-	 * Where the operand is the type of collection or list 
-	 * @param attribute
-	 * @param operator
-	 * @param value
-	 * @param <X>
-	 * @param <Y>
-	 * @return
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Y[] value)
-	{
-		WhereExpression whereExpression = new WhereExpression(attribute, operator, value);
-		whereExpressions.add(whereExpression);
-		processWhereExpression(whereExpression);
-		return (J) this;
-	}
-
 	private void processWhereExpression(WhereExpression whereExpression)
 	{
 		boolean result;
@@ -1026,7 +988,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		{
 			Collections.addAll(output, (Object[]) object);
 		}
-		if (isCollection)
+		else if (isCollection)
 		{
 			output.addAll((Collection) object);
 		}
@@ -1035,6 +997,48 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 			inClause.value(o);
 		}
 		return output;
+	}
+
+	/**
+	 * Where the operand is the type of collection or list
+	 *
+	 * @param attribute
+	 * @param operator
+	 * @param value
+	 * @param <X>
+	 * @param <Y>
+	 *
+	 * @return
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Collection<Y> value)
+	{
+		WhereExpression whereExpression = new WhereExpression(attribute, operator, value);
+		whereExpressions.add(whereExpression);
+		processWhereExpression(whereExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Where the operand is the type of collection or list
+	 *
+	 * @param attribute
+	 * @param operator
+	 * @param value
+	 * @param <X>
+	 * @param <Y>
+	 *
+	 * @return
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Y[] value)
+	{
+		WhereExpression whereExpression = new WhereExpression(attribute, operator, value);
+		whereExpressions.add(whereExpression);
+		processWhereExpression(whereExpression);
+		return (J) this;
 	}
 
 	/**

@@ -13,7 +13,7 @@ Direct Link : https://jwebswing.com/artifactory/list/libs-snapshot-local/za/co/m
     <repositories>
         <repository>
             <id>jwebswing-snapshot</id>
-            <name>JWebSwingArtifactory-snapshots</name>
+            <name>JWebMPArtifactory-snapshots</name>
             <url>https://jwebswing.com/artifactory/libs-snapshot</url>
         </repository>
     </repositories>
