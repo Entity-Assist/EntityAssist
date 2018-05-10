@@ -11,11 +11,20 @@
     <description>Allows for instant query builders and constructs statements for nicer output to the console
     </description>
     <url>https://github.com/GedMarc/EntityAssist</url>
+
+    <licenses>
+        <license>
+            <name>General Public License, Version 3.0</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <repositories>
         <repository>
-            <id>jwebswing-snapshot</id>
-            <name>JWebSwingArtifactory-snapshots</name>
-            <url>https://jwebswing.com/artifactory/libs-snapshot</url>
+            <id>jwebmp-snapshot</id>
+            <name>JWebMPArtifactory-snapshots</name>
+            <url>https://jwebmp.com/artifactory/libs-snapshot</url>
         </repository>
     </repositories>
 
@@ -23,7 +32,7 @@
         <pluginRepository>
             <id>jwebswing-snapshot-plugins</id>
             <name>JWebSwingArtifactory-snapshots-plugins</name>
-            <url>https://jwebswing.com/artifactory/libs-snapshot</url>
+            <url>https://jwebmp.com/artifactory/libs-snapshot</url>
         </pluginRepository>
     </pluginRepositories>
 
@@ -320,13 +329,13 @@
     <distributionManagement>
         <snapshotRepository>
             <id>snapshot</id>
-            <name>JWebSwingArtifactory-snapshots</name>
-            <url>https://jwebswing.com/artifactory/libs-snapshot-local</url>
+            <name>JWebMPArtifactory-snapshots</name>
+            <url>https://jwebmp.com/artifactory/libs-snapshot-local</url>
         </snapshotRepository>
         <repository>
             <id>central</id>
-            <name>JWebSwingArtifactory-releases</name>
-            <url>https://jwebswing.com/artifactory/libs-release-local</url>
+            <name>JWebMPArtifactory-releases</name>
+            <url>https://jwebmp.com/artifactory/libs-release-local</url>
         </repository>
     </distributionManagement>
 
