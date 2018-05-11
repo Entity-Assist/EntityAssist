@@ -1,0 +1,45 @@
+<persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+             version="2.1">
+
+    <persistence-unit name="h2entityAssist">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <jta-data-source>jdbc:eatest</jta-data-source>
+
+
+        <class>za.co.mmagon.entityassist.converters.LocalDateAttributeConverter</class>
+        <class>za.co.mmagon.entityassist.converters.LocalDateTimeAttributeConverter</class>
+        <class>za.co.mmagon.entityassist.converters.LocalDateTimestampAttributeConverter</class>
+
+        <class>za.co.mmagon.entityassist.CoreEntity</class>
+        <class>za.co.mmagon.entityassist.BaseEntity</class>
+
+        <class>za.co.mmagon.entityassist.entities.EntityClass</class>
+        <class>za.co.mmagon.entityassist.entities.EntityClassTwo</class>
+
+        <properties>
+            <property name="hibernate.archive.autodetection" value="class"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
+            <property name="hibernate.connection.url" value="jdbc:h2:./db/entityAssistTestDB"/>
+            <property name="hibernate.connection.user" value="sa"/>
+            <property name="hibernate.flushMode" value="FLUSH_AUTO"/>
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.use_sql_comments" value="true"/>
+
+            <property name="jboss.entity.manager.factory.jndi.name" value="java:/eatestJndiFactoryName"/>
+
+            <property name="hibernate.current_session_context_class" value="jta"/>
+            <property name="hibernate.connection.datasource" value="jdbc:eatest"/>
+            <property name="hibernate.transaction.factory_class" value="org.hibernate.transaction.JTATransactionFactory"/>
+            <property name="hibernate.transaction.manager_lookup_class" value="org.hibernate.transaction.BTMTransactionManagerLookup"/>
+            <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
+            <property name="hibernate.jndi.class" value="bitronix.tm.jndi.BitronixInitialContextFactory"/>
+            
+        </properties>
+    </persistence-unit>
+</persistence>
