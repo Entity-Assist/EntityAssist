@@ -43,7 +43,6 @@ public class TestEntities
 		System.out.println("EM Open : " + em.isOpen());
 
 		TestEntities te = GuiceContext.getInstance(TestEntities.class);
-
 		try
 		{
 			BitronixContext ic = new BitronixContext();
@@ -64,8 +63,8 @@ public class TestEntities
 	public void testMethodInterception()
 	{
 		EntityClass ec = new EntityClass();
-		ec.setId(1L);
-		ec.persistNow();
+		ec.setId(999L);
+		ec.persist();
 	}
 
 	@Test
