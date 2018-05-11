@@ -4,12 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.querybuilder.statements.InsertStatement;
+import za.co.mmagon.guiceinjection.db.TransactionHandler;
 
 import javax.annotation.Nullable;
+import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.Transient;
 import javax.persistence.metamodel.*;
+import javax.transaction.NotSupportedException;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -68,48 +74,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@SuppressWarnings("unchecked")
 	protected QueryBuilderBase()
 	{
-		this.entityClass = getEntityClass();
-	}
-
-	/**
-	 * Returns a mapped entity on this builder
-	 *
-	 * @return
-	 */
-	public E getEntity()
-	{
-		return entity;
-	}
-
-	/**
-	 * Returns the assigned entity manager
-	 *
-	 * @return
-	 */
-	@NotNull
-	@Transient
-	protected abstract EntityManager getEntityManager();
-
-	/**
-	 * Performed on create/persist
-	 *
-	 * @param entity
-	 */
-	protected abstract void onCreate(E entity);
-
-	/**
-	 * Performed on update/persist
-	 *
-	 * @param entity
-	 */
-	protected abstract void onUpdate(E entity);
-
-
-	@SuppressWarnings("unchecked")
-	public void setEntity(Object entity)
-	{
-		this.entity = (E) entity;
-		this.entityClass = (Class<E>) entity.getClass();
+		entityClass = getEntityClass();
 	}
 
 	/**
@@ -122,6 +87,30 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	{
 		return entityClass;
 	}
+
+	/**
+	 * Returns a mapped entity on this builder
+	 *
+	 * @return
+	 */
+	public E getEntity()
+	{
+		return entity;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setEntity(Object entity)
+	{
+		this.entity = (E) entity;
+		entityClass = (Class<E>) entity.getClass();
+	}
+
+	/**
+	 * Performed on create/persist
+	 *
+	 * @param entity
+	 */
+	protected abstract void onCreate(E entity);
 
 	/**
 	 * Returns the current set first results
@@ -182,8 +171,9 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@NotNull
 	public J persistNow(E entity)
 	{
-		checkForTransaction();
+		checkForTransaction(true);
 		persist(entity);
+		getEntityManager().flush();
 		commitTransaction();
 		return (J) this;
 	}
@@ -206,7 +196,8 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			{
 				String insertString = InsertStatement.buildInsertString(entity);
 				log.fine(insertString);
-				entityManager.createNativeQuery(insertString).executeUpdate();
+				entityManager.createNativeQuery(insertString)
+				             .executeUpdate();
 				commitTransaction();
 				if (isIdGenerated())
 				{
@@ -260,6 +251,47 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		}
 	}
 
+	private void iterateThroughResultSetForGeneratedIDs(ResultSet generatedKeys) throws SQLException
+	{
+		if (generatedKeys.next())
+		{
+			Object o = generatedKeys.getObject(1);
+			processId(generatedKeys, o);
+		}
+		else
+		{
+			throw new SQLException("Creating user failed, no ID obtained.");
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void processId(ResultSet generatedKeys, Object o) throws SQLException
+	{
+		if (o instanceof BigDecimal)
+		{
+			if (entity.getClassIDType()
+			          .isAssignableFrom(Long.class))
+			{
+				entity.setId((I) (Long) BigDecimal.class.cast(o)
+				                                        .longValue());
+			}
+			else if (entity.getClassIDType()
+			               .isAssignableFrom(Integer.class))
+			{
+				entity.setId((I) (Integer) BigDecimal.class.cast(o)
+				                                           .intValue());
+			}
+			else
+			{
+				entity.setId((I) generatedKeys.getObject(1));
+			}
+		}
+		else
+		{
+			entity.setId((I) generatedKeys.getObject(1));
+		}
+	}
+
 	/**
 	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
 	 *
@@ -295,8 +327,110 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	}
 
 	/**
+	 * Doesn't create a new jta transaction
+	 */
+	protected void checkForTransaction()
+	{
+		checkForTransaction(false);
+	}
+
+	/**
+	 * Performed on update/persist
+	 *
+	 * @param entity
+	 */
+	protected abstract void onUpdate(E entity);
+
+	/**
+	 * If this entity should run in a detached and separate to the entity manager
+	 *
+	 * @return
+	 */
+	public boolean isRunDetached()
+	{
+		return runDetached;
+	}
+
+	/**
+	 * Returns the assigned entity manager
+	 *
+	 * @return
+	 */
+	@NotNull
+	@Transient
+	protected abstract EntityManager getEntityManager();
+
+	protected void commitTransaction()
+	{
+		try
+		{
+			if (getEntityManager().getTransaction() != null && getEntityManager().getTransaction()
+			                                                                     .isActive())
+			{
+				getEntityManager().getTransaction()
+				                  .commit();
+			}
+		}
+		catch (IllegalStateException ise)
+		{
+			log.log(Level.FINEST, "Excepted error : Running JTA not JPA", ise);
+		}
+	}
+
+	protected void checkForTransaction(boolean jtaCreateNew)
+	{
+		if (getEntityManager().isJoinedToTransaction())
+		{
+			return;
+		}
+		try
+		{
+			if (getEntityManager().getTransaction() != null && !(getEntityManager().getTransaction()
+			                                                                       .isActive()))
+			{
+				getEntityManager().getTransaction()
+				                  .begin();
+			}
+		}
+		catch (IllegalStateException ise)
+		{
+			log.log(Level.FINEST, "Excepted error : Running JTA not JPA", ise);
+			if (jtaCreateNew)
+			{
+				UserTransaction ut = null;
+				try
+				{
+					ut = TransactionHandler.getUserTransaction();
+					if (ut.getStatus() != Status.STATUS_ACTIVE)
+					{
+						ut.begin();
+					}
+				}
+				catch (NotSupportedException | SystemException | NamingException e)
+				{
+					log.log(Level.SEVERE, "Unable to find Bitronix Transaction", e);
+				}
+			}
+		}
+	}
+
+	/**
+	 * If this entity should run in a detached and separate to the entity manager
+	 *
+	 * @param runDetached
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J setRunDetached(boolean runDetached)
+	{
+		this.runDetached = runDetached;
+		return (J) this;
+	}
+
+	/**
 	 * Performs the constraint validation and returns a list of all constraint errors.
-	 * <p>
+	 *
 	 * <b>Great for form checking</b>
 	 *
 	 * @return
@@ -315,21 +449,12 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			for (Object constraintViolation : constraintViolations)
 			{
 				ConstraintViolation contraints = (ConstraintViolation) constraintViolation;
-				String error = contraints.getRootBeanClass().getSimpleName() + STRING_DOT + contraints.getPropertyPath() + STRING_EMPTY + contraints.getMessage();
+				String error = contraints.getRootBeanClass()
+				                         .getSimpleName() + STRING_DOT + contraints.getPropertyPath() + STRING_EMPTY + contraints.getMessage();
 				errors.add(error);
 			}
 		}
 		return errors;
-	}
-
-	/**
-	 * If this entity should run in a detached and separate to the entity manager
-	 *
-	 * @return
-	 */
-	public boolean isRunDetached()
-	{
-		return runDetached;
 	}
 
 	/**
@@ -339,92 +464,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 * @return Returns if the id column is a generated type
 	 */
 	protected abstract boolean isIdGenerated();
-
-	/**
-	 * If this entity should run in a detached and separate to the entity manager
-	 *
-	 * @param runDetached
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J setRunDetached(boolean runDetached)
-	{
-		this.runDetached = runDetached;
-		return (J) this;
-	}
-
-	protected void checkForTransaction()
-	{
-		if (getEntityManager().isJoinedToTransaction())
-		{
-			return;
-		}
-		try
-		{
-			if (getEntityManager().getTransaction() != null && !(getEntityManager().getTransaction().isActive()))
-			{
-				getEntityManager().getTransaction().begin();
-			}
-		}
-		catch (IllegalStateException ise)
-		{
-			log.log(Level.FINEST, "Excepted error : Running JTA not JPA", ise);
-		}
-	}
-
-	private void iterateThroughResultSetForGeneratedIDs(ResultSet generatedKeys) throws SQLException
-	{
-		if (generatedKeys.next())
-		{
-			Object o = generatedKeys.getObject(1);
-			processId(generatedKeys, o);
-		}
-		else
-		{
-			throw new SQLException("Creating user failed, no ID obtained.");
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void processId(ResultSet generatedKeys, Object o) throws SQLException
-	{
-		if (o instanceof BigDecimal)
-		{
-			if (entity.getClassIDType().isAssignableFrom(Long.class))
-			{
-				entity.setId((I) (Long) BigDecimal.class.cast(o).longValue());
-			}
-			else if (entity.getClassIDType().isAssignableFrom(Integer.class))
-			{
-				entity.setId((I) (Integer) BigDecimal.class.cast(o).intValue());
-			}
-			else
-			{
-				entity.setId((I) generatedKeys.getObject(1));
-			}
-		}
-		else
-		{
-			entity.setId((I) generatedKeys.getObject(1));
-		}
-	}
-
-	protected void commitTransaction()
-	{
-		try
-		{
-			if (getEntityManager().getTransaction() != null && getEntityManager().getTransaction().isActive())
-			{
-				getEntityManager().getTransaction().commit();
-			}
-		}
-		catch (IllegalStateException ise)
-		{
-			log.log(Level.FINEST, "Excepted error : Running JTA not JPA", ise);
-		}
-	}
-
 
 	/**
 	 * Returns if the class is a singular attribute

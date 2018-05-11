@@ -1,10 +1,14 @@
 package za.co.mmagon.entityassist;
 
-import za.co.mmagon.guiceinjection.db.connectionbasebuilders.H2DefaultConnectionBaseBuilder;
+import com.oracle.jaxb21.Persistence;
+import za.co.mmagon.guiceinjection.db.ConnectionBaseInfo;
+import za.co.mmagon.guiceinjection.db.connectionbasebuilders.HibernateDefaultConnectionBaseBuilder;
 
 import java.lang.annotation.Annotation;
+import java.util.Properties;
 
-public class EntityAssistTestDBModule extends H2DefaultConnectionBaseBuilder
+public class EntityAssistTestDBModule
+		extends HibernateDefaultConnectionBaseBuilder
 {
 
 	@Override
@@ -23,5 +27,13 @@ public class EntityAssistTestDBModule extends H2DefaultConnectionBaseBuilder
 	protected Class<? extends Annotation> getBindingAnnotation()
 	{
 		return TestEntityAssistCustomPersistenceLoader.class;
+	}
+
+	@Override
+	protected ConnectionBaseInfo getConnectionBaseInfo(Persistence.PersistenceUnit unit, Properties filteredProperties)
+	{
+
+		return super.getConnectionBaseInfo(unit, filteredProperties)
+		            .setAllowLocalTransactions(true);
 	}
 }

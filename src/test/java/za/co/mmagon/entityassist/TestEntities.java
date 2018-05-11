@@ -1,16 +1,41 @@
 package za.co.mmagon.entityassist;
 
+import bitronix.tm.BitronixTransactionManager;
+import bitronix.tm.jndi.BitronixContext;
+import com.google.inject.Key;
+import com.google.inject.persist.Transactional;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import za.co.mmagon.entityassist.entities.EntityClass;
+import za.co.mmagon.entityassist.entities.EntityClassTwo_;
+import za.co.mmagon.entityassist.entities.EntityClass_;
+import za.co.mmagon.entityassist.enumerations.Operand;
+import za.co.mmagon.guiceinjection.GuiceContext;
+
+import javax.naming.NamingException;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.JoinType;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestEntities
 {
+	@BeforeAll
+	public static void before()
+	{
+		GuiceContext.inject();
+	}
+
 	@Test
 	public void testMe()
 	{
 		System.out.println("Override for server builds?");
 	}
 
-	/*
 	@Test
 	public void testEntity()
 	{
@@ -42,7 +67,7 @@ public class TestEntities
 		ec.setId(1L);
 		ec.persistNow();
 	}
-/*
+
 	@Test
 	public void testEntity2()
 	{
@@ -61,11 +86,12 @@ public class TestEntities
 		Optional<EntityClass> ec1 = new EntityClass().find(2L);
 		System.out.println("ec after find: " + ec1);
 
-		System.out.println("Number of all rows : " + ec.builder().selectCount().getCount());
+		System.out.println("Number of all rows : " + ec.builder()
+		                                               .getCount());
 
 		List<EntityClass> numberofresults = ec.builder()
-				                                    .where(EntityClass_.id, Operand.InList, 2L)
-				                                    .getAll();
+		                                      .where(EntityClass_.id, Operand.InList, 2L)
+		                                      .getAll();
 		System.out.println("Wow that returned : " + numberofresults);
 	}
 
@@ -84,7 +110,9 @@ public class TestEntities
 		List resultList = new ArrayList();
 		resultList.add(4);
 		resultList.add(5);
-		long resultCount = ec.builder().where(EntityClass_.id, Operand.InList, resultList).selectCount().getCount();
+		long resultCount = ec.builder()
+		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .getCount();
 		assertEquals(2L, resultCount);
 	}
 
@@ -103,7 +131,9 @@ public class TestEntities
 		List resultList = new ArrayList();
 		resultList.add(6);
 		resultList.add(7);
-		long resultCount = ec.builder().where(EntityClass_.id, Operand.Equals, 6).selectCount().getCount();
+		long resultCount = ec.builder()
+		                     .where(EntityClass_.id, Operand.Equals, 6L)
+		                     .getCount();
 		assertEquals(1L, resultCount);
 	}
 
@@ -122,9 +152,10 @@ public class TestEntities
 		List resultList = new ArrayList();
 		resultList.add(8);
 		resultList.add(9);
-		long resultCount = ec.builder().where(EntityClass_.id, Operand.GreaterThanEqualTo, 8)
-				                   .where(EntityClass_.id, Operand.InList, resultList)
-				                   .selectCount().getCount();
+		long resultCount = ec.builder()
+		                     .where(EntityClass_.id, Operand.GreaterThanEqualTo, 8L)
+		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .getCount();
 		assertEquals(2L, resultCount);
 	}
 
@@ -143,9 +174,10 @@ public class TestEntities
 		List resultList = new ArrayList();
 		resultList.add(10);
 		resultList.add(11);
-		long resultCount = ec.builder().where(EntityClass_.id, Operand.GreaterThan, 10)
-				                   .where(EntityClass_.id, Operand.InList, resultList)
-				                   .getCount();
+		long resultCount = ec.builder()
+		                     .where(EntityClass_.id, Operand.GreaterThan, 10L)
+		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .getCount();
 		assertEquals(1L, resultCount);
 	}
 
@@ -164,8 +196,10 @@ public class TestEntities
 		List resultList = new ArrayList();
 		resultList.add(12);
 		resultList.add(13);
-		long resultCount = ec.builder().where(EntityClass_.id, Operand.LessThanEqualTo, 13)
-				                   .where(EntityClass_.id, Operand.InList, resultList).selectCount().getCount();
+		long resultCount = ec.builder()
+		                     .where(EntityClass_.id, Operand.LessThanEqualTo, 13L)
+		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .getCount();
 		assertEquals(2L, resultCount);
 	}
 
@@ -184,8 +218,10 @@ public class TestEntities
 		List resultList = new ArrayList();
 		resultList.add(14);
 		resultList.add(15);
-		long resultCount = ec.builder().where(EntityClass_.id, Operand.LessThan, 15)
-				                   .where(EntityClass_.id, Operand.InList, resultList).selectCount().getCount();
+		long resultCount = ec.builder()
+		                     .where(EntityClass_.id, Operand.LessThan, 15L)
+		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .getCount();
 		assertEquals(1L, resultCount);
 	}
 
@@ -204,8 +240,10 @@ public class TestEntities
 		List resultList = new ArrayList();
 		resultList.add(17);
 		resultList.add(18);
-		long resultCount = ec.builder().where(EntityClass_.id, Operand.NotNull, null)
-				                   .where(EntityClass_.id, Operand.InList, resultList).selectCount().getCount();
+		long resultCount = ec.builder()
+		                     .where(EntityClass_.id, Operand.NotNull, (Long) null)
+		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .getCount();
 		assertTrue(resultCount == 2);
 	}
 
@@ -224,8 +262,10 @@ public class TestEntities
 		List resultList = new ArrayList();
 		resultList.add(20);
 		resultList.add(21);
-		long resultCount = ec.builder().where(EntityClass_.id, Operand.Null, null)
-				                   .where(EntityClass_.id, Operand.InList, resultList).selectCount().getCount();
+		long resultCount = ec.builder()
+		                     .where(EntityClass_.id, Operand.Null, (Long) null)
+		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .getCount();
 		assertTrue(0 == resultCount);
 	}
 
@@ -234,7 +274,8 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
-		List<EntityClass> list = new EntityClass().builder().getAll();
+		List<EntityClass> list = new EntityClass().builder()
+		                                          .getAll();
 		if (list.size() < 1)
 		{
 			fail("Rows not inserted?");
@@ -247,8 +288,8 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
-				                         .join(EntityClassTwo_.entityClass)
-				                         .getAll();
+		                                          .join(EntityClassTwo_.entityClass)
+		                                          .getAll();
 		if (!list.isEmpty())
 		{
 			fail("Rows not inserted?");
@@ -261,8 +302,8 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
-				                         .join(EntityClassTwo_.entityClass, JoinType.LEFT)
-				                         .getAll();
+		                                          .join(EntityClassTwo_.entityClass, JoinType.LEFT)
+		                                          .getAll();
 	}
 
 	@Test
@@ -271,12 +312,12 @@ public class TestEntities
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
-				                         .inDateRange(LocalDateTime.now(), LocalDateTime.now())
-				                         .join(EntityClassTwo_.entityClass, JoinType.LEFT)
-				                         .getAll();
+		                                          .inDateRange(LocalDateTime.now(), LocalDateTime.now())
+		                                          .join(EntityClassTwo_.entityClass, JoinType.LEFT)
+		                                          .getAll();
 		if (!list.isEmpty())
 		{
 			fail("Rows not inserted?");
 		}
-	}*/
+	}
 }

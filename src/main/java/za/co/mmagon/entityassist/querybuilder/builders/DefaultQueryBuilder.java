@@ -604,7 +604,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J selectCount()
+	protected J selectCount()
 	{
 		getSelections().add(getCriteriaBuilder().count(getRoot()));
 		return (J) this;
