@@ -63,6 +63,12 @@ public class TestEntities
 	public void testMethodInterception()
 	{
 		EntityClass ec = new EntityClass();
+		if (ec.find(999L)
+		      .isPresent())
+		{
+			ec.builder()
+			  .delete();
+		}
 		ec.setId(999L);
 		ec.persist();
 	}
