@@ -977,14 +977,14 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		boolean isCollection = Collection.class.isAssignableFrom(object.getClass());
 		boolean isMap = Map.class.isAssignableFrom(object.getClass());
 
+		Set output = new LinkedHashSet();
+
 		if (!(isArray || isCollection || isMap))
 		{
-			log.warning("Where In List Clause was not an array collection or map");
-			return new HashSet();
+			log.warning("Where In List Clause was not an array collection or map, adding to set");
+			output.add(object);
 		}
-
-		Set output = new LinkedHashSet();
-		if (isArray)
+		else if (isArray)
 		{
 			Collections.addAll(output, (Object[]) object);
 		}
