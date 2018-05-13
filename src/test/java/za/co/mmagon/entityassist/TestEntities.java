@@ -67,6 +67,7 @@ public class TestEntities
 		      .isPresent())
 		{
 			ec.builder()
+			  .where(EntityClass_.id, Operand.Equals, 999L)
 			  .delete();
 		}
 		ec.setId(999L);
