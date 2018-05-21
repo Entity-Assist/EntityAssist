@@ -22,7 +22,8 @@ import java.util.logging.Logger;
 /**
  * An insert statement
  */
-public class InsertStatement implements EntityAssistStrings
+public class InsertStatement
+		implements EntityAssistStrings
 {
 	private static final Logger log = Logger.getLogger(InsertStatement.class.getName());
 	private static InsertStatement insertStatement = new InsertStatement();
@@ -71,9 +72,11 @@ public class InsertStatement implements EntityAssistStrings
 		}
 		if (tableName.isEmpty())
 		{
-			tableName = o.getClass().getSimpleName();
+			tableName = o.getClass()
+			             .getSimpleName();
 		}
-		insertString.append(tableName).append(" (");
+		insertString.append(tableName)
+		            .append(" (");
 		List<Field> fields = new ArrayList<>();
 
 		Class<?> i = c;
@@ -87,6 +90,10 @@ public class InsertStatement implements EntityAssistStrings
 
 		for (Field field : fields)
 		{
+			if (field.isAnnotationPresent(Transient.class))
+			{
+				continue;
+			}
 			field.setAccessible(true);
 			try
 			{
@@ -111,7 +118,7 @@ public class InsertStatement implements EntityAssistStrings
 				String columnName = col == null ? joinCol.name() : col.name();
 				if (columnName.isEmpty())
 				{
-					continue;
+					columnName = field.getName();
 				}
 
 				if (fieldObject instanceof CoreEntity)
@@ -145,7 +152,8 @@ public class InsertStatement implements EntityAssistStrings
 		//columns
 		for (String columnName : columnsNames)
 		{
-			insertString.append(columnName).append(", ");
+			insertString.append(columnName)
+			            .append(", ");
 		}
 		insertString.delete(insertString.length() - 2, insertString.length());
 		insertString.append(") VALUES (");
@@ -153,57 +161,74 @@ public class InsertStatement implements EntityAssistStrings
 		{
 			if (columnValue instanceof Boolean)
 			{
-				insertString.append(Boolean.class.cast(columnValue) ? "1" : "0").append(", ");
+				insertString.append(Boolean.class.cast(columnValue) ? "1" : "0")
+				            .append(", ");
 			}
 			else if (columnValue instanceof Long)
 			{
-				insertString.append(columnValue).append(", ");
+				insertString.append(columnValue)
+				            .append(", ");
 			}
 			else if (columnValue instanceof Integer)
 			{
-				insertString.append(columnValue).append(", ");
+				insertString.append(columnValue)
+				            .append(", ");
 			}
 			else if (columnValue instanceof BigInteger)
 			{
-				insertString.append(((BigInteger) columnValue).longValue()).append(", ");
+				insertString.append(((BigInteger) columnValue).longValue())
+				            .append(", ");
 			}
 			else if (columnValue instanceof BigDecimal)
 			{
-				insertString.append(((BigDecimal) columnValue).doubleValue()).append(", ");
+				insertString.append(((BigDecimal) columnValue).doubleValue())
+				            .append(", ");
 			}
 			else if (columnValue instanceof Short)
 			{
 				short columnVal = (short) columnValue;
-				insertString.append(columnVal).append(", ");
+				insertString.append(columnVal)
+				            .append(", ");
 			}
 			else if (columnValue instanceof String)
 			{
-				insertString.append("'").append(((String) columnValue).replaceAll("'", "''")).append("', ");
+				insertString.append("'")
+				            .append(((String) columnValue).replaceAll("'", "''"))
+				            .append("', ");
 			}
 			else if (columnValue instanceof Date)
 			{
 				Date date = (Date) columnValue;
-				insertString.append("'").append(getInsertStatement().sdf.format(date)).append("', ");
+				insertString.append("'")
+				            .append(getInsertStatement().sdf.format(date))
+				            .append("', ");
 			}
 			else if (columnValue instanceof LocalDate)
 			{
 				LocalDate date = (LocalDate) columnValue;
-				insertString.append("'").append(getInsertStatement().dateFormat.format(date)).append("', ");
+				insertString.append("'")
+				            .append(getInsertStatement().dateFormat.format(date))
+				            .append("', ");
 			}
 			else if (columnValue instanceof LocalDateTime)
 			{
 				LocalDateTime date = (LocalDateTime) columnValue;
-				insertString.append("'").append(getInsertStatement().dateTimeFormat.format(date)).append("', ");
+				insertString.append("'")
+				            .append(getInsertStatement().dateTimeFormat.format(date))
+				            .append("', ");
 			}
 			else if (columnValue instanceof CoreEntity)
 			{
 				CoreEntity wct = (CoreEntity) columnValue;
-				insertString.append(wct.getId()).append(", ");
+				insertString.append(wct.getId())
+				            .append(", ");
 			}
 			else if (columnValue instanceof Enum)
 			{
 				Enum wct = (Enum) columnValue;
-				insertString.append("'").append(wct.toString()).append("', ");
+				insertString.append("'")
+				            .append(wct.toString())
+				            .append("', ");
 			}
 		}
 
