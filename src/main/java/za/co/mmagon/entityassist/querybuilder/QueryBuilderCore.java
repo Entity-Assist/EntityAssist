@@ -11,6 +11,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static za.co.mmagon.entityassist.CoreEntity.EndOfTime;
+
 /**
  * @param <J>
  * 		This Class
@@ -48,7 +50,8 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	public J inDateRange(LocalDateTime effectiveFromAndToDate)
 	{
 		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get("effectiveFromDate"), effectiveFromAndToDate));
-		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), effectiveFromAndToDate));
+		getFilters().add(getCriteriaBuilder().or(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), effectiveFromAndToDate),
+		                                         getCriteriaBuilder().equal(getRoot().get("effectiveToDate"), EndOfTime)));
 		return (J) this;
 	}
 

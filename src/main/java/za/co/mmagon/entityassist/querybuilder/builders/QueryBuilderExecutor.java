@@ -3,10 +3,7 @@ package za.co.mmagon.entityassist.querybuilder.builders;
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.PluralAttribute;
@@ -14,6 +11,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -477,23 +475,26 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		Map<String, Object> map = new HashMap<>();
 		Field[] fields = updateFields.getClass()
 		                             .getDeclaredFields();
-		Arrays.asList(fields)
-		      .forEach(a ->
-		               {
-			               a.setAccessible(true);
-			               try
-			               {
-				               Object o = a.get(updateFields);
-				               if (o != null)
-				               {
-					               map.put(a.getName(), o);
-				               }
-			               }
-			               catch (IllegalAccessException e)
-			               {
-				               log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
-			               }
-		               });
+		for (Field a : fields)
+		{
+			if (Modifier.isAbstract(a.getModifiers()) || Modifier.isStatic(a.getModifiers()) || Modifier.isFinal(a.getModifiers()) || a.isAnnotationPresent(Id.class))
+			{
+				continue;
+			}
+			a.setAccessible(true);
+			try
+			{
+				Object o = a.get(updateFields);
+				if (o != null)
+				{
+					map.put(a.getName(), o);
+				}
+			}
+			catch (IllegalAccessException e)
+			{
+				log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
+			}
+		}
 		return map;
 	}
 }

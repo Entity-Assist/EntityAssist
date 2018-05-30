@@ -32,14 +32,16 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
  * @since 06 Dec 2016
  */
 @MappedSuperclass()
-@JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
+@JsonAutoDetect(fieldVisibility = ANY,
+		getterVisibility = NONE,
+		setterVisibility = NONE)
 @JsonInclude(NON_NULL)
 public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryBuilderCore<Q, J, I>, I extends Serializable>
 		extends BaseEntity<J, Q, I>
 		implements Serializable
 {
+	public static final LocalDateTime EndOfTime = LocalDateTime.of(2999, 12, 31, 23, 59, 59, 999);
 	private static final long serialVersionUID = 1L;
-
 	/**
 	 * Returns the date time formatter
 	 */
@@ -47,49 +49,66 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	@JsonProperty(value = "$jwid")
 	@Transient
 	private String referenceId;
-
-	@Basic(optional = false, fetch = FetchType.LAZY)
+	@Basic(optional = false,
+			fetch = FetchType.LAZY)
 	@NotNull
-	@Column(nullable = false, name = "EffectiveFromDate")
+	@Column(nullable = false,
+			name = "EffectiveFromDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 
 	private LocalDateTime effectiveFromDate;
-	@Basic(optional = false, fetch = FetchType.LAZY)
+	@Basic(optional = false,
+			fetch = FetchType.LAZY)
 	@NotNull
-	@Column(nullable = false, name = "EffectiveToDate")
+	@Column(nullable = false,
+			name = "EffectiveToDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 
 	private LocalDateTime effectiveToDate;
-	@Basic(optional = false, fetch = FetchType.LAZY)
+	@Basic(optional = false,
+			fetch = FetchType.LAZY)
 	@NotNull
-	@Column(nullable = false, name = "WarehouseCreatedTimestamp")
+	@Column(nullable = false,
+			name = "WarehouseCreatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime warehouseCreatedTimestamp;
-
-	@Basic(optional = false, fetch = FetchType.LAZY)
+	@Basic(optional = false,
+			fetch = FetchType.LAZY)
 	@NotNull
-	@Column(nullable = false, name = "WarehouseLastUpdatedTimestamp")
+	@Column(nullable = false,
+			name = "WarehouseLastUpdatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime warehouseLastUpdatedTimestamp;
-
-	@Basic(optional = false, fetch = FetchType.EAGER)
-	@Column(nullable = false, name = "ActiveFlag")
+	@Basic(optional = false,
+			fetch = FetchType.EAGER)
+	@Column(nullable = false,
+			name = "ActiveFlag")
 	@Enumerated(value = EnumType.STRING)
 	@NotNull
 	private ActiveFlag activeFlag;
-
 
 	/**
 	 * Initialize the entity
 	 */
 	public CoreEntity()
 	{
-		effectiveToDate = LocalDateTime.of(2999, 12, 31, 23, 59, 59, 999);
+		effectiveToDate = EndOfTime;
 		effectiveFromDate = LocalDateTime.now();
 		warehouseCreatedTimestamp = LocalDateTime.now();
 		warehouseLastUpdatedTimestamp = LocalDateTime.now();
 		activeFlag = ActiveFlag.Active;
 	}
+
+	/**
+	 * Constructs with no parameters set, Great for search criteria
+	 *
+	 * @param blank
+	 */
+	public CoreEntity(boolean blank)
+	{
+		//No Config
+	}
+
 
 	/**
 	 * Returns the effective from date for the given setting
@@ -177,7 +196,8 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	public Optional<J> find(I id)
 	{
-		return builder().find(id).get();
+		return builder().find(id)
+		                .get();
 	}
 
 	/**
