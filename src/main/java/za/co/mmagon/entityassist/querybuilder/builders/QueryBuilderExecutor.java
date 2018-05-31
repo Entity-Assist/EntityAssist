@@ -1,13 +1,13 @@
 package za.co.mmagon.entityassist.querybuilder.builders;
 
 import com.google.inject.persist.Transactional;
+import org.hibernate.query.criteria.internal.path.SingularAttributePath;
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.validation.constraints.NotNull;
@@ -39,6 +39,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 * If the first result must be returned from a list
 	 */
 	private boolean returnFirst;
+
 
 	@SuppressWarnings("unchecked")
 	public Long getCount()
@@ -74,11 +75,11 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		if (!selected)
 		{
 			getJoins().forEach(this::processJoins);
-			if (getCriteriaDelete() == null)
+			if (!isDelete() && !isUpdate())
 			{
 				processCriteriaQuery();
 			}
-			else if (getCriteriaDelete() != null && getCriteriaUpdate() == null)
+			else if (isDelete())
 			{
 				CriteriaDelete cq = getCriteriaDelete();
 				List<Predicate> allWheres = new ArrayList<>(getFilters());
@@ -86,7 +87,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 				preds = allWheres.toArray(preds);
 				cq.where(preds);
 			}
-			else if (getCriteriaUpdate() != null)
+			else if (isUpdate())
 			{
 				CriteriaUpdate cq = getCriteriaUpdate();
 				List<Predicate> allWheres = new ArrayList<>(getFilters());
@@ -182,6 +183,41 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 				break;
 			}
 		}
+	}
+
+	/**
+	 * Returns the number of rows or an unsupported exception if there are no filters added
+	 *
+	 * @param updateFields
+	 *
+	 * @return
+	 */
+	@Transactional
+	public int bulkUpdate(E updateFields, boolean allowEmpty)
+	{
+		if (!allowEmpty && getFilters().isEmpty())
+		{
+			throw new UnsupportedOperationException("Calling the bulk update method with no filters. This will update the entire table.");
+		}
+		CriteriaUpdate update = getCriteriaUpdate();
+		Map<SingularAttribute, Object> updateFieldMap = getUpdateFieldMap(updateFields);
+		if (updateFieldMap.isEmpty())
+		{
+			log.warning("Nothing to update, ignore bulk update");
+			return 0;
+		}
+		for (Map.Entry<SingularAttribute, Object> entries : updateFieldMap.entrySet())
+		{
+			SingularAttribute<?, ?> attributeName = entries.getKey();
+			Object value = entries.getValue();
+			update.set(attributeName.getName(), value);
+		}
+		select();
+		checkForTransaction();
+		int results = getEntityManager().createQuery(update)
+		                                .executeUpdate();
+		commitTransaction();
+		return results;
 	}
 
 	/**
@@ -442,48 +478,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	}
 
 	/**
-	 * Returns the number of rows or an unsupported exception if there are no filters added
-	 *
-	 * @param updateFields
-	 *
-	 * @return
-	 */
-	@Transactional
-	public int bulkUpdate(E updateFields, boolean allowEmpty)
-	{
-		if (!allowEmpty && getFilters().isEmpty())
-		{
-			throw new UnsupportedOperationException("Calling the bulk update method with no filters. This will update the entire table.");
-		}
-		CriteriaUpdate update = getCriteriaUpdate();
-		select();
-
-		Map<SingularAttribute, Object> updateFieldMap = getUpdateFieldMap(updateFields);
-		if (updateFieldMap.isEmpty())
-		{
-			log.warning("Nothing to update, ignore bulk update");
-			return 0;
-		}
-
-
-		EntityType<E> eEntityType = getEntityManager().getEntityManagerFactory()
-		                                              .getMetamodel()
-		                                              .entity(getEntityClass());
-		update.from(eEntityType);
-		for (Map.Entry<SingularAttribute, Object> entries : updateFieldMap.entrySet())
-		{
-			SingularAttribute<?, ?> attributeName = entries.getKey();
-			Object value = entries.getValue();
-			update.set(attributeName.getName(), value);
-		}
-		checkForTransaction();
-		int results = getEntityManager().createQuery(update)
-		                                .executeUpdate();
-		commitTransaction();
-		return results;
-	}
-
-	/**
 	 * Goes through the object looking for fields, returns a set where the field name is mapped to the object
 	 *
 	 * @param updateFields
@@ -509,19 +503,9 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 				if (o != null)
 				{
 					String fieldName = field.getName();
-					String dynamicClassName = updateFields.getClass()
-					                                      .getCanonicalName() + "_";
-					try
-					{
-						Class dynamicClass = Class.forName(dynamicClassName);
-						Field dynSetField = dynamicClass.getField(fieldName);
-						SingularAttribute attribute = (SingularAttribute) dynSetField.get(null);
-						map.put(attribute, o);
-					}
-					catch (ClassNotFoundException | NoSuchFieldException e)
-					{
-						throw new RuntimeException("Missing Static Classes for Entities", e);
-					}
+					SingularAttributePath at = (SingularAttributePath) getRoot().get(fieldName);
+					SingularAttribute at2 = at.getAttribute();
+					map.put(at2, o);
 				}
 			}
 			catch (IllegalAccessException e)

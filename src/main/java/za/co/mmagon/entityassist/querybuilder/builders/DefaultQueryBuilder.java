@@ -73,6 +73,9 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	private CriteriaUpdate criteriaUpdate;
 	private Class<? extends BaseEntity> construct;
 
+	private boolean delete;
+	private boolean update;
+
 	/**
 	 * Returns the root object of this entity
 	 */
@@ -97,86 +100,6 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 		whereExpressions = new LinkedHashSet<>();
 		orderByExpressions = new LinkedHashSet<>();
 		groupByExpressions = new LinkedHashSet<>();
-	}
-
-	/**
-	 * Resets to the given new root and constructs the select query
-	 *
-	 * @param newRoot
-	 */
-	public void reset(From newRoot)
-	{
-		setRoot(newRoot);
-		getFilters().clear();
-		getSelections().clear();
-		getGroupBys().clear();
-		getOrderBys().clear();
-		getHaving().clear();
-
-		getWhereExpressions().forEach(this::where);
-
-		getSelectExpressions().forEach(this::redoSelectExpression);
-
-	}
-
-	/**
-	 * Returns the collection of filters that are going to be applied in build
-	 *
-	 * @return
-	 */
-	protected Set<Predicate> getFilters()
-	{
-		return filters;
-	}
-
-	/**
-	 * Gets the selections that are going to be applied, leave empty for all columns
-	 *
-	 * @return
-	 */
-	protected Set<Selection> getSelections()
-	{
-		return selections;
-	}
-
-	/**
-	 * Returns the current list of group by's
-	 *
-	 * @return
-	 */
-	public Set<Expression> getGroupBys()
-	{
-		return groupBys;
-	}
-
-	/**
-	 * Returns the current list of order by's
-	 *
-	 * @return
-	 */
-	protected Map<Attribute, OrderByType> getOrderBys()
-	{
-		return orderBys;
-	}
-
-	/**
-	 * Gets the havingn list for this builder
-	 *
-	 * @return
-	 */
-	protected Set<Expression> getHaving()
-	{
-		return having;
-	}
-
-	Set<WhereExpression> getWhereExpressions()
-	{
-		return whereExpressions;
-	}
-
-	Set<SelectExpression> getSelectExpressions()
-	{
-		return selectExpressions;
 	}
 
 	private void redoSelectExpression(SelectExpression a)
@@ -520,6 +443,16 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	}
 
 	/**
+	 * Gets the selections that are going to be applied, leave empty for all columns
+	 *
+	 * @return
+	 */
+	protected Set<Selection> getSelections()
+	{
+		return selections;
+	}
+
+	/**
 	 * Gets my given root
 	 *
 	 * @return
@@ -595,6 +528,115 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 			getFilters().add(getRoot().get("id")
 			                          .in(id));
 		}
+		return (J) this;
+	}
+
+	/**
+	 * Returns the collection of filters that are going to be applied in build
+	 *
+	 * @return
+	 */
+	protected Set<Predicate> getFilters()
+	{
+		return filters;
+	}
+
+	/**
+	 * Gets the criteria update object
+	 *
+	 * @return
+	 */
+	@Nullable
+	@SuppressWarnings("unchecked")
+	protected CriteriaUpdate<E> getCriteriaUpdate()
+	{
+		if (criteriaUpdate == null)
+		{
+			criteriaUpdate = getCriteriaBuilder().createCriteriaUpdate(getEntityClass());
+			EntityType<E> eEntityType = getEntityManager().getEntityManagerFactory()
+			                                              .getMetamodel()
+			                                              .entity(getEntityClass());
+			criteriaUpdate.from(eEntityType);
+			setRoot(criteriaUpdate.getRoot());
+			reset(criteriaUpdate.getRoot());
+			update = true;
+		}
+
+		return criteriaUpdate;
+	}
+
+	/**
+	 * Resets to the given new root and constructs the select query
+	 *
+	 * @param newRoot
+	 */
+	public void reset(From newRoot)
+	{
+		setRoot(newRoot);
+		getFilters().clear();
+		getSelections().clear();
+		getGroupBys().clear();
+		getOrderBys().clear();
+		getHaving().clear();
+
+		getWhereExpressions().forEach(this::where);
+
+		getSelectExpressions().forEach(this::redoSelectExpression);
+
+	}
+
+	/**
+	 * Returns the current list of group by's
+	 *
+	 * @return
+	 */
+	public Set<Expression> getGroupBys()
+	{
+		return groupBys;
+	}
+
+	/**
+	 * Returns the current list of order by's
+	 *
+	 * @return
+	 */
+	protected Map<Attribute, OrderByType> getOrderBys()
+	{
+		return orderBys;
+	}
+
+	/**
+	 * Gets the havingn list for this builder
+	 *
+	 * @return
+	 */
+	protected Set<Expression> getHaving()
+	{
+		return having;
+	}
+
+	Set<WhereExpression> getWhereExpressions()
+	{
+		return whereExpressions;
+	}
+
+	Set<SelectExpression> getSelectExpressions()
+	{
+		return selectExpressions;
+	}
+
+	/**
+	 * Sets the criteria update object
+	 *
+	 * @param criteriaUpdate
+	 *
+	 * @return
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	protected J setCriteriaUpdate(CriteriaUpdate criteriaUpdate)
+	{
+		this.criteriaUpdate = criteriaUpdate;
 		return (J) this;
 	}
 
@@ -1162,41 +1204,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	public J setCriteriaDelete(CriteriaDelete criteriaDelete)
 	{
 		this.criteriaDelete = criteriaDelete;
-		return (J) this;
-	}
-
-	/**
-	 * Gets the criteria update object
-	 *
-	 * @return
-	 */
-	@Nullable
-	protected CriteriaUpdate<E> getCriteriaUpdate()
-	{
-		if (criteriaUpdate == null)
-		{
-			criteriaUpdate = getCriteriaBuilder().createCriteriaUpdate(getEntityClass());
-		}
-		EntityType<E> eEntityType = getEntityManager().getEntityManagerFactory()
-		                                              .getMetamodel()
-		                                              .entity(getEntityClass());
-		criteriaUpdate.from(eEntityType);
-		setRoot(criteriaUpdate.getRoot());
-		return criteriaUpdate;
-	}
-
-	/**
-	 * Sets the criteria update object
-	 *
-	 * @param criteriaUpdate
-	 *
-	 * @return
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	protected J setCriteriaUpdate(CriteriaUpdate criteriaUpdate)
-	{
-		this.criteriaUpdate = criteriaUpdate;
+		delete = true;
 		return (J) this;
 	}
 
@@ -1228,6 +1236,52 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	public J construct(@Nullable Class<? extends BaseEntity> construct)
 	{
 		this.construct = construct;
+		return (J) this;
+	}
+
+	/**
+	 * If the builder is set to delete
+	 *
+	 * @return
+	 */
+	protected boolean isDelete()
+	{
+		return delete;
+	}
+
+	/**
+	 * If the builder is set to delete
+	 *
+	 * @param delete
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	protected J setDelete(boolean delete)
+	{
+		this.delete = delete;
+		return (J) this;
+	}
+
+	/**
+	 * If the builder is set to update
+	 *
+	 * @return
+	 */
+	public boolean isUpdate()
+	{
+		return update;
+	}
+
+	/**
+	 * If the builder is set to update
+	 *
+	 * @param update
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J setUpdate(boolean update)
+	{
+		this.update = update;
 		return (J) this;
 	}
 }

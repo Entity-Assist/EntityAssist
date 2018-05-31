@@ -6,8 +6,8 @@ import za.co.mmagon.entityassist.TestEntityAssistCustomPersistenceLoader;
 import za.co.mmagon.entityassist.entities.EntityClass;
 import za.co.mmagon.entityassist.entities.EntityClassTwo;
 import za.co.mmagon.entityassist.entities.EntityClassTwo_;
+import za.co.mmagon.entityassist.entities.EntityClass_;
 import za.co.mmagon.entityassist.enumerations.ActiveFlag;
-import za.co.mmagon.entityassist.enumerations.Operand;
 import za.co.mmagon.guiceinjection.GuiceContext;
 
 import javax.persistence.EntityManager;
@@ -15,6 +15,7 @@ import javax.persistence.criteria.JoinType;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.fail;
+import static za.co.mmagon.entityassist.enumerations.Operand.Equals;
 
 public class QueryBuilderCoreTest
 {
@@ -27,7 +28,7 @@ public class QueryBuilderCoreTest
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
 		                                          .join(EntityClassTwo_.entityClass, new EntityClassTwo().builder()
-		                                                                                                 .where(EntityClassTwo_.activeFlag, Operand.Equals, ActiveFlag.Active))
+		                                                                                                 .where(EntityClassTwo_.activeFlag, Equals, ActiveFlag.Active))
 		                                          .inVisibleRange()
 		                                          .getAll();
 		if (!list.isEmpty())
@@ -77,7 +78,7 @@ public class QueryBuilderCoreTest
 		                                          .inDateRange()
 		                                          .inVisibleRange()
 		                                          .join(EntityClassTwo_.entityClass, new EntityClassTwo().builder()
-		                                                                                                 .where(EntityClassTwo_.activeFlag, Operand.Equals, ActiveFlag.Active)
+		                                                                                                 .where(EntityClassTwo_.activeFlag, Equals, ActiveFlag.Active)
 		                                                                                                 .inActiveRange(), JoinType.LEFT)
 		                                          .getAll();
 		if (!list.isEmpty())
@@ -94,6 +95,7 @@ public class QueryBuilderCoreTest
 		EntityClass updates = new EntityClass(true);
 		updates.setActiveFlag(ActiveFlag.Archived);
 		new EntityClass().builder()
+		                 .where(EntityClass_.activeFlag, Equals, ActiveFlag.Invisible)
 		                 .bulkUpdate(updates, true);
 	}
 }
