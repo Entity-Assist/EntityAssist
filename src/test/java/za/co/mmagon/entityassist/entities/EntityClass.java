@@ -7,7 +7,8 @@ import javax.persistence.*;
 
 @Entity
 @Table
-public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>
+public class EntityClass
+		extends CoreEntity<EntityClass, EntityClassBuilder, Long>
 {
 	@Id
 	@Column(name = "id")
@@ -16,6 +17,15 @@ public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Lon
 	@OneToOne
 	@JoinColumn(name = "entityClass")
 	private EntityClassTwo entityClass;
+
+	public EntityClass()
+	{
+	}
+
+	public EntityClass(boolean blank)
+	{
+		super(blank);
+	}
 
 	public EntityClassTwo getEntityClass()
 	{

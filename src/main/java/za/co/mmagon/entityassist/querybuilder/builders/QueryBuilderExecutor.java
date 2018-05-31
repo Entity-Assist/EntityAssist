@@ -1,11 +1,13 @@
 package za.co.mmagon.entityassist.querybuilder.builders;
 
+import com.google.inject.persist.Transactional;
 import za.co.mmagon.entityassist.BaseEntity;
 import za.co.mmagon.entityassist.enumerations.OrderByType;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.validation.constraints.NotNull;
@@ -446,16 +448,34 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 *
 	 * @return
 	 */
-	public int bulkUpdate(E updateFields)
+	@Transactional
+	public int bulkUpdate(E updateFields, boolean allowEmpty)
 	{
-		if (getFilters().isEmpty())
+		if (!allowEmpty && getFilters().isEmpty())
 		{
 			throw new UnsupportedOperationException("Calling the bulk update method with no filters. This will update the entire table.");
 		}
-		CriteriaUpdate update = getCriteriaBuilder().createCriteriaUpdate(getEntityClass());
-		Map<String, Object> updateFieldMap = getUpdateFieldMap(updateFields);
-		updateFieldMap.forEach(update::set);
+		CriteriaUpdate update = getCriteriaUpdate();
 		select();
+
+		Map<SingularAttribute, Object> updateFieldMap = getUpdateFieldMap(updateFields);
+		if (updateFieldMap.isEmpty())
+		{
+			log.warning("Nothing to update, ignore bulk update");
+			return 0;
+		}
+
+
+		EntityType<E> eEntityType = getEntityManager().getEntityManagerFactory()
+		                                              .getMetamodel()
+		                                              .entity(getEntityClass());
+		update.from(eEntityType);
+		for (Map.Entry<SingularAttribute, Object> entries : updateFieldMap.entrySet())
+		{
+			SingularAttribute<?, ?> attributeName = entries.getKey();
+			Object value = entries.getValue();
+			update.set(attributeName.getName(), value);
+		}
 		checkForTransaction();
 		int results = getEntityManager().createQuery(update)
 		                                .executeUpdate();
@@ -470,24 +490,38 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 *
 	 * @return
 	 */
-	protected Map<String, Object> getUpdateFieldMap(E updateFields)
+	protected Map<SingularAttribute, Object> getUpdateFieldMap(E updateFields)
 	{
-		Map<String, Object> map = new HashMap<>();
-		Field[] fields = updateFields.getClass()
-		                             .getDeclaredFields();
-		for (Field a : fields)
+		Map<SingularAttribute, Object> map = new HashMap<>();
+		List<Field> fieldList = allFields(updateFields.getClass(), new ArrayList<>());
+
+		for (Field field : fieldList)
 		{
-			if (Modifier.isAbstract(a.getModifiers()) || Modifier.isStatic(a.getModifiers()) || Modifier.isFinal(a.getModifiers()) || a.isAnnotationPresent(Id.class))
+			if (Modifier.isAbstract(field.getModifiers()) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(
+					Id.class))
 			{
 				continue;
 			}
-			a.setAccessible(true);
+			field.setAccessible(true);
 			try
 			{
-				Object o = a.get(updateFields);
+				Object o = field.get(updateFields);
 				if (o != null)
 				{
-					map.put(a.getName(), o);
+					String fieldName = field.getName();
+					String dynamicClassName = updateFields.getClass()
+					                                      .getCanonicalName() + "_";
+					try
+					{
+						Class dynamicClass = Class.forName(dynamicClassName);
+						Field dynSetField = dynamicClass.getField(fieldName);
+						SingularAttribute attribute = (SingularAttribute) dynSetField.get(null);
+						map.put(attribute, o);
+					}
+					catch (ClassNotFoundException | NoSuchFieldException e)
+					{
+						throw new RuntimeException("Missing Static Classes for Entities", e);
+					}
 				}
 			}
 			catch (IllegalAccessException e)
@@ -496,5 +530,15 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			}
 		}
 		return map;
+	}
+
+	private List<Field> allFields(Class<?> object, List<Field> fieldList)
+	{
+		fieldList.addAll(Arrays.asList(object.getDeclaredFields()));
+		if (object.getSuperclass() != Object.class)
+		{
+			allFields(object.getSuperclass(), fieldList);
+		}
+		return fieldList;
 	}
 }

@@ -85,4 +85,15 @@ public class QueryBuilderCoreTest
 			fail("Rows not inserted?");
 		}
 	}
+
+	@Test
+	public void testBulkUpdate()
+	{
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		System.out.println("EM Open : " + em.isOpen());
+		EntityClass updates = new EntityClass(true);
+		updates.setActiveFlag(ActiveFlag.Archived);
+		new EntityClass().builder()
+		                 .bulkUpdate(updates, true);
+	}
 }

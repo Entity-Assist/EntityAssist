@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import javax.persistence.Id;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.validation.constraints.NotNull;
@@ -1172,6 +1173,15 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	@Nullable
 	protected CriteriaUpdate<E> getCriteriaUpdate()
 	{
+		if (criteriaUpdate == null)
+		{
+			criteriaUpdate = getCriteriaBuilder().createCriteriaUpdate(getEntityClass());
+		}
+		EntityType<E> eEntityType = getEntityManager().getEntityManagerFactory()
+		                                              .getMetamodel()
+		                                              .entity(getEntityClass());
+		criteriaUpdate.from(eEntityType);
+		setRoot(criteriaUpdate.getRoot());
 		return criteriaUpdate;
 	}
 
