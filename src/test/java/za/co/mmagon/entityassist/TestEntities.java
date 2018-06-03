@@ -3,7 +3,6 @@ package za.co.mmagon.entityassist;
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.jndi.BitronixContext;
 import com.google.inject.Key;
-import com.google.inject.persist.Transactional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import za.co.mmagon.entityassist.entities.EntityClass;
@@ -53,25 +52,8 @@ public class TestEntities
 		{
 			e.printStackTrace();
 		}
-		te.testMethodInterception();
-
 		Optional<EntityClass> ec1 = new EntityClass().find(1L);
 		System.out.println("ec : " + ec1);
-	}
-
-	@Transactional()
-	public void testMethodInterception()
-	{
-		EntityClass ec = new EntityClass();
-		if (ec.find(999L)
-		      .isPresent())
-		{
-			ec.builder()
-			  .where(EntityClass_.id, Operand.Equals, 999L)
-			  .delete();
-		}
-		ec.setId(999L);
-		ec.persist();
 	}
 
 	@Test
