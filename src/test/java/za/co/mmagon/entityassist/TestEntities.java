@@ -264,10 +264,6 @@ public class TestEntities
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
 		                                          .getAll();
-		if (list.size() < 1)
-		{
-			fail("Rows not inserted?");
-		}
 	}
 
 	@Test
