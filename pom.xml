@@ -13,14 +13,6 @@
 
     <name>Entity Assist</name>
 
-    <repositories>
-        <repository>
-            <id>jwebmp-snapshot</id>
-            <name>JWebMPArtifactory-snapshots</name>
-            <url>https://jwebmp.com/artifactory/libs-snapshot</url>
-        </repository>
-    </repositories>
-
     <description>Allows for instant query builders and constructs statements for nicer output to the console
     </description>
     <url>https://github.com/GedMarc/EntityAssist</url>
@@ -57,6 +49,7 @@
             <plugin>
                 <groupId>org.bsc.maven</groupId>
                 <artifactId>maven-processor-plugin</artifactId>
+                <version>3.3.3</version>
                 <executions>
                     <execution>
                         <id>process</id>
@@ -85,6 +78,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>add-source</id>
