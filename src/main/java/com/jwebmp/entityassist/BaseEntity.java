@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jwebmp.entityassist.querybuilder.EntityAssistStrings;
 import com.jwebmp.entityassist.querybuilder.builders.QueryBuilderExecutor;
-import com.jwebmp.guiceinjection.GuiceContext;
+import com.jwebmp.guicedinjection.GuiceContext;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.NoResultException;
@@ -55,7 +55,6 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 		//No configuration needed
 	}
 
-
 	/**
 	 * Returns the id of the given type in the generic decleration
 	 *
@@ -74,7 +73,6 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	@SuppressWarnings("all")
 	@NotNull
 	public abstract J setId(I id);
-
 
 	/**
 	 * Persists this object through the builder
@@ -132,7 +130,9 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 			{
 				queryBuilderClass = null;
 				log.log(Level.SEVERE,
-				        "Cannot return the my query builder class - config seems wrong. Check that a builder is attached to this entity as the second generic field type e.g. \n" + "public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>\n\n" + "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/za/co/mmagon/entityassist/entities",
+				        "Cannot return the my query builder class - config seems wrong. Check that a builder is attached to this entity as the second generic field type e.g. \n" +
+				        "public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>\n\n" +
+				        "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/za/co/mmagon/entityassist/entities",
 				        e);
 			}
 		}
@@ -278,7 +278,9 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 			catch (Exception e)
 			{
 				log.log(Level.SEVERE,
-				        "Cannot return the class for uncheckeds. Embeddables are allowed. Config seems wrong. Check that a builder is attached to this entity as the second generic field type e.g. \n" + "public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>\n\n" + "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/za/co/mmagon/entityassist/entities",
+				        "Cannot return the class for uncheckeds. Embeddables are allowed. Config seems wrong. Check that a builder is attached to this entity as the second generic field type e.g. \n" +
+				        "public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>\n\n" +
+				        "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/za/co/mmagon/entityassist/entities",
 				        e);
 				idTypeClass = null;
 			}

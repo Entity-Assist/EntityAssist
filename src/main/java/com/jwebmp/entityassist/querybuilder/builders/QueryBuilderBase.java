@@ -3,7 +3,7 @@ package com.jwebmp.entityassist.querybuilder.builders;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
-import com.jwebmp.guiceinjection.db.TransactionHandler;
+import com.jwebmp.guicedinjection.db.TransactionHandler;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;

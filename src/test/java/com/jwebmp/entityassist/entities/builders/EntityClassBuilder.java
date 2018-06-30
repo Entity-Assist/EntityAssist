@@ -4,7 +4,7 @@ import com.google.inject.Key;
 import com.jwebmp.entityassist.TestEntityAssistCustomPersistenceLoader;
 import com.jwebmp.entityassist.entities.EntityClass;
 import com.jwebmp.entityassist.querybuilder.QueryBuilderCore;
-import com.jwebmp.guiceinjection.GuiceContext;
+import com.jwebmp.guicedinjection.GuiceContext;
 
 import javax.persistence.EntityManager;
 

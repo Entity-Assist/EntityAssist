@@ -7,7 +7,7 @@ import com.jwebmp.entityassist.entities.EntityClassTwo;
 import com.jwebmp.entityassist.entities.EntityClassTwo_;
 import com.jwebmp.entityassist.entities.EntityClass_;
 import com.jwebmp.entityassist.enumerations.ActiveFlag;
-import com.jwebmp.guiceinjection.GuiceContext;
+import com.jwebmp.guicedinjection.GuiceContext;
 import org.junit.jupiter.api.Test;
 
 import javax.persistence.EntityManager;
@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class QueryBuilderCoreTest
 {
-
 
 	@Test
 	public void testVisibleRange()
@@ -36,7 +35,6 @@ public class QueryBuilderCoreTest
 			fail("Rows not inserted?");
 		}
 	}
-
 
 	@Test
 	public void testDateRange()

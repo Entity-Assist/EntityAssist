@@ -7,7 +7,7 @@ import com.jwebmp.entityassist.entities.EntityClass;
 import com.jwebmp.entityassist.entities.EntityClassTwo_;
 import com.jwebmp.entityassist.entities.EntityClass_;
 import com.jwebmp.entityassist.enumerations.Operand;
-import com.jwebmp.guiceinjection.GuiceContext;
+import com.jwebmp.guicedinjection.GuiceContext;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
