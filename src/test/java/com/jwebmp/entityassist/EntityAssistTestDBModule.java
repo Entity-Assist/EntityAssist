@@ -1,7 +1,7 @@
 package com.jwebmp.entityassist;
 
-import com.jwebmp.guicedinjection.db.ConnectionBaseInfo;
-import com.jwebmp.guicedinjection.db.connectionbasebuilders.HibernateDefaultConnectionBaseBuilder;
+import com.jwebmp.guicedpersistence.db.ConnectionBaseInfo;
+import com.jwebmp.guicedpersistence.db.connectionbasebuilders.HibernateDefaultConnectionBaseBuilder;
 import com.oracle.jaxb21.Persistence;
 
 import java.lang.annotation.Annotation;

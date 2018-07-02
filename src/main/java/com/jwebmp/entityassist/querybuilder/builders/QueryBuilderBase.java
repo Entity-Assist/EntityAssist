@@ -1,9 +1,10 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
+import bitronix.tm.BitronixTransactionManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
-import com.jwebmp.guicedinjection.db.TransactionHandler;
+import com.jwebmp.guicedpersistence.db.TransactionHandler;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -15,7 +16,6 @@ import javax.persistence.metamodel.*;
 import javax.transaction.NotSupportedException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -398,7 +398,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			log.log(Level.FINEST, "Excepted error : Running JTA not JPA", ise);
 			if (jtaCreateNew)
 			{
-				UserTransaction ut = null;
+				BitronixTransactionManager ut = null;
 				try
 				{
 					ut = TransactionHandler.getUserTransaction();

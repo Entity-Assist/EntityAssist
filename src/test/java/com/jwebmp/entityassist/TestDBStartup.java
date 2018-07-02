@@ -2,7 +2,7 @@ package com.jwebmp.entityassist;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.PersistService;
-import com.jwebmp.guicedinjection.db.DBStartupAsync;
+import com.jwebmp.guicedpersistence.db.DBStartupAsync;
 
 import javax.sql.DataSource;
 
