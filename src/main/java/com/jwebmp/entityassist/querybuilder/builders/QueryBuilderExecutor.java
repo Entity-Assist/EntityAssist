@@ -3,7 +3,6 @@ package com.jwebmp.entityassist.querybuilder.builders;
 import com.google.inject.persist.Transactional;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.enumerations.OrderByType;
-import org.hibernate.query.criteria.internal.path.SingularAttributePath;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
@@ -503,8 +502,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 				if (o != null)
 				{
 					String fieldName = field.getName();
-					SingularAttributePath at = (SingularAttributePath) getRoot().get(fieldName);
-					SingularAttribute at2 = at.getAttribute();
+					Path<SingularAttribute> at = getRoot().get(fieldName);
+					SingularAttribute at2 = (SingularAttribute) getRoot().get(fieldName);
 					map.put(at2, o);
 				}
 			}

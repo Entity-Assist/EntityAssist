@@ -8,13 +8,9 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <jta-data-source>jdbc:eatest</jta-data-source>
 
-
         <class>com.jwebmp.entityassist.converters.LocalDateAttributeConverter</class>
         <class>com.jwebmp.entityassist.converters.LocalDateTimeAttributeConverter</class>
         <class>com.jwebmp.entityassist.converters.LocalDateTimestampAttributeConverter</class>
-
-        <class>com.jwebmp.entityassist.CoreEntity</class>
-        <class>com.jwebmp.entityassist.BaseEntity</class>
 
         <class>com.jwebmp.entityassist.entities.EntityClass</class>
         <class>com.jwebmp.entityassist.entities.EntityClassTwo</class>

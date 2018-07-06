@@ -1,21 +1,14 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
-import bitronix.tm.BitronixTransactionManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
-import com.jwebmp.guicedpersistence.db.TransactionHandler;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nullable;
-import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.Transient;
 import javax.persistence.metamodel.*;
-import javax.transaction.NotSupportedException;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -117,7 +110,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
-	@Nullable
+
 	public Integer getFirstResults()
 	{
 		return firstResults;
@@ -142,7 +135,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
-	@Nullable
 	public Integer getMaxResults()
 	{
 		return maxResults;
@@ -393,25 +385,9 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 				                  .begin();
 			}
 		}
-		catch (IllegalStateException ise)
+		catch (Exception ise)
 		{
-			log.log(Level.FINEST, "Excepted error : Running JTA not JPA", ise);
-			if (jtaCreateNew)
-			{
-				BitronixTransactionManager ut = null;
-				try
-				{
-					ut = TransactionHandler.getUserTransaction();
-					if (ut.getStatus() != Status.STATUS_ACTIVE)
-					{
-						ut.begin();
-					}
-				}
-				catch (NotSupportedException | SystemException | NamingException e)
-				{
-					log.log(Level.SEVERE, "Unable to find Bitronix Transaction", e);
-				}
-			}
+			log.log(Level.FINEST, "Check For Transaction Failed - ", ise);
 		}
 	}
 

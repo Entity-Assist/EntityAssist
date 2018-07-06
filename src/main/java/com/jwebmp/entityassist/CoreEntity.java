@@ -1,6 +1,5 @@
 package com.jwebmp.entityassist;
 
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +7,6 @@ import com.jwebmp.entityassist.converters.LocalDateTimeAttributeConverter;
 import com.jwebmp.entityassist.enumerations.ActiveFlag;
 import com.jwebmp.entityassist.querybuilder.QueryBuilderCore;
 
-import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -50,7 +48,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	private String referenceId;
 	@Basic(optional = false,
 			fetch = FetchType.LAZY)
-	@NotNull
 	@Column(nullable = false,
 			name = "EffectiveFromDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
@@ -58,7 +55,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	private LocalDateTime effectiveFromDate;
 	@Basic(optional = false,
 			fetch = FetchType.LAZY)
-	@NotNull
 	@Column(nullable = false,
 			name = "EffectiveToDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
@@ -66,14 +62,12 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	private LocalDateTime effectiveToDate;
 	@Basic(optional = false,
 			fetch = FetchType.LAZY)
-	@NotNull
 	@Column(nullable = false,
 			name = "WarehouseCreatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime warehouseCreatedTimestamp;
 	@Basic(optional = false,
 			fetch = FetchType.LAZY)
-	@NotNull
 	@Column(nullable = false,
 			name = "WarehouseLastUpdatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
@@ -83,7 +77,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	@Column(nullable = false,
 			name = "ActiveFlag")
 	@Enumerated(value = EnumType.STRING)
-	@NotNull
 	private ActiveFlag activeFlag;
 
 	/**
@@ -107,7 +100,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	{
 		//No Config
 	}
-
 
 	/**
 	 * Returns the effective from date for the given setting
@@ -140,7 +132,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @return
 	 */
-	@Nullable
 	@SuppressWarnings("all")
 	public LocalDateTime getEffectiveToDate()
 	{
@@ -214,7 +205,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @return
 	 */
-	@Nullable
 	public LocalDateTime getWarehouseCreatedTimestamp()
 	{
 		return warehouseCreatedTimestamp;
@@ -240,7 +230,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @return
 	 */
-	@Nullable
 	@SuppressWarnings("all")
 	public LocalDateTime getWarehouseLastUpdatedTimestamp()
 	{
@@ -267,7 +256,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @return
 	 */
-	@Nullable
 	public String getReferenceId()
 	{
 		return referenceId;

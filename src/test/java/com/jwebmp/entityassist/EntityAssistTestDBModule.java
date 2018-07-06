@@ -1,15 +1,22 @@
 package com.jwebmp.entityassist;
 
+import com.jwebmp.guicedpersistence.db.BTMConnectionBaseInfo;
 import com.jwebmp.guicedpersistence.db.ConnectionBaseInfo;
-import com.jwebmp.guicedpersistence.db.connectionbasebuilders.HibernateDefaultConnectionBaseBuilder;
-import com.oracle.jaxb21.Persistence;
+import com.jwebmp.guicedpersistence.db.connectionbasebuilders.AbstractDatabaseProviderModule;
+import com.oracle.jaxb21.PersistenceUnit;
 
 import java.lang.annotation.Annotation;
 import java.util.Properties;
 
 public class EntityAssistTestDBModule
-		extends HibernateDefaultConnectionBaseBuilder
+		extends AbstractDatabaseProviderModule
 {
+
+	@Override
+	protected ConnectionBaseInfo getConnectionBaseInfo(PersistenceUnit unit, Properties filteredProperties)
+	{
+		return new BTMConnectionBaseInfo().setXa(false);
+	}
 
 	@Override
 	protected String getJndiMapping()
@@ -27,13 +34,5 @@ public class EntityAssistTestDBModule
 	protected Class<? extends Annotation> getBindingAnnotation()
 	{
 		return TestEntityAssistCustomPersistenceLoader.class;
-	}
-
-	@Override
-	protected ConnectionBaseInfo getConnectionBaseInfo(Persistence.PersistenceUnit unit, Properties filteredProperties)
-	{
-
-		return super.getConnectionBaseInfo(unit, filteredProperties)
-		            .setAllowLocalTransactions(true);
 	}
 }

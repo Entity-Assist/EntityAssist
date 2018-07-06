@@ -1,7 +1,5 @@
 package com.jwebmp.entityassist;
 
-import bitronix.tm.BitronixTransactionManager;
-import bitronix.tm.jndi.BitronixContext;
 import com.google.inject.Key;
 import com.jwebmp.entityassist.entities.EntityClass;
 import com.jwebmp.entityassist.entities.EntityClassTwo_;
@@ -11,7 +9,6 @@ import com.jwebmp.guicedinjection.GuiceContext;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;
 import java.time.LocalDateTime;
@@ -42,16 +39,6 @@ public class TestEntities
 		System.out.println("EM Open : " + em.isOpen());
 
 		TestEntities te = GuiceContext.getInstance(TestEntities.class);
-		try
-		{
-			BitronixContext ic = new BitronixContext();
-			BitronixTransactionManager btm = (BitronixTransactionManager) ic.lookup("java:comp/UserTransaction");
-			System.out.println(ic);
-		}
-		catch (NamingException e)
-		{
-			e.printStackTrace();
-		}
 		Optional<EntityClass> ec1 = new EntityClass().find(1L);
 		System.out.println("ec : " + ec1);
 	}

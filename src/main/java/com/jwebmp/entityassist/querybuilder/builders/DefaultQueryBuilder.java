@@ -4,7 +4,6 @@ import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.entityassist.enumerations.OrderByType;
 
-import javax.annotation.Nullable;
 import javax.persistence.Id;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
@@ -546,7 +545,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 *
 	 * @return
 	 */
-	@Nullable
+
 	@SuppressWarnings("unchecked")
 	protected CriteriaUpdate<E> getCriteriaUpdate()
 	{
@@ -1188,7 +1187,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 	 *
 	 * @return
 	 */
-	@Nullable
+
 	protected CriteriaDelete<E> getCriteriaDelete()
 	{
 		return criteriaDelete;
@@ -1233,7 +1232,7 @@ abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E ext
 
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J construct(@Nullable Class<? extends BaseEntity> construct)
+	public J construct(Class<? extends BaseEntity> construct)
 	{
 		this.construct = construct;
 		return (J) this;
