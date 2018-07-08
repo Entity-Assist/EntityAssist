@@ -1,8 +1,10 @@
-package com.jwebmp.entityassist.querybuilder.builders;
+package com.jwebmp.entityassist.querybuilder;
 
 import com.google.inject.persist.Transactional;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.enumerations.OrderByType;
+import com.jwebmp.entityassist.querybuilder.builders.DefaultQueryBuilder;
+import com.jwebmp.entityassist.querybuilder.builders.JoinExpression;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
@@ -222,7 +224,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 * @param executor
 	 */
 	@SuppressWarnings("unchecked")
-	private void processJoins(JoinExpression executor)
+	protected void processJoins(JoinExpression executor)
 	{
 		Attribute value = executor.getAttribute();
 		JoinType jt = executor.getJoinType();

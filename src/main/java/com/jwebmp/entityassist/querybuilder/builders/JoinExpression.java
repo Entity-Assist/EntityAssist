@@ -1,10 +1,12 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
+import com.jwebmp.entityassist.querybuilder.QueryBuilderExecutor;
+
 import javax.persistence.criteria.JoinType;
 import javax.persistence.metamodel.Attribute;
 import java.io.Serializable;
 
-final class JoinExpression implements Serializable
+public final class JoinExpression implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 

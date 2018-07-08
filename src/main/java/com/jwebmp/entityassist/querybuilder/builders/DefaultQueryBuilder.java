@@ -3,6 +3,7 @@ package com.jwebmp.entityassist.querybuilder.builders;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.entityassist.enumerations.OrderByType;
+import com.jwebmp.entityassist.querybuilder.QueryBuilderExecutor;
 
 import javax.persistence.Id;
 import javax.persistence.criteria.*;
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
 
 import static com.jwebmp.entityassist.enumerations.SelectAggregrate.*;
 
-abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilderExecutor, I>, I extends Serializable>
+public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilderExecutor, I>, I extends Serializable>
 		extends QueryBuilderBase<J, E, I>
 {
 	private static final Logger log = Logger.getLogger(DefaultQueryBuilder.class.getName());

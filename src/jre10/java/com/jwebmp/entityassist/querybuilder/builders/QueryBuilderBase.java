@@ -2,6 +2,7 @@ package com.jwebmp.entityassist.querybuilder.builders;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jwebmp.entityassist.BaseEntity;
+import com.jwebmp.entityassist.querybuilder.QueryBuilderExecutor;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
 import org.apache.commons.lang3.StringUtils;
 

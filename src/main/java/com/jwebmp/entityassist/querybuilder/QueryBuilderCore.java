@@ -2,7 +2,6 @@ package com.jwebmp.entityassist.querybuilder;
 
 import com.jwebmp.entityassist.CoreEntity;
 import com.jwebmp.entityassist.enumerations.ActiveFlag;
-import com.jwebmp.entityassist.querybuilder.builders.QueryBuilderExecutor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

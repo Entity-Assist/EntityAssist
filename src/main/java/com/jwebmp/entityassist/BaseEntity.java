@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jwebmp.entityassist.querybuilder.EntityAssistStrings;
-import com.jwebmp.entityassist.querybuilder.builders.QueryBuilderExecutor;
+import com.jwebmp.entityassist.querybuilder.QueryBuilderExecutor;
 import com.jwebmp.guicedinjection.GuiceContext;
 
 import javax.persistence.MappedSuperclass;
@@ -13,6 +13,7 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -100,14 +101,15 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 		QueryBuilderExecutor<?, ?, ?> instance = null;
 		try
 		{
-			instance = GuiceContext.getInstance(foundQueryBuilderClass);
+			instance = foundQueryBuilderClass.getDeclaredConstructor().newInstance();
+			GuiceContext.inject().injectMembers(instance);
 			instance.setEntity(this);
 			return (Q) instance;
 		}
 		catch (Exception e)
 		{
 			log.log(Level.SEVERE, "Unable to instantiate the query builder class. Make sure there is a blank constructor", e);
-			throw new NoResultException("Unable to construct builder");
+			throw new RuntimeException("Unable to construct builder", e);
 		}
 	}
 
