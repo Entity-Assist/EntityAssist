@@ -3,15 +3,12 @@ package com.jwebmp.entityassist.querybuilder.builders;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
-import com.jwebmp.guicedpersistence.db.TransactionHandler;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.Transient;
 import javax.persistence.metamodel.*;
-import javax.transaction.Status;
-import javax.transaction.UserTransaction;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -102,13 +99,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	}
 
 	/**
-	 * Performed on create/persist
-	 *
-	 * @param entity
-	 */
-	protected abstract void onCreate(E entity);
-
-	/**
 	 * Returns the current set first results
 	 *
 	 * @return
@@ -165,10 +155,8 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@NotNull
 	public J persistNow(E entity)
 	{
-		checkForTransaction(true);
 		persist(entity);
 		getEntityManager().flush();
-		commitTransaction();
 		return (J) this;
 	}
 
@@ -183,16 +171,13 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	{
 		try
 		{
-			checkForTransaction();
 			onCreate(entity);
 			EntityManager entityManager = getEntityManager();
 			if (isRunDetached())
 			{
 				String insertString = InsertStatement.buildInsertString(entity);
 				log.fine(insertString);
-				entityManager.createNativeQuery(insertString)
-				             .executeUpdate();
-				commitTransaction();
+				entityManager.createNativeQuery(insertString);
 				if (isIdGenerated())
 				{
 					Query statmentSelectId = entityManager.createNativeQuery(selectIdentityString);
@@ -217,6 +202,54 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		}
 		return (J) this;
 	}
+
+	/**
+	 * Returns the assigned entity manager
+	 *
+	 * @return
+	 */
+	@NotNull
+	@Transient
+	protected abstract EntityManager getEntityManager();
+
+	/**
+	 * Performed on create/persist
+	 *
+	 * @param entity
+	 */
+	protected abstract void onCreate(E entity);
+
+	/**
+	 * If this entity should run in a detached and separate to the entity manager
+	 *
+	 * @return
+	 */
+	public boolean isRunDetached()
+	{
+		return runDetached;
+	}
+
+	/**
+	 * If this entity should run in a detached and separate to the entity manager
+	 *
+	 * @param runDetached
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J setRunDetached(boolean runDetached)
+	{
+		this.runDetached = runDetached;
+		return (J) this;
+	}
+
+	/**
+	 * If this ID is generated from the source and which form to use
+	 * Default is Generated
+	 *
+	 * @return Returns if the id column is a generated type
+	 */
+	protected abstract boolean isIdGenerated();
 
 	/**
 	 * Performs the actual insert
@@ -297,7 +330,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	{
 		try
 		{
-			checkForTransaction();
 			onUpdate(entity);
 			if (isRunDetached())
 			{
@@ -308,7 +340,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			{
 				getEntityManager().merge(entity);
 			}
-			commitTransaction();
 		}
 		catch (IllegalStateException ise)
 		{
@@ -322,106 +353,11 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	}
 
 	/**
-	 * Doesn't create a new jta transaction
-	 */
-	protected void checkForTransaction()
-	{
-		checkForTransaction(false);
-	}
-
-	/**
 	 * Performed on update/persist
 	 *
 	 * @param entity
 	 */
 	protected abstract void onUpdate(E entity);
-
-	/**
-	 * If this entity should run in a detached and separate to the entity manager
-	 *
-	 * @return
-	 */
-	public boolean isRunDetached()
-	{
-		return runDetached;
-	}
-
-	/**
-	 * Returns the assigned entity manager
-	 *
-	 * @return
-	 */
-	@NotNull
-	@Transient
-	protected abstract EntityManager getEntityManager();
-
-	protected void commitTransaction()
-	{
-		try
-		{
-			if (getEntityManager().getTransaction() != null && getEntityManager().getTransaction()
-			                                                                     .isActive())
-			{
-				getEntityManager().getTransaction()
-				                  .commit();
-			}
-		}
-		catch (IllegalStateException ise)
-		{
-			log.log(Level.FINEST, "Excepted error : Running JTA not JPA", ise);
-		}
-	}
-
-	protected void checkForTransaction(boolean jtaCreateNew)
-	{
-		if (getEntityManager().isJoinedToTransaction())
-		{
-			return;
-		}
-		try
-		{
-			if (getEntityManager().getTransaction() != null && !(getEntityManager().getTransaction()
-			                                                                       .isActive()))
-			{
-				getEntityManager().getTransaction()
-				                  .begin();
-			}
-		}
-		catch (IllegalStateException ise)
-		{
-			log.log(Level.FINEST, "Excepted error : Running JTA not JPA", ise);
-			if (jtaCreateNew)
-			{
-				UserTransaction ut = null;
-				try
-				{
-					ut = TransactionHandler.getUserTransaction();
-					if (ut.getStatus() != Status.STATUS_ACTIVE)
-					{
-						ut.begin();
-					}
-				}
-				catch (Exception e)
-				{
-					log.log(Level.SEVERE, "Unable to find Transaction", e);
-				}
-			}
-		}
-	}
-
-	/**
-	 * If this entity should run in a detached and separate to the entity manager
-	 *
-	 * @param runDetached
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J setRunDetached(boolean runDetached)
-	{
-		this.runDetached = runDetached;
-		return (J) this;
-	}
 
 	/**
 	 * Performs the constraint validation and returns a list of all constraint errors.
@@ -451,14 +387,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		}
 		return errors;
 	}
-
-	/**
-	 * If this ID is generated from the source and which form to use
-	 * Default is Generated
-	 *
-	 * @return Returns if the id column is a generated type
-	 */
-	protected abstract boolean isIdGenerated();
 
 	/**
 	 * Returns if the class is a singular attribute

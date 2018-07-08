@@ -39,7 +39,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 */
 	private boolean returnFirst;
 
-
 	@SuppressWarnings("unchecked")
 	public Long getCount()
 	{
@@ -212,10 +211,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			update.set(attributeName.getName(), value);
 		}
 		select();
-		checkForTransaction();
 		int results = getEntityManager().createQuery(update)
 		                                .executeUpdate();
-		commitTransaction();
 		return results;
 	}
 
@@ -422,11 +419,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
 		setCriteriaDelete(deletion);
 		select();
-		checkForTransaction();
-		int results = getEntityManager().createQuery(deletion)
-		                                .executeUpdate();
-		commitTransaction();
-		return results;
+		return getEntityManager().createQuery(deletion)
+		                         .executeUpdate();
 	}
 
 	/**
@@ -436,9 +430,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 */
 	public E deleteEntity(E entity)
 	{
-		checkForTransaction();
 		getEntityManager().remove(entity);
-		commitTransaction();
 		return entity;
 	}
 
@@ -451,9 +443,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	 */
 	public E delete(E entity)
 	{
-		checkForTransaction();
 		getEntityManager().remove(entity);
-		commitTransaction();
 		return entity;
 	}
 
@@ -469,11 +459,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		setCriteriaDelete(deletion);
 		getFilters().clear();
 		select();
-		checkForTransaction();
-		int results = getEntityManager().createQuery(deletion)
-		                                .executeUpdate();
-		commitTransaction();
-		return results;
+		return getEntityManager().createQuery(deletion)
+		                         .executeUpdate();
 	}
 
 	/**

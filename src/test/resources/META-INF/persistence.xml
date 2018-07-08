@@ -33,8 +33,9 @@
             <property name="hibernate.connection.datasource" value="jdbc:eatest"/>
             <property name="hibernate.transaction.factory_class" value="org.hibernate.transaction.JTATransactionFactory"/>
             <property name="hibernate.transaction.manager_lookup_class" value="org.hibernate.transaction.BTMTransactionManagerLookup"/>
-            <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
             <property name="hibernate.jndi.class" value="bitronix.tm.jndi.BitronixInitialContextFactory"/>
+
+            <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
 
         </properties>
     </persistence-unit>

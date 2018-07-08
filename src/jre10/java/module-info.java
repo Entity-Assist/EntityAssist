@@ -12,5 +12,5 @@ module com.jwebmp.entityassist {
 	requires commons.lang3;
 	requires com.jwebmp.guicedinjection;
 
-	provides com.jwebmp.guicedpersistence.db.PropertiesEntityManagerReader with com.jwebmp.entityassist.querybuilder.builders.LocalDateEntityManagerConvertorProperties
+	provides com.jwebmp.guicedpersistence.db.PropertiesEntityManagerReader with com.jwebmp.entityassist.querybuilder.builders.LocalDateEntityManagerConvertorProperties;
 }

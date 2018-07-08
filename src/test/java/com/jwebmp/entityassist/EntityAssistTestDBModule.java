@@ -1,6 +1,6 @@
 package com.jwebmp.entityassist;
 
-import com.jwebmp.guicedpersistence.db.BTMConnectionBaseInfo;
+import com.jwebmp.guicedpersistence.btm.BTMConnectionBaseInfo;
 import com.jwebmp.guicedpersistence.db.ConnectionBaseInfo;
 import com.jwebmp.guicedpersistence.db.connectionbasebuilders.AbstractDatabaseProviderModule;
 import com.oracle.jaxb21.PersistenceUnit;

@@ -110,18 +110,11 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.btm</groupId>
-            <artifactId>btm</artifactId>
-            <version>${btm.version}</version>
-            <type>jar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.transaction</groupId>
-                    <artifactId>jta</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>com.jwebmp</groupId>
+            <artifactId>guiced-persistence-btm</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
-
 
     </dependencies>
     <scm>
