@@ -6,6 +6,9 @@ import com.jwebmp.entityassist.entities.EntityClassTwo_;
 import com.jwebmp.entityassist.entities.EntityClass_;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.guicedinjection.GuiceContext;
+import com.jwebmp.logger.LogFactory;
+import com.jwebmp.logger.handlers.ConsoleSTDOutputHandler;
+import com.jwebmp.logger.logging.LogColourFormatter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,6 +27,8 @@ public class TestEntities
 	@BeforeAll
 	public static void before()
 	{
+		LogFactory.configureConsoleSingleLineOutput(Level.FINE);
+		LogColourFormatter.setRenderBlack(false);
 		GuiceContext.inject();
 	}
 
@@ -35,6 +41,7 @@ public class TestEntities
 	@Test
 	public void testEntity()
 	{
+
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 

@@ -96,7 +96,7 @@
 
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-agruel</artifactId>
+            <artifactId>hibernate-agroal</artifactId>
             <scope>test</scope>
         </dependency>
 
