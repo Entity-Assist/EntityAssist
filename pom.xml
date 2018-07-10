@@ -10,7 +10,6 @@
 
     <artifactId>entity-assist</artifactId>
     <packaging>jar</packaging>
-
     <name>Entity Assist</name>
 
     <description>Allows for instant query builders and constructs statements for nicer output to the console
@@ -54,6 +53,7 @@
             <groupId>com.jwebmp</groupId>
             <artifactId>guiced-persistence</artifactId>
             <version>${project.version}</version>
+            <classifier>${jwebmp.runtime.classifier}</classifier>
         </dependency>
 
         <dependency>
@@ -104,6 +104,7 @@
             <groupId>com.jwebmp</groupId>
             <artifactId>guiced-persistence-btm</artifactId>
             <version>${project.version}</version>
+            <classifier>${jwebmp.runtime.classifier}</classifier>
             <scope>test</scope>
         </dependency>
 
