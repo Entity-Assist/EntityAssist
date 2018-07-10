@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 import static com.jwebmp.entityassist.enumerations.SelectAggregrate.*;
 
+@SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
 public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilderExecutor, I>, I extends Serializable>
 		extends QueryBuilderBase<J, E, I>
 {
