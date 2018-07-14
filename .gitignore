@@ -11,3 +11,5 @@ javadoc.zip
 /nbproject/
 /-nbproject/
 **/*.iml
+*.tlog
+db/
