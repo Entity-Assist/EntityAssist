@@ -54,7 +54,16 @@
             <artifactId>guiced-persistence</artifactId>
             <version>${project.version}</version>
             <classifier>${jwebmp.runtime.classifier}</classifier>
+            <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>com.jwebmp</groupId>
+            <artifactId>jwebmp-log-master</artifactId>
+            <version>${project.version}</version>
+            <classifier>${jwebmp.runtime.classifier}</classifier>
+            <type>jar</type>
+        </dependency>
+
 
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -104,7 +113,6 @@
             <groupId>com.jwebmp</groupId>
             <artifactId>guiced-persistence-btm</artifactId>
             <version>${project.version}</version>
-            <classifier>${jwebmp.runtime.classifier}</classifier>
             <scope>test</scope>
         </dependency>
 
