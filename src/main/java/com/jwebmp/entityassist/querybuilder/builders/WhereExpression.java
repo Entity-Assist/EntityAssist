@@ -11,7 +11,7 @@ final class WhereExpression implements Serializable
 
 	private transient Attribute attribute;
 	private Operand operand;
-	private Object value;
+	private transient Object value;
 
 	WhereExpression()
 	{
@@ -27,35 +27,13 @@ final class WhereExpression implements Serializable
 	@Override
 	public int hashCode()
 	{
-		int result = getAttribute() != null ? getAttribute().hashCode() : 0;
-		result = 31 * result + (getOperand() != null ? getOperand().hashCode() : 0);
-		result = 31 * result + (getValue() != null ? getValue().hashCode() : 0);
-		return result;
+		return super.hashCode();
 	}
 
 	@Override
-	public boolean equals(Object o)
+	public boolean equals(Object obj)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-
-		WhereExpression that = (WhereExpression) o;
-
-		if (getAttribute() != null ? !getAttribute().equals(that.getAttribute()) : that.getAttribute() != null)
-		{
-			return false;
-		}
-		if (getOperand() != that.getOperand())
-		{
-			return false;
-		}
-		return getValue() != null ? getValue().equals(that.getValue()) : that.getValue() == null;
+		return super.equals(obj);
 	}
 
 	public Attribute getAttribute()
