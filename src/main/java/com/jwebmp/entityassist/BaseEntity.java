@@ -8,12 +8,10 @@ import com.jwebmp.entityassist.querybuilder.QueryBuilderExecutor;
 import com.jwebmp.guicedinjection.GuiceContext;
 
 import javax.persistence.MappedSuperclass;
-import javax.persistence.NoResultException;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -89,28 +87,17 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	}
 
 	/**
-	 * Returns the builder associated with this entity
+	 * Deletes this entity with the entity mananger. This will remove the row.
 	 *
 	 * @return
 	 */
-	@SuppressWarnings({"unchecked", "notnull"})
+	@SuppressWarnings("unchecked")
 	@NotNull
-	public Q builder()
+	public J delete()
 	{
-		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
-		QueryBuilderExecutor<?, ?, ?> instance = null;
-		try
-		{
-			instance = foundQueryBuilderClass.getDeclaredConstructor().newInstance();
-			GuiceContext.inject().injectMembers(instance);
-			instance.setEntity(this);
-			return (Q) instance;
-		}
-		catch (Exception e)
-		{
-			log.log(Level.SEVERE, "Unable to instantiate the query builder class. Make sure there is a blank constructor", e);
-			throw new RuntimeException("Unable to construct builder", e);
-		}
+		((QueryBuilderExecutor) builder())
+				.delete(this);
+		return (J) this;
 	}
 
 	/**
@@ -142,17 +129,30 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	}
 
 	/**
-	 * Deletes this entity with the entity mananger. This will remove the row.
+	 * Returns the builder associated with this entity
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "notnull"})
 	@NotNull
-	public J delete()
+	public Q builder()
 	{
-		QueryBuilderExecutor.class.cast(builder())
-		                          .delete(this);
-		return (J) this;
+		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
+		QueryBuilderExecutor<?, ?, ?> instance = null;
+		try
+		{
+			instance = foundQueryBuilderClass.getDeclaredConstructor()
+			                                 .newInstance();
+			GuiceContext.inject()
+			            .injectMembers(instance);
+			instance.setEntity(this);
+			return (Q) instance;
+		}
+		catch (Exception e)
+		{
+			log.log(Level.SEVERE, "Unable to instantiate the query builder class. Make sure there is a blank constructor", e);
+			throw new EntityAssistException("Unable to construct builder", e);
+		}
 	}
 
 	/**

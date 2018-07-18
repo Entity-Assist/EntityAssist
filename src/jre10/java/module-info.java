@@ -24,6 +24,8 @@ module com.jwebmp.entityassist {
 	requires commons.lang3;
 	requires com.jwebmp.guicedinjection;
 
+	requires org.hibernate.orm.jpamodelgen;
+
 	provides com.jwebmp.guicedpersistence.db.PropertiesEntityManagerReader with LocalDateEntityManagerConvertorProperties;
 	provides com.jwebmp.guicedinjection.scanners.PackageContentsScanner with EntityAssistPackageScanner;
 }

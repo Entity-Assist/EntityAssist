@@ -161,11 +161,11 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			{
 				if (isSingularAttribute(key))
 				{
-					cq.orderBy(getCriteriaBuilder().desc(getRoot().get(SingularAttribute.class.cast(key))));
+					cq.orderBy(getCriteriaBuilder().desc(getRoot().get((SingularAttribute) key)));
 				}
 				else if (isPluralOrMapAttribute(key))
 				{
-					cq.orderBy(getCriteriaBuilder().desc(getRoot().get(PluralAttribute.class.cast(key))));
+					cq.orderBy(getCriteriaBuilder().desc(getRoot().get((PluralAttribute) key)));
 				}
 				break;
 			}
@@ -174,11 +174,11 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			{
 				if (isSingularAttribute(key))
 				{
-					cq.orderBy(getCriteriaBuilder().asc(getRoot().get(SingularAttribute.class.cast(key))));
+					cq.orderBy(getCriteriaBuilder().asc(getRoot().get((SingularAttribute) key)));
 				}
 				else if (isPluralOrMapAttribute(key))
 				{
-					cq.orderBy(getCriteriaBuilder().asc(getRoot().get(PluralAttribute.class.cast(key))));
+					cq.orderBy(getCriteriaBuilder().asc(getRoot().get((PluralAttribute) key)));
 				}
 				break;
 			}
@@ -213,9 +213,8 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			update.set(attributeName.getName(), value);
 		}
 		select();
-		int results = getEntityManager().createQuery(update)
-		                                .executeUpdate();
-		return results;
+		return getEntityManager().createQuery(update)
+		                         .executeUpdate();
 	}
 
 	/**
@@ -266,6 +265,59 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	}
 
 	/**
+	 * Goes through the object looking for fields, returns a set where the field name is mapped to the object
+	 *
+	 * @param updateFields
+	 *
+	 * @return
+	 */
+	protected Map<SingularAttribute, Object> getUpdateFieldMap(E updateFields)
+	{
+		Map<SingularAttribute, Object> map = new HashMap<>();
+		List<Field> fieldList = allFields(updateFields.getClass(), new ArrayList<>());
+
+		for (Field field : fieldList)
+		{
+			if (Modifier.isAbstract(field.getModifiers()) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(
+					Id.class))
+			{
+				continue;
+			}
+			field.setAccessible(true);
+			try
+			{
+				Object o = field.get(updateFields);
+				if (o != null)
+				{
+					String fieldName = field.getName();
+					String classPathReferenceName = updateFields.getClass()
+					                                            .getCanonicalName() + "_";
+					Class clazz = Class.forName(classPathReferenceName);
+					Field f = clazz.getDeclaredField(fieldName);
+					SingularAttribute at = (SingularAttribute) f.get(null);
+					map.put(at, o);
+				}
+			}
+			catch (IllegalAccessException | ClassNotFoundException | NoSuchFieldException e)
+			{
+				log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * Returns a list of entities from a distinct or non distinct list
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<E> getAll()
+	{
+		return getAll(getEntityClass());
+	}
+
+	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from
 	 * a list with the same criteria
 	 *
@@ -286,7 +338,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			j = query.getSingleResult();
 			if (BaseEntity.class.isAssignableFrom(j.getClass()))
 			{
-				BaseEntity.class.cast(j)
+				((BaseEntity) j)
 				                .setFake(false);
 			}
 			if (detach)
@@ -309,7 +361,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 				j = returnedList.get(0);
 				if (BaseEntity.class.isAssignableFrom(j.getClass()))
 				{
-					BaseEntity.class.cast(j)
+					((BaseEntity) j)
 					                .setFake(false);
 				}
 				if (detach)
@@ -323,60 +375,6 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 				return Optional.empty();
 			}
 		}
-	}
-
-	/**
-	 * Returns a list of entities from a distinct or non distinct list
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public List<E> getAll()
-	{
-		return getAll(getEntityClass());
-	}
-
-	/**
-	 * Returns the list as the selected class type (for when specifying single select columns)
-	 *
-	 * @param returnClassType
-	 * @param <T>
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public <T> List<T> getAll(@SuppressWarnings("unused") Class<T> returnClassType)
-	{
-		if (!selected)
-		{
-			select();
-		}
-		TypedQuery<T> query = getEntityManager().createQuery(getCriteriaQuery());
-		if (getMaxResults() != null)
-		{
-			query.setMaxResults(getMaxResults());
-		}
-		if (getFirstResults() != null)
-		{
-			query.setFirstResult(getFirstResults());
-		}
-		List<T> j;
-		j = query.getResultList();
-		if (!j.isEmpty())
-		{
-			if (detach)
-			{
-				getEntityManager().detach(j);
-			}
-			if (BaseEntity.class.isAssignableFrom(j.get(0)
-			                                       .getClass()))
-			{
-				BaseEntity.class.cast(j.get(0))
-				                .setFake(false);
-			}
-		}
-		return j;
 	}
 
 	/**
@@ -466,42 +464,46 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 	}
 
 	/**
-	 * Goes through the object looking for fields, returns a set where the field name is mapped to the object
+	 * Returns the list as the selected class type (for when specifying single select columns)
 	 *
-	 * @param updateFields
+	 * @param returnClassType
+	 * @param <T>
 	 *
 	 * @return
 	 */
-	protected Map<SingularAttribute, Object> getUpdateFieldMap(E updateFields)
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public <T> List<T> getAll(@SuppressWarnings("unused") Class<T> returnClassType)
 	{
-		Map<SingularAttribute, Object> map = new HashMap<>();
-		List<Field> fieldList = allFields(updateFields.getClass(), new ArrayList<>());
-
-		for (Field field : fieldList)
+		if (!selected)
 		{
-			if (Modifier.isAbstract(field.getModifiers()) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(
-					Id.class))
+			select();
+		}
+		TypedQuery<T> query = getEntityManager().createQuery(getCriteriaQuery());
+		if (getMaxResults() != null)
+		{
+			query.setMaxResults(getMaxResults());
+		}
+		if (getFirstResults() != null)
+		{
+			query.setFirstResult(getFirstResults());
+		}
+		List<T> j;
+		j = query.getResultList();
+		if (!j.isEmpty())
+		{
+			if (detach)
 			{
-				continue;
+				getEntityManager().detach(j);
 			}
-			field.setAccessible(true);
-			try
+			if (BaseEntity.class.isAssignableFrom(j.get(0)
+			                                       .getClass()))
 			{
-				Object o = field.get(updateFields);
-				if (o != null)
-				{
-					String fieldName = field.getName();
-					Path<SingularAttribute> at = getRoot().get(fieldName);
-					SingularAttribute at2 = (SingularAttribute) getRoot().get(fieldName);
-					map.put(at2, o);
-				}
-			}
-			catch (IllegalAccessException e)
-			{
-				log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
+				((BaseEntity) j.get(0))
+						.setFake(false);
 			}
 		}
-		return map;
+		return j;
 	}
 
 	private List<Field> allFields(Class<?> object, List<Field> fieldList)

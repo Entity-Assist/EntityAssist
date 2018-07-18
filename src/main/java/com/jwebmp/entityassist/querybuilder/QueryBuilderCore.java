@@ -23,6 +23,9 @@ import static com.jwebmp.entityassist.CoreEntity.*;
 public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E extends CoreEntity<E, J, I>, I extends Serializable>
 		extends QueryBuilderExecutor<J, E, I>
 {
+	private static final String EFFECTIVE_TO_DATE_COLUMN_NAME = "effectiveToDate";
+	private static final String EFFECTIVE_FROM_DATE_COLUMN_NAME = "effectiveFromDate";
+	private static final String ACTIVE_FLAG_DATE_COLUMN_NAME = "activeFlag";
 
 	@SuppressWarnings("unchecked")
 	public J inActiveRange()
@@ -35,7 +38,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 				flags.add(flag);
 			}
 		}
-		getFilters().add(getCriteriaBuilder().in(getRoot().get("activeFlag"))
+		getFilters().add(getCriteriaBuilder().in(getRoot().get(ACTIVE_FLAG_DATE_COLUMN_NAME))
 		                                     .value(flags));
 		return (J) this;
 	}
@@ -48,9 +51,9 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	@SuppressWarnings("unchecked")
 	public J inDateRange(LocalDateTime effectiveFromAndToDate)
 	{
-		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get("effectiveFromDate"), effectiveFromAndToDate));
-		getFilters().add(getCriteriaBuilder().or(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), effectiveFromAndToDate),
-		                                         getCriteriaBuilder().equal(getRoot().get("effectiveToDate"), EndOfTime)));
+		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get(EFFECTIVE_FROM_DATE_COLUMN_NAME), effectiveFromAndToDate));
+		getFilters().add(getCriteriaBuilder().or(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get(EFFECTIVE_TO_DATE_COLUMN_NAME), effectiveFromAndToDate),
+		                                         getCriteriaBuilder().equal(getRoot().get(EFFECTIVE_TO_DATE_COLUMN_NAME), EndOfTime)));
 		return (J) this;
 	}
 
@@ -65,7 +68,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 				flags.add(flag);
 			}
 		}
-		getFilters().add(getRoot().get("activeFlag")
+		getFilters().add(getRoot().get(ACTIVE_FLAG_DATE_COLUMN_NAME)
 		                          .in(flags));
 		return (J) this;
 	}
@@ -78,8 +81,8 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	@SuppressWarnings("unchecked")
 	public J inDateRange(LocalDateTime fromDate, LocalDateTime toDate)
 	{
-		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get("effectiveFromDate"), fromDate));
-		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get("effectiveToDate"), toDate));
+		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get(EFFECTIVE_FROM_DATE_COLUMN_NAME), fromDate));
+		getFilters().add(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get(EFFECTIVE_TO_DATE_COLUMN_NAME), toDate));
 		return (J) this;
 	}
 
