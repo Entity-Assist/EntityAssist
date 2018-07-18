@@ -184,6 +184,7 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
             <type>jar</type>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
