@@ -1,6 +1,5 @@
 package com.jwebmp.entityassist;
 
-import com.jwebmp.guicedpersistence.btm.BTMConnectionBaseInfo;
 import com.jwebmp.guicedpersistence.db.ConnectionBaseInfo;
 import com.jwebmp.guicedpersistence.db.connectionbasebuilders.AbstractDatabaseProviderModule;
 import com.oracle.jaxb21.PersistenceUnit;
@@ -15,7 +14,7 @@ public class EntityAssistTestDBModule
 	@Override
 	protected ConnectionBaseInfo getConnectionBaseInfo(PersistenceUnit unit, Properties filteredProperties)
 	{
-		return new BTMConnectionBaseInfo().setXa(false);
+		return new com.jwebmp.guicedpersistence.jpa.JPAConnectionBaseInfo().setXa(false);
 	}
 
 	@Override

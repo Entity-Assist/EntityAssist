@@ -1,6 +1,7 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
 import com.jwebmp.guicedpersistence.db.PropertiesEntityManagerReader;
+import com.oracle.jaxb21.PersistenceUnit;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +12,7 @@ public class LocalDateEntityManagerConvertorProperties
 {
 
 	@Override
-	public Map<String, String> processProperties(Properties props)
+	public Map<String, String> processProperties(PersistenceUnit persistenceUnit, Properties props)
 	{
 		return new HashMap<>();
 	}

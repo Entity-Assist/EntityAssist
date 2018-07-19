@@ -27,6 +27,8 @@ module com.jwebmp.entityassist {
 	requires commons.lang3;
 	requires com.jwebmp.guicedinjection;
 
+	opens com.jwebmp.entityassist to org.hibernate.orm.core;
+
 	uses ITransactionHandler;
 
 	provides PropertiesEntityManagerReader with LocalDateEntityManagerConvertorProperties;
