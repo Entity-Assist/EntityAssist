@@ -178,7 +178,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			{
 				String insertString = InsertStatement.buildInsertString(entity);
 				log.fine(insertString);
-				entityManager.createNativeQuery(insertString);
+				entityManager.createNativeQuery(insertString).executeUpdate();
 				if (isIdGenerated())
 				{
 					Query statmentSelectId = entityManager.createNativeQuery(selectIdentityString);

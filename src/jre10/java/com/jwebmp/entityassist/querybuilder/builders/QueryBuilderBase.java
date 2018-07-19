@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.QueryBuilderExecutor;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
-import org.apache.commons.lang3.StringUtils;
+import com.jwebmp.guicedinjection.GuiceContext;
+import com.jwebmp.guicedpersistence.services.ITransactionHandler;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -17,10 +18,9 @@ import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,6 +57,8 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	private String selectIdentityString = "SELECT @@IDENTITY";
 
 	private E entity;
+
+	private boolean autoTransaction = false;
 
 	/**
 	 * Whether or not to run these queries as detached objects or within the entity managers scope
@@ -164,10 +166,11 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@NotNull
 	public J persistNow(E entity)
 	{
-		checkForTransaction(true);
+		setAutoTransaction(true);
+		performBeginTransaction(isAutoTransaction());
 		persist(entity);
 		getEntityManager().flush();
-		commitTransaction();
+		performCommitTransaction(isAutoTransaction());
 		return (J) this;
 	}
 
@@ -182,7 +185,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	{
 		try
 		{
-			checkForTransaction();
+			performBeginTransaction(isAutoTransaction());
 			onCreate(entity);
 			EntityManager entityManager = getEntityManager();
 			if (isRunDetached())
@@ -191,7 +194,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 				log.fine(insertString);
 				entityManager.createNativeQuery(insertString)
 				             .executeUpdate();
-				commitTransaction();
+				performCommitTransaction(isAutoTransaction());
 				if (isIdGenerated())
 				{
 					Query statmentSelectId = entityManager.createNativeQuery(selectIdentityString);
@@ -215,33 +218,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			throw new UnsupportedOperationException(e);
 		}
 		return (J) this;
-	}
-
-	/**
-	 * Performs the actual insert
-	 *
-	 * @param connection
-	 * @param insertString
-	 */
-	public void performInsert(Connection connection, String insertString)
-	{
-		String escaped = StringUtils.replace(insertString, STRING_SINGLE_QUOTES, STRING_SINGLE_QUOTES_TWICE);
-		try (PreparedStatement statement = connection.prepareStatement(escaped, Statement.RETURN_GENERATED_KEYS))
-		{
-			int affectedRows = statement.executeUpdate();
-			if (affectedRows == 0)
-			{
-				throw new SQLException("Insert Failed, no rows affected.");
-			}
-			try (ResultSet generatedKeys = statement.getGeneratedKeys())
-			{
-				iterateThroughResultSetForGeneratedIDs(generatedKeys);
-			}
-		}
-		catch (SQLException sql)
-		{
-			log.log(Level.SEVERE, "Fix the query....", sql);
-		}
 	}
 
 	private void iterateThroughResultSetForGeneratedIDs(ResultSet generatedKeys) throws SQLException
@@ -296,10 +272,11 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	{
 		try
 		{
-			checkForTransaction();
+			performBeginTransaction(isAutoTransaction());
 			onUpdate(entity);
 			if (isRunDetached())
 			{
+
 				//TODO UpdateStatement Generation
 				getEntityManager().merge(entity);
 			}
@@ -307,7 +284,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			{
 				getEntityManager().merge(entity);
 			}
-			commitTransaction();
+			performCommitTransaction(isAutoTransaction());
 		}
 		catch (IllegalStateException ise)
 		{
@@ -318,14 +295,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			log.log(Level.SEVERE, "Cannot update this entity the state of this object is not ready : \n", e);
 		}
 		return (J) this;
-	}
-
-	/**
-	 * Doesn't create a new jta transaction
-	 */
-	protected void checkForTransaction()
-	{
-		checkForTransaction(false);
 	}
 
 	/**
@@ -354,41 +323,35 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@Transient
 	protected abstract EntityManager getEntityManager();
 
-	protected void commitTransaction()
+	private void performBeginTransaction(boolean createNew)
 	{
-		try
-		{
-			if (getEntityManager().getTransaction() != null && getEntityManager().getTransaction()
-			                                                                     .isActive())
-			{
-				getEntityManager().getTransaction()
-				                  .commit();
-			}
-		}
-		catch (IllegalStateException ise)
-		{
-			log.log(Level.FINEST, "Excepted error : Running JTA not JPA", ise);
-		}
-	}
-
-	protected void checkForTransaction(boolean jtaCreateNew)
-	{
-		if (getEntityManager().isJoinedToTransaction())
+		if (!getHandler().isPresent())
 		{
 			return;
 		}
-		try
+		ITransactionHandler handler = getHandler().get();
+		if (handler.active())
 		{
-			if (getEntityManager().getTransaction() != null && !(getEntityManager().getTransaction()
-			                                                                       .isActive()))
-			{
-				getEntityManager().getTransaction()
-				                  .begin();
-			}
+			handler.beginTransacation(createNew, getEntityManager().isJoinedToTransaction(), getEntityManager());
 		}
-		catch (Exception ise)
+	}
+
+	public boolean isAutoTransaction()
+	{
+		return autoTransaction;
+	}
+
+	private void performCommitTransaction(boolean createNew)
+	{
+
+		if (!getHandler().isPresent())
 		{
-			log.log(Level.FINEST, "Check For Transaction Failed - ", ise);
+			return;
+		}
+		ITransactionHandler handler = getHandler().get();
+		if (handler.active())
+		{
+			handler.commitTransacation(createNew, getEntityManager().isJoinedToTransaction(), getEntityManager());
 		}
 	}
 
@@ -501,5 +464,37 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	protected boolean isCollectionAttribute(Attribute attribute)
 	{
 		return CollectionAttribute.class.isAssignableFrom(attribute.getClass());
+	}
+
+	private Optional<ITransactionHandler> getHandler()
+	{
+		log.log(Level.FINE, "Finding JTA Transaction Managers");
+		Optional<ITransactionHandler> firstHandler = Optional.empty();
+		ServiceLoader<ITransactionHandler> loader = ServiceLoader.load(ITransactionHandler.class);
+		for (ITransactionHandler handler : loader)
+		{
+			if (handler.active())
+			{
+				firstHandler = Optional.of(GuiceContext.get(handler.getClass()));
+				break;
+			}
+		}
+		return firstHandler;
+	}
+
+	/**
+	 * Sets if auto transaction should be used
+	 *
+	 * @param autoTransaction
+	 * 		true for automated transaction control through a transaction manager
+	 *
+	 * @return This object
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J setAutoTransaction(boolean autoTransaction)
+	{
+		this.autoTransaction = autoTransaction;
+		return (J) this;
 	}
 }

@@ -1,5 +1,8 @@
 import com.jwebmp.entityassist.EntityAssistPackageScanner;
 import com.jwebmp.entityassist.querybuilder.builders.LocalDateEntityManagerConvertorProperties;
+import com.jwebmp.guicedinjection.scanners.PackageContentsScanner;
+import com.jwebmp.guicedpersistence.db.PropertiesEntityManagerReader;
+import com.jwebmp.guicedpersistence.services.ITransactionHandler;
 
 module com.jwebmp.entityassist {
 
@@ -24,6 +27,8 @@ module com.jwebmp.entityassist {
 	requires commons.lang3;
 	requires com.jwebmp.guicedinjection;
 
-	provides com.jwebmp.guicedpersistence.db.PropertiesEntityManagerReader with LocalDateEntityManagerConvertorProperties;
-	provides com.jwebmp.guicedinjection.scanners.PackageContentsScanner with EntityAssistPackageScanner;
+	uses ITransactionHandler;
+
+	provides PropertiesEntityManagerReader with LocalDateEntityManagerConvertorProperties;
+	provides PackageContentsScanner with EntityAssistPackageScanner;
 }
