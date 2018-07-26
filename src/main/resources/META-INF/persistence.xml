@@ -13,7 +13,7 @@
         <class>com.jwebmp.entityassist.BaseEntity</class>
 
         <properties>
-            <property name="guicedpersistence.ignored" value="true"/>
+            <property name="guicedpersistence.ignore" value="true"/>
             <property name="jboss.as.jpa.managed" value="false"/>
         </properties>
     </persistence-unit>

@@ -332,7 +332,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		ITransactionHandler handler = getHandler().get();
 		if (handler.active())
 		{
-			handler.beginTransacation(createNew, getEntityManager().isJoinedToTransaction(), getEntityManager());
+			handler.beginTransacation(createNew, getEntityManager());
 		}
 	}
 
@@ -351,7 +351,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		ITransactionHandler handler = getHandler().get();
 		if (handler.active())
 		{
-			handler.commitTransacation(createNew, getEntityManager().isJoinedToTransaction(), getEntityManager());
+			handler.commitTransacation(createNew, getEntityManager());
 		}
 	}
 
