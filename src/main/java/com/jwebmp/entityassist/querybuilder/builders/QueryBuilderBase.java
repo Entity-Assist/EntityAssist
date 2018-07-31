@@ -67,6 +67,8 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@Transient
 	private boolean runDetached;
 
+	private static ServiceLoader<ITransactionHandler> transactionHandlers = ServiceLoader.load(ITransactionHandler.class);
+
 	@SuppressWarnings("unchecked")
 	protected QueryBuilderBase()
 	{
@@ -470,8 +472,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	{
 		log.log(Level.FINE, "Finding JTA Transaction Managers");
 		Optional<ITransactionHandler> firstHandler = Optional.empty();
-		ServiceLoader<ITransactionHandler> loader = ServiceLoader.load(ITransactionHandler.class);
-		for (ITransactionHandler handler : loader)
+		for (ITransactionHandler handler : transactionHandlers)
 		{
 			if (handler.active())
 			{
