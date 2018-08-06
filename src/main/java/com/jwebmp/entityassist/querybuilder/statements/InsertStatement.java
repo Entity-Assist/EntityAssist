@@ -6,6 +6,7 @@ import com.jwebmp.entityassist.querybuilder.EntityAssistStrings;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
@@ -90,7 +91,7 @@ public class InsertStatement
 
 		for (Field field : fields)
 		{
-			if (field.isAnnotationPresent(Transient.class))
+			if ( field.isAnnotationPresent(Transient.class) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()))
 			{
 				continue;
 			}
