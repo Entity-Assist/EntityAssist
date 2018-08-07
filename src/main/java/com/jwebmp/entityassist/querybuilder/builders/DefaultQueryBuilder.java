@@ -3,7 +3,7 @@ package com.jwebmp.entityassist.querybuilder.builders;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.entityassist.enumerations.OrderByType;
-import com.jwebmp.entityassist.querybuilder.QueryBuilderExecutor;
+import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 
 import javax.persistence.Id;
 import javax.persistence.criteria.*;
@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import static com.jwebmp.entityassist.enumerations.SelectAggregrate.*;
 
 @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
-public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilderExecutor, I>, I extends Serializable>
+public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilder, I>, I extends Serializable>
 		extends QueryBuilderBase<J, E, I>
 {
 	private static final Logger log = Logger.getLogger(DefaultQueryBuilder.class.getName());
@@ -76,6 +76,9 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 
 	private boolean delete;
 	private boolean update;
+
+	private String cacheName;
+	protected String cacheRegion;
 
 	/**
 	 * Returns the root object of this entity
@@ -694,7 +697,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilderExecutor builder, JoinType joinType)
+	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilder builder, JoinType joinType)
 	{
 		JoinExpression joinExpression = new JoinExpression(builder, joinType, attribute);
 		joins.add(joinExpression);
@@ -713,7 +716,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilderExecutor builder)
+	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilder builder)
 	{
 		return join(attribute, builder, JoinType.INNER);
 	}
@@ -1284,5 +1287,28 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	{
 		this.update = update;
 		return (J) this;
+	}
+
+	/**
+	 * Returns the currently associated cache name
+	 * @return The cache name associated
+	 */
+	public String getCacheName()
+	{
+		return cacheName;
+	}
+
+	/**
+	 * Enables query caching on the given query with the associated name
+	 * @param cacheName The name for the given query
+	 * @return Always this object
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public J setCacheName(@NotNull String cacheName,@NotNull String cacheRegion)
+	{
+		this.cacheName = cacheName;
+		this.cacheRegion = cacheRegion;
+		return (J)this;
 	}
 }

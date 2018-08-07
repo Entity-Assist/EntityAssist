@@ -45,54 +45,6 @@
                     <enableExtendedEnhancement>true</enableExtendedEnhancement>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.version}</version>
-                <goals>
-                    <goal>compile</goal>
-                </goals>
-                <configuration>
-                    <outputDirectory>${project.build.directory}/generated-sources/annotations</outputDirectory>
-                    <annotationProcessorPaths>
-                        <annotationProcessorPath>
-                            <groupId>org.hibernate</groupId>
-                            <artifactId>hibernate-jpamodelgen</artifactId>
-                            <version>${maven.hibernate.version}</version>
-                        </annotationProcessorPath>
-                        <annotationProcessorPath>
-                            <groupId>javax.xml.bind</groupId>
-                            <artifactId>jaxb-api</artifactId>
-                            <version>${jaxb.version}</version>
-                        </annotationProcessorPath>
-                    </annotationProcessorPaths>
-                    <annotationProcessors>
-                        <annotationProcessor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</annotationProcessor>
-                    </annotationProcessors>
-                    <compilerArgs>
-                        <arg>-AaddGeneratedAnnotation=false</arg>
-                    </compilerArgs>
-                    <compilerArguments>
-                        <AaddGeneratedAnnotation>false</AaddGeneratedAnnotation>
-                        <Adebug>true</Adebug>
-                    </compilerArguments>
-                    <failOnError>true</failOnError>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.hibernate</groupId>
-                        <artifactId>hibernate-jpamodelgen</artifactId>
-                        <version>${maven.hibernate.version}</version>
-                        <optional>true</optional>
-                    </dependency>
-                    <dependency>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                        <version>${jaxb.version}</version>
-                        <type>jar</type>
-                    </dependency>
-                </dependencies>
-            </plugin>
         </plugins>
     </build>
 
@@ -104,6 +56,7 @@
             <classifier>${jwebmp.runtime.classifier}</classifier>
             <type>jar</type>
         </dependency>
+
         <dependency>
             <groupId>com.jwebmp</groupId>
             <artifactId>jwebmp-log-master</artifactId>
@@ -111,6 +64,7 @@
             <classifier>${jwebmp.runtime.classifier}</classifier>
             <type>jar</type>
         </dependency>
+
         <dependency>
             <groupId>com.jwebmp</groupId>
             <artifactId>guiced-injection</artifactId>
@@ -120,8 +74,21 @@
         </dependency>
 
         <dependency>
+            <groupId>com.jwebmp</groupId>
+            <artifactId>guiced-persistence-jpa</artifactId>
+            <version>${project.version}</version>
+            <classifier>${jwebmp.runtime.classifier}</classifier>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -162,19 +129,7 @@
             <artifactId>hibernate-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.jwebmp</groupId>
-            <artifactId>guiced-persistence-btm</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
 
-        <dependency>
-            <groupId>com.jwebmp</groupId>
-            <artifactId>guiced-persistence-jpa</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
 
     </dependencies>
     <scm>
@@ -194,6 +149,56 @@
     <profiles>
         <profile>
             <id>jdk8</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${maven.compiler.version}</version>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/generated-sources/annotations</outputDirectory>
+                            <annotationProcessorPaths>
+                                <annotationProcessorPath>
+                                    <groupId>org.hibernate</groupId>
+                                    <artifactId>hibernate-jpamodelgen</artifactId>
+                                    <version>${maven.hibernate.version}</version>
+                                </annotationProcessorPath>
+                                <annotationProcessorPath>
+                                    <groupId>javax.xml.bind</groupId>
+                                    <artifactId>jaxb-api</artifactId>
+                                    <version>${jaxb.version}</version>
+                                </annotationProcessorPath>
+                            </annotationProcessorPaths>
+                            <annotationProcessors>
+                                <annotationProcessor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</annotationProcessor>
+                            </annotationProcessors>
+                            <compilerArguments>
+                                <AaddGeneratedAnnotation>false</AaddGeneratedAnnotation>
+                                <Adebug>true</Adebug>
+                            </compilerArguments>
+                            <failOnError>true</failOnError>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-jpamodelgen</artifactId>
+                                <version>${maven.hibernate.version}</version>
+                                <optional>true</optional>
+                            </dependency>
+                            <dependency>
+                                <groupId>javax.xml.bind</groupId>
+                                <artifactId>jaxb-api</artifactId>
+                                <version>${jaxb.version}</version>
+                                <type>jar</type>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+
             <dependencies>
                 <dependency>
                     <groupId>javax.persistence</groupId>
@@ -211,28 +216,68 @@
                     <groupId>javax.transaction</groupId>
                     <artifactId>jta</artifactId>
                 </dependency>
-
-                <dependency>
-                    <groupId>org.codehaus.btm</groupId>
-                    <artifactId>btm</artifactId>
-                    <version>${btm.version}</version>
-                    <type>jar</type>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>javax.transaction</groupId>
-                            <artifactId>jta</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-
             </dependencies>
         </profile>
 
         <profile>
             <id>jdk10</id>
-            <dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${maven.compiler.version}</version>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/generated-sources/annotations</outputDirectory>
+                            <annotationProcessorPaths>
+                                <annotationProcessorPath>
+                                    <groupId>org.hibernate</groupId>
+                                    <artifactId>hibernate-jpamodelgen</artifactId>
+                                    <version>${maven.hibernate.version}</version>
+                                </annotationProcessorPath>
+                                <annotationProcessorPath>
+                                    <groupId>javax.xml.bind</groupId>
+                                    <artifactId>jaxb-api</artifactId>
+                                    <version>${jaxb.version}</version>
+                                </annotationProcessorPath>
+                            </annotationProcessorPaths>
+                            <annotationProcessors>
+                                <annotationProcessor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</annotationProcessor>
+                            </annotationProcessors>
+                            <compilerArgs>
+                                <arg>-AaddGeneratedAnnotation=false</arg>
+                                <arg>--patch-module</arg>
+                                <arg>java.transaction=${settings.localRepository}/javax/transaction/javax.transaction-api/${javax.transaction.transactionapi}/javax.transaction-api-${javax.transaction.transactionapi}.jar</arg>
+                                <arg>--patch-module</arg>
+                                <arg>java.xml.bind=${settings.localRepository}/javax/xml/bind/jaxb-api/${jaxb.version}/jaxb-api-${jaxb.version}.jar</arg>
+                            </compilerArgs>
+                            <compilerArguments>
+                                <AaddGeneratedAnnotation>false</AaddGeneratedAnnotation>
+                                <Adebug>true</Adebug>
+                            </compilerArguments>
+                            <failOnError>true</failOnError>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-jpamodelgen</artifactId>
+                                <version>${maven.hibernate.version}</version>
+                                <optional>true</optional>
+                            </dependency>
+                            <dependency>
+                                <groupId>javax.xml.bind</groupId>
+                                <artifactId>jaxb-api</artifactId>
+                                <version>${jaxb.version}</version>
+                                <type>jar</type>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
 
-            </dependencies>
         </profile>
     </profiles>
 </project>

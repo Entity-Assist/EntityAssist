@@ -1,6 +1,6 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
-import com.jwebmp.entityassist.querybuilder.QueryBuilderExecutor;
+import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 
 import javax.persistence.criteria.JoinType;
 import javax.persistence.metamodel.Attribute;
@@ -10,7 +10,7 @@ public final class JoinExpression implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	private transient QueryBuilderExecutor executor;
+	private transient QueryBuilder executor;
 	private JoinType joinType;
 	private transient Attribute attribute;
 
@@ -19,19 +19,19 @@ public final class JoinExpression implements Serializable
 
 	}
 
-	public JoinExpression(QueryBuilderExecutor executor, JoinType joinType, Attribute attribute)
+	public JoinExpression(QueryBuilder executor, JoinType joinType, Attribute attribute)
 	{
 		this.executor = executor;
 		this.joinType = joinType;
 		this.attribute = attribute;
 	}
 
-	public QueryBuilderExecutor getExecutor()
+	public QueryBuilder getExecutor()
 	{
 		return executor;
 	}
 
-	public void setExecutor(QueryBuilderExecutor executor)
+	public void setExecutor(QueryBuilder executor)
 	{
 		this.executor = executor;
 	}

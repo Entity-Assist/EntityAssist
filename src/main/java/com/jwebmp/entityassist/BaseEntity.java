@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jwebmp.entityassist.querybuilder.EntityAssistStrings;
-import com.jwebmp.entityassist.querybuilder.QueryBuilderExecutor;
+import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 import com.jwebmp.guicedinjection.GuiceContext;
 
 import javax.persistence.MappedSuperclass;
@@ -25,7 +25,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 		getterVisibility = NONE,
 		setterVisibility = NONE)
 @JsonInclude(NON_NULL)
-public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryBuilderExecutor<Q, J, I>, I extends Serializable>
+public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryBuilder<Q, J, I>, I extends Serializable>
 		implements EntityAssistStrings
 {
 	private static final Logger log = Logger.getLogger(BaseEntity.class.getName());
@@ -95,7 +95,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	@NotNull
 	public J delete()
 	{
-		((QueryBuilderExecutor) builder())
+		((QueryBuilder) builder())
 				.delete(this);
 		return (J) this;
 	}
@@ -138,7 +138,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	public Q builder()
 	{
 		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
-		QueryBuilderExecutor<?, ?, ?> instance = null;
+		QueryBuilder<?, ?, ?> instance = null;
 		try
 		{
 			instance = foundQueryBuilderClass.getDeclaredConstructor()

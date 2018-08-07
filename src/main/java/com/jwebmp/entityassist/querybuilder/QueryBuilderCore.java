@@ -21,7 +21,7 @@ import static com.jwebmp.entityassist.CoreEntity.*;
  * @author Marc Magon
  */
 public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E extends CoreEntity<E, J, I>, I extends Serializable>
-		extends QueryBuilderExecutor<J, E, I>
+		extends QueryBuilder<J, E, I>
 {
 	private static final String EFFECTIVE_TO_DATE_COLUMN_NAME = "effectiveToDate";
 	private static final String EFFECTIVE_FROM_DATE_COLUMN_NAME = "effectiveFromDate";

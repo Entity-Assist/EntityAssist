@@ -2,7 +2,7 @@ package com.jwebmp.entityassist.querybuilder.builders;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jwebmp.entityassist.BaseEntity;
-import com.jwebmp.entityassist.querybuilder.QueryBuilderExecutor;
+import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.services.ITransactionHandler;
@@ -37,7 +37,7 @@ import static com.jwebmp.entityassist.querybuilder.EntityAssistStrings.*;
  * 		The entity ID type
  */
 @SuppressWarnings("unchecked")
-abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilderExecutor, I>, I extends Serializable>
+abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilder, I>, I extends Serializable>
 {
 
 	private static final Logger log = Logger.getLogger("QueryBuilderBase");
@@ -67,7 +67,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@Transient
 	private boolean runDetached;
 
-	private static ServiceLoader<ITransactionHandler> transactionHandlers = ServiceLoader.load(ITransactionHandler.class);
+	private static final ServiceLoader<ITransactionHandler> transactionHandlers = ServiceLoader.load(ITransactionHandler.class);
 
 	@SuppressWarnings("unchecked")
 	protected QueryBuilderBase()

@@ -1,10 +1,12 @@
 package com.jwebmp.entityassist.querybuilder;
 
+import com.google.common.base.Strings;
 import com.google.inject.persist.Transactional;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.enumerations.OrderByType;
 import com.jwebmp.entityassist.querybuilder.builders.DefaultQueryBuilder;
 import com.jwebmp.entityassist.querybuilder.builders.JoinExpression;
+import com.jwebmp.logger.LogFactory;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
@@ -19,11 +21,11 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
+public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 		extends DefaultQueryBuilder<J, E, I>
 {
 
-	private static final Logger log = Logger.getLogger(QueryBuilderExecutor.class.getName());
+	private static final Logger log = LogFactory.getLog(QueryBuilder.class.getName());
 	/**
 	 * Marks if this query is selected
 	 */
@@ -50,6 +52,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			select();
 		}
 		TypedQuery<Long> query = getEntityManager().createQuery(getCriteriaQuery());
+		applyCache(query);
 		Long j = null;
 		try
 		{
@@ -229,7 +232,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		JoinType jt = executor.getJoinType();
 		Join join = getRoot().join((SingularAttribute) value, jt);
 
-		QueryBuilderExecutor key = executor.getExecutor();
+		QueryBuilder key = executor.getExecutor();
 		if (key != null)
 		{
 			key.reset(join);
@@ -317,6 +320,17 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 		return getAll(getEntityClass());
 	}
 
+	private void applyCache(TypedQuery query)
+	{
+		if(!Strings.isNullOrEmpty(getCacheName()))
+		{
+			query.setHint("org.hibernate.cacheable", true);
+			query.setHint("org.hibernate.cacheRegion", super.cacheRegion);
+			query.setHint("javax.persistence.cache.retrieveMode", "USE");
+			query.setHint("javax.persistence.cache.storeMode", "USE");
+		}
+	}
+
 	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from
 	 * a list with the same criteria
@@ -332,6 +346,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			select();
 		}
 		TypedQuery<T> query = getEntityManager().createQuery(getCriteriaQuery());
+		applyCache(query);
 		T j = null;
 		try
 		{
@@ -480,6 +495,7 @@ public abstract class QueryBuilderExecutor<J extends QueryBuilderExecutor<J, E, 
 			select();
 		}
 		TypedQuery<T> query = getEntityManager().createQuery(getCriteriaQuery());
+		applyCache(query);
 		if (getMaxResults() != null)
 		{
 			query.setMaxResults(getMaxResults());
