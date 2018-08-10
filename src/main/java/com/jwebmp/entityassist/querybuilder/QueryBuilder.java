@@ -216,8 +216,11 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			update.set(attributeName.getName(), value);
 		}
 		select();
-		return getEntityManager().createQuery(update)
-		                         .executeUpdate();
+		performBeginTransaction(isAutoTransaction());
+		int result = getEntityManager().createQuery(update)
+		                               .executeUpdate();
+		performCommitTransaction(isAutoTransaction());
+		return result;
 	}
 
 	/**
@@ -294,9 +297,9 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				{
 					String fieldName = field.getName();
 					String classPathReferenceName = updateFields.getClass()
-					                                            .getCanonicalName() + "_";
+					                                            .getName() + "_";
 					Class clazz = Class.forName(classPathReferenceName);
-					Field f = clazz.getDeclaredField(fieldName);
+					Field f = clazz.getField(fieldName);
 					SingularAttribute at = (SingularAttribute) f.get(null);
 					map.put(at, o);
 				}
@@ -318,17 +321,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	public List<E> getAll()
 	{
 		return getAll(getEntityClass());
-	}
-
-	private void applyCache(TypedQuery query)
-	{
-		if(!Strings.isNullOrEmpty(getCacheName()))
-		{
-			query.setHint("org.hibernate.cacheable", true);
-			query.setHint("org.hibernate.cacheRegion", super.cacheRegion);
-			query.setHint("javax.persistence.cache.retrieveMode", "USE");
-			query.setHint("javax.persistence.cache.storeMode", "USE");
-		}
 	}
 
 	/**
@@ -354,7 +346,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			if (BaseEntity.class.isAssignableFrom(j.getClass()))
 			{
 				((BaseEntity) j)
-				                .setFake(false);
+						.setFake(false);
 			}
 			if (detach)
 			{
@@ -377,7 +369,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				if (BaseEntity.class.isAssignableFrom(j.getClass()))
 				{
 					((BaseEntity) j)
-					                .setFake(false);
+							.setFake(false);
 				}
 				if (detach)
 				{
@@ -389,6 +381,17 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			{
 				return Optional.empty();
 			}
+		}
+	}
+
+	private void applyCache(TypedQuery query)
+	{
+		if (!Strings.isNullOrEmpty(getCacheName()))
+		{
+			query.setHint("org.hibernate.cacheable", true);
+			query.setHint("org.hibernate.cacheRegion", super.cacheRegion);
+			query.setHint("javax.persistence.cache.retrieveMode", "USE");
+			query.setHint("javax.persistence.cache.storeMode", "USE");
 		}
 	}
 
@@ -434,8 +437,11 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
 		setCriteriaDelete(deletion);
 		select();
-		return getEntityManager().createQuery(deletion)
+		performBeginTransaction(isAutoTransaction());
+		int result = getEntityManager().createQuery(deletion)
 		                         .executeUpdate();
+		performCommitTransaction(isAutoTransaction());
+		return result;
 	}
 
 	/**

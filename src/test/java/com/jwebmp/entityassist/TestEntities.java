@@ -6,8 +6,8 @@ import com.jwebmp.entityassist.entities.EntityClassTwo_;
 import com.jwebmp.entityassist.entities.EntityClass_;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.guicedinjection.GuiceContext;
+import com.jwebmp.guicedpersistence.jpa.implementations.JPAAutomatedTransactionHandler;
 import com.jwebmp.logger.LogFactory;
-import com.jwebmp.logger.handlers.ConsoleSTDOutputHandler;
 import com.jwebmp.logger.logging.LogColourFormatter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,12 +24,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestEntities
 {
+
+	private static TestEntities testEntities;
+
 	@BeforeAll
 	public static void before()
 	{
 		LogFactory.configureConsoleSingleLineOutput(Level.FINE);
 		LogColourFormatter.setRenderBlack(false);
 		GuiceContext.inject();
+		testEntities = GuiceContext.get(TestEntities.class);
+		JPAAutomatedTransactionHandler.setActive(true);
 	}
 
 	@Test

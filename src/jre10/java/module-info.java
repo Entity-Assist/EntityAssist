@@ -24,6 +24,7 @@ module com.jwebmp.entityassist {
 	requires java.naming;
 	requires commons.lang3;
 	requires com.jwebmp.guicedinjection;
+	requires com.google.common;
 
 	opens com.jwebmp.entityassist to org.hibernate.orm.core,com.fasterxml.jackson.databind;
 

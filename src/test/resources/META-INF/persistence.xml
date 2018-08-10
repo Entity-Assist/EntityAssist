@@ -6,21 +6,15 @@
 
     <persistence-unit name="h2entityAssist">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <jta-data-source>jdbc:eatest</jta-data-source>
-
         <class>com.jwebmp.entityassist.converters.LocalDateAttributeConverter</class>
         <class>com.jwebmp.entityassist.converters.LocalDateTimeAttributeConverter</class>
         <class>com.jwebmp.entityassist.converters.LocalDateTimestampAttributeConverter</class>
 
         <class>com.jwebmp.entityassist.entities.EntityClass</class>
         <class>com.jwebmp.entityassist.entities.EntityClassTwo</class>
-
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
-
-            <property name="hibernate.archive.autodetection" value="class"/>
-
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
-
             <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
             <property name="hibernate.connection.url" value="jdbc:h2:./db/entityAssistTestDB"/>
             <property name="hibernate.connection.user" value="sa"/>
@@ -30,13 +24,6 @@
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.use_sql_comments" value="true"/>
-
-            <property name="jboss.entity.manager.factory.jndi.name" value="java:/eatestJndiFactoryName"/>
-
-            <property name="hibernate.connection.datasource" value="jdbc:eatest"/>
-
-            <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
-
         </properties>
     </persistence-unit>
 </persistence>

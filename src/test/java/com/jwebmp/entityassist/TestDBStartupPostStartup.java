@@ -2,17 +2,24 @@ package com.jwebmp.entityassist;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.PersistService;
-import com.jwebmp.guicedpersistence.services.IDBStartup;
-
-import javax.sql.DataSource;
+import com.jwebmp.guicedinjection.interfaces.IGuicePostStartup;
 
 public class TestDBStartupPostStartup
-		implements IDBStartup
+		implements IGuicePostStartup
 {
+	public TestDBStartupPostStartup()
+	{
+	}
+
 	@Inject
-	public TestDBStartupPostStartup(@TestEntityAssistCustomPersistenceLoader PersistService ps, @TestEntityAssistCustomPersistenceLoader DataSource ds)
+	public TestDBStartupPostStartup(@TestEntityAssistCustomPersistenceLoader PersistService ps)
 	{
 		ps.start();
 	}
 
+	@Override
+	public void postLoad()
+	{
+
+	}
 }

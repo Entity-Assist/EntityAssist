@@ -5,6 +5,7 @@ import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
 import com.jwebmp.guicedinjection.GuiceContext;
+import com.jwebmp.guicedpersistence.db.exceptions.NoConnectionInfoException;
 import com.jwebmp.guicedpersistence.services.ITransactionHandler;
 
 import javax.persistence.EntityManager;
@@ -168,11 +169,16 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@NotNull
 	public J persistNow(E entity)
 	{
-		setAutoTransaction(true);
-		performBeginTransaction(isAutoTransaction());
+		if (!getHandler().isPresent())
+		{
+			throw new NoConnectionInfoException("No tranaction handlers to automatically call for transaction control in persistNow method");
+		}
+		getHandler().get()
+		            .beginTransacation(true, getEntityManager());
 		persist(entity);
 		getEntityManager().flush();
-		performCommitTransaction(isAutoTransaction());
+		getHandler().get()
+		            .commitTransacation(true, getEntityManager());
 		return (J) this;
 	}
 
@@ -325,7 +331,13 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@Transient
 	protected abstract EntityManager getEntityManager();
 
-	private void performBeginTransaction(boolean createNew)
+	/**
+	 * Determines if a transactions is needed and pushes off to any active transaction handler
+	 *
+	 * @param createNew
+	 * 		If a new transaction must be created regardless
+	 */
+	protected void performBeginTransaction(boolean createNew)
 	{
 		if (!getHandler().isPresent())
 		{
@@ -338,12 +350,22 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		}
 	}
 
+	/**
+	 * If custom auto transaction is set
+	 * @return
+	 */
 	public boolean isAutoTransaction()
 	{
 		return autoTransaction;
 	}
 
-	private void performCommitTransaction(boolean createNew)
+	/**
+	 * Performs the commit of the current transaction
+	 *
+	 * @param createNew
+	 * 		If a new transaction must be created regardless
+	 */
+	protected void performCommitTransaction(boolean createNew)
 	{
 
 		if (!getHandler().isPresent())
