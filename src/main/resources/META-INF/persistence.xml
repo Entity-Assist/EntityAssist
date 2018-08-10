@@ -11,7 +11,7 @@
 
         <class>com.jwebmp.entityassist.CoreEntity</class>
         <class>com.jwebmp.entityassist.BaseEntity</class>
-
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="guicedpersistence.ignore" value="true"/>
             <property name="jboss.as.jpa.managed" value="false"/>
