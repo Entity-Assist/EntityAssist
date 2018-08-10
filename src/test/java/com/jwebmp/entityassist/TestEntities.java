@@ -9,7 +9,7 @@ import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.jpa.implementations.JPAAutomatedTransactionHandler;
 import com.jwebmp.logger.LogFactory;
 import com.jwebmp.logger.logging.LogColourFormatter;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.persistence.EntityManager;
@@ -27,13 +27,12 @@ public class TestEntities
 
 	private static TestEntities testEntities;
 
-	@BeforeAll
-	public static void before()
+	@BeforeEach
+	public void before()
 	{
 		LogFactory.configureConsoleSingleLineOutput(Level.FINE);
 		LogColourFormatter.setRenderBlack(false);
 		GuiceContext.inject();
-		testEntities = GuiceContext.get(TestEntities.class);
 		JPAAutomatedTransactionHandler.setActive(true);
 	}
 
