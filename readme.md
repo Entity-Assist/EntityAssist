@@ -5,7 +5,7 @@ Utilizing the Metamodel, and forcing the builder to be strictly tied to the enti
 
 Artifactory : http://www.jwebswing.com/artifactory/
 
-Direct Link : https://jwebswing.com/artifactory/list/libs-snapshot-local/za/co/mmagon/entity-assist/
+Direct Link : https://jwebmp/artifactory/list/libs-snapshot-local/za/co/mmagon/entity-assist/
 
 # Getting Started
 ```
@@ -14,7 +14,7 @@ Direct Link : https://jwebswing.com/artifactory/list/libs-snapshot-local/za/co/m
         <repository>
             <id>jwebswing-snapshot</id>
             <name>JWebMPArtifactory-snapshots</name>
-            <url>https://jwebswing.com/artifactory/libs-snapshot</url>
+            <url>https://jwebmp/artifactory/libs-snapshot</url>
         </repository>
     </repositories>
     
