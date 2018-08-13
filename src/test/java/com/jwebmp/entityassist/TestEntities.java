@@ -45,7 +45,7 @@ public class TestEntities
 	@Test
 	public void testEntity()
 	{
-
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 
@@ -57,6 +57,7 @@ public class TestEntities
 	@Test
 	public void testEntity2()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 
@@ -84,6 +85,7 @@ public class TestEntities
 	@Test
 	public void testWhereInList()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(4L);
@@ -105,6 +107,7 @@ public class TestEntities
 	@Test
 	public void testWhereEquals()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(6L);
@@ -126,6 +129,7 @@ public class TestEntities
 	@Test
 	public void testWhereGreaterThanEquals()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(8L);
@@ -148,6 +152,7 @@ public class TestEntities
 	@Test
 	public void testWhereGreater()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(10L);
@@ -170,6 +175,7 @@ public class TestEntities
 	@Test
 	public void testWhereLessThanEquals()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(12L);
@@ -192,6 +198,7 @@ public class TestEntities
 	@Test
 	public void testWhereLessThan()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(14L);
@@ -214,6 +221,7 @@ public class TestEntities
 	@Test
 	public void testNotNull()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(17L);
@@ -236,6 +244,7 @@ public class TestEntities
 	@Test
 	public void testNull()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(19L);
@@ -258,6 +267,7 @@ public class TestEntities
 	@Test
 	public void testGetAll()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
@@ -267,6 +277,7 @@ public class TestEntities
 	@Test
 	public void testJoin()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
@@ -281,6 +292,7 @@ public class TestEntities
 	@Test
 	public void testJoinLeft()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
@@ -291,6 +303,7 @@ public class TestEntities
 	@Test
 	public void testInRangeSpecified()
 	{
+		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()

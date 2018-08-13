@@ -22,11 +22,11 @@ module com.jwebmp.entityassist {
 	requires java.logging;
 	requires java.sql;
 	requires java.naming;
-	requires commons.lang3;
+
 	requires com.jwebmp.guicedinjection;
 	requires com.google.common;
 
-	opens com.jwebmp.entityassist to org.hibernate.orm.core,com.fasterxml.jackson.databind;
+	opens com.jwebmp.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind;
 
 	uses ITransactionHandler;
 
