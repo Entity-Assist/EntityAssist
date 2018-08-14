@@ -15,7 +15,7 @@ module com.jwebmp.entityassist {
 	requires java.validation;
 
 	requires com.jwebmp.guicedpersistence;
-
+	
 	requires com.jwebmp.logmaster;
 	requires com.google.guice.extensions.persist;
 	requires java.persistence;
