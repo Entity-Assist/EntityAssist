@@ -21,11 +21,15 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.jwebmp.entityassist.querybuilder.EntityAssistStrings.*;
+import static com.jwebmp.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
 
 /**
  * Builds a Query Base
@@ -68,8 +72,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@Transient
 	private boolean runDetached;
 
-	private static final ServiceLoader<ITransactionHandler> transactionHandlers = ServiceLoader.load(ITransactionHandler.class);
-
 	@SuppressWarnings("unchecked")
 	protected QueryBuilderBase()
 	{
@@ -103,13 +105,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		this.entity = (E) entity;
 		entityClass = (Class<E>) entity.getClass();
 	}
-
-	/**
-	 * Performed on create/persist
-	 *
-	 * @param entity
-	 */
-	protected abstract void onCreate(E entity);
 
 	/**
 	 * Returns the current set first results
@@ -182,6 +177,30 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		return (J) this;
 	}
 
+	private Optional<ITransactionHandler> getHandler()
+	{
+		QueryBuilderBase.log.log(Level.FINE, "Finding JTA Transaction Managers");
+		Optional<ITransactionHandler> firstHandler = Optional.empty();
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (handler.active())
+			{
+				firstHandler = Optional.of(GuiceContext.get(handler.getClass()));
+				break;
+			}
+		}
+		return firstHandler;
+	}
+
+	/**
+	 * Returns the assigned entity manager
+	 *
+	 * @return
+	 */
+	@NotNull
+	@Transient
+	protected abstract EntityManager getEntityManager();
+
 	/**
 	 * Persists this entity. Uses the get instance entity manager to operate.
 	 *
@@ -227,6 +246,110 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		}
 		return (J) this;
 	}
+
+	/**
+	 * Determines if a transactions is needed and pushes off to any active transaction handler
+	 *
+	 * @param createNew
+	 * 		If a new transaction must be created regardless
+	 */
+	protected void performBeginTransaction(boolean createNew)
+	{
+		if (!getHandler().isPresent())
+		{
+			return;
+		}
+		ITransactionHandler handler = getHandler().get();
+		if (handler.active())
+		{
+			handler.beginTransacation(createNew, getEntityManager());
+		}
+	}
+
+	/**
+	 * If custom auto transaction is set
+	 *
+	 * @return
+	 */
+	public boolean isAutoTransaction()
+	{
+		return autoTransaction;
+	}
+
+	/**
+	 * Sets if auto transaction should be used
+	 *
+	 * @param autoTransaction
+	 * 		true for automated transaction control through a transaction manager
+	 *
+	 * @return This object
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J setAutoTransaction(boolean autoTransaction)
+	{
+		this.autoTransaction = autoTransaction;
+		return (J) this;
+	}
+
+	/**
+	 * Performed on create/persist
+	 *
+	 * @param entity
+	 */
+	protected abstract void onCreate(E entity);
+
+	/**
+	 * If this entity should run in a detached and separate to the entity manager
+	 *
+	 * @return
+	 */
+	public boolean isRunDetached()
+	{
+		return runDetached;
+	}
+
+	/**
+	 * If this entity should run in a detached and separate to the entity manager
+	 *
+	 * @param runDetached
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J setRunDetached(boolean runDetached)
+	{
+		this.runDetached = runDetached;
+		return (J) this;
+	}
+
+	/**
+	 * Performs the commit of the current transaction
+	 *
+	 * @param createNew
+	 * 		If a new transaction must be created regardless
+	 */
+	protected void performCommitTransaction(boolean createNew)
+	{
+
+		if (!getHandler().isPresent())
+		{
+			return;
+		}
+		ITransactionHandler handler = getHandler().get();
+		if (handler.active())
+		{
+			handler.commitTransacation(createNew, getEntityManager());
+		}
+	}
+
+	/**
+	 * If this ID is generated from the source and which form to use
+	 * Default is Generated
+	 *
+	 * @return Returns if the id column is a generated type
+	 */
+	protected abstract boolean isIdGenerated();
 
 	private void iterateThroughResultSetForGeneratedIDs(ResultSet generatedKeys) throws SQLException
 	{
@@ -313,87 +436,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	protected abstract void onUpdate(E entity);
 
 	/**
-	 * If this entity should run in a detached and separate to the entity manager
-	 *
-	 * @return
-	 */
-	public boolean isRunDetached()
-	{
-		return runDetached;
-	}
-
-	/**
-	 * Returns the assigned entity manager
-	 *
-	 * @return
-	 */
-	@NotNull
-	@Transient
-	protected abstract EntityManager getEntityManager();
-
-	/**
-	 * Determines if a transactions is needed and pushes off to any active transaction handler
-	 *
-	 * @param createNew
-	 * 		If a new transaction must be created regardless
-	 */
-	protected void performBeginTransaction(boolean createNew)
-	{
-		if (!getHandler().isPresent())
-		{
-			return;
-		}
-		ITransactionHandler handler = getHandler().get();
-		if (handler.active())
-		{
-			handler.beginTransacation(createNew, getEntityManager());
-		}
-	}
-
-	/**
-	 * If custom auto transaction is set
-	 * @return
-	 */
-	public boolean isAutoTransaction()
-	{
-		return autoTransaction;
-	}
-
-	/**
-	 * Performs the commit of the current transaction
-	 *
-	 * @param createNew
-	 * 		If a new transaction must be created regardless
-	 */
-	protected void performCommitTransaction(boolean createNew)
-	{
-
-		if (!getHandler().isPresent())
-		{
-			return;
-		}
-		ITransactionHandler handler = getHandler().get();
-		if (handler.active())
-		{
-			handler.commitTransacation(createNew, getEntityManager());
-		}
-	}
-
-	/**
-	 * If this entity should run in a detached and separate to the entity manager
-	 *
-	 * @param runDetached
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J setRunDetached(boolean runDetached)
-	{
-		this.runDetached = runDetached;
-		return (J) this;
-	}
-
-	/**
 	 * Performs the constraint validation and returns a list of all constraint errors.
 	 *
 	 * <b>Great for form checking</b>
@@ -421,14 +463,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		}
 		return errors;
 	}
-
-	/**
-	 * If this ID is generated from the source and which form to use
-	 * Default is Generated
-	 *
-	 * @return Returns if the id column is a generated type
-	 */
-	protected abstract boolean isIdGenerated();
 
 	/**
 	 * Returns if the class is a singular attribute
@@ -488,36 +522,5 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	protected boolean isCollectionAttribute(Attribute attribute)
 	{
 		return CollectionAttribute.class.isAssignableFrom(attribute.getClass());
-	}
-
-	private Optional<ITransactionHandler> getHandler()
-	{
-		log.log(Level.FINE, "Finding JTA Transaction Managers");
-		Optional<ITransactionHandler> firstHandler = Optional.empty();
-		for (ITransactionHandler handler : transactionHandlers)
-		{
-			if (handler.active())
-			{
-				firstHandler = Optional.of(GuiceContext.get(handler.getClass()));
-				break;
-			}
-		}
-		return firstHandler;
-	}
-
-	/**
-	 * Sets if auto transaction should be used
-	 *
-	 * @param autoTransaction
-	 * 		true for automated transaction control through a transaction manager
-	 *
-	 * @return This object
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J setAutoTransaction(boolean autoTransaction)
-	{
-		this.autoTransaction = autoTransaction;
-		return (J) this;
 	}
 }

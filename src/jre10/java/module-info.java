@@ -1,6 +1,6 @@
 import com.jwebmp.entityassist.querybuilder.builders.LocalDateEntityManagerConvertorProperties;
-import com.jwebmp.guicedpersistence.db.PropertiesEntityManagerReader;
 import com.jwebmp.guicedpersistence.services.ITransactionHandler;
+import com.jwebmp.guicedpersistence.services.PropertiesEntityManagerReader;
 
 module com.jwebmp.entityassist {
 
@@ -15,7 +15,7 @@ module com.jwebmp.entityassist {
 	requires java.validation;
 
 	requires com.jwebmp.guicedpersistence;
-	
+
 	requires com.jwebmp.logmaster;
 	requires com.google.guice.extensions.persist;
 	requires java.persistence;

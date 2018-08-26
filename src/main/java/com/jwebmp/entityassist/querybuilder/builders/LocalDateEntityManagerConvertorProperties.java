@@ -1,6 +1,6 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
-import com.jwebmp.guicedpersistence.db.PropertiesEntityManagerReader;
+import com.jwebmp.guicedpersistence.services.PropertiesEntityManagerReader;
 import com.oracle.jaxb21.PersistenceUnit;
 
 import java.util.HashMap;
