@@ -16,6 +16,12 @@ public class EntityAssistTestDBModule
 {
 
 	@Override
+	protected String getPersistenceUnitName()
+	{
+		return "h2entityAssist";
+	}
+
+	@Override
 	@NotNull
 	protected ConnectionBaseInfo getConnectionBaseInfo(PersistenceUnit unit, Properties filteredProperties)
 	{
@@ -26,12 +32,6 @@ public class EntityAssistTestDBModule
 	protected String getJndiMapping()
 	{
 		return "jdbc:eatest";
-	}
-
-	@Override
-	protected String getPersistenceUnitName()
-	{
-		return "h2entityAssist";
 	}
 
 	@Override
