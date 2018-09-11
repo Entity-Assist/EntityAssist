@@ -6,7 +6,8 @@ import com.jwebmp.entityassist.entities.EntityClassTwo_;
 import com.jwebmp.entityassist.entities.EntityClass_;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.guicedinjection.GuiceContext;
-import com.jwebmp.guicedpersistence.jpa.implementations.JPAAutomatedTransactionHandler;
+import com.jwebmp.guicedpersistence.db.AsyncPostStartup;
+import com.jwebmp.guicedpersistence.db.annotations.Transactional;
 import com.jwebmp.logger.LogFactory;
 import com.jwebmp.logger.logging.LogColourFormatter;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,12 +30,16 @@ public class TestEntities
 	private static TestEntities testEntities;
 
 	@BeforeEach
-	public void before()
+	public void before() throws InterruptedException
 	{
 		LogFactory.configureConsoleSingleLineOutput(Level.FINE);
 		LogColourFormatter.setRenderBlack(false);
 		GuiceContext.inject();
-		JPAAutomatedTransactionHandler.setActive(true);
+
+		AsyncPostStartup.getExecutionService()
+		                .awaitTermination(10, TimeUnit.MINUTES);
+
+		testEntities = GuiceContext.get(TestEntities.class);
 	}
 
 	@Test
@@ -45,7 +51,6 @@ public class TestEntities
 	@Test
 	public void testEntity()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 
@@ -55,9 +60,14 @@ public class TestEntities
 	}
 
 	@Test
+	public void testEntity2Really()
+	{
+		testEntities.testEntity2();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testEntity2()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 
@@ -83,9 +93,14 @@ public class TestEntities
 	}
 
 	@Test
+	public void testWhereInListReally()
+	{
+		testEntities.testWhereInList();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testWhereInList()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(4L);
@@ -105,9 +120,14 @@ public class TestEntities
 	}
 
 	@Test
+	public void testWhereEqualsReally()
+	{
+		testEntities.testWhereEquals();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testWhereEquals()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(6L);
@@ -127,9 +147,14 @@ public class TestEntities
 	}
 
 	@Test
+	public void testWhereGreaterThanEqualsReally()
+	{
+		testEntities.testWhereGreaterThanEquals();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testWhereGreaterThanEquals()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(8L);
@@ -150,9 +175,14 @@ public class TestEntities
 	}
 
 	@Test
+	public void testWhereGreaterReally()
+	{
+		testEntities.testWhereGreater();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testWhereGreater()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(10L);
@@ -173,9 +203,14 @@ public class TestEntities
 	}
 
 	@Test
+	public void testWhereLessThanEqualsReally()
+	{
+		testEntities.testWhereLessThanEquals();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testWhereLessThanEquals()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(12L);
@@ -196,9 +231,14 @@ public class TestEntities
 	}
 
 	@Test
+	public void testWhereLessThanReally()
+	{
+		testEntities.testWhereLessThan();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testWhereLessThan()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(14L);
@@ -219,9 +259,14 @@ public class TestEntities
 	}
 
 	@Test
+	public void testNotNullReally()
+	{
+		testEntities.testNotNull();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testNotNull()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(17L);
@@ -242,9 +287,14 @@ public class TestEntities
 	}
 
 	@Test
+	public void testNullReally()
+	{
+		testEntities.testNull();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testNull()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 		ec.setId(19L);
@@ -265,9 +315,14 @@ public class TestEntities
 	}
 
 	@Test
+	public void testGetAllReally()
+	{
+		testEntities.testGetAll();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testGetAll()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
@@ -277,7 +332,6 @@ public class TestEntities
 	@Test
 	public void testJoin()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
@@ -292,7 +346,6 @@ public class TestEntities
 	@Test
 	public void testJoinLeft()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
@@ -303,7 +356,6 @@ public class TestEntities
 	@Test
 	public void testInRangeSpecified()
 	{
-		JPAAutomatedTransactionHandler.setActive(true);
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()

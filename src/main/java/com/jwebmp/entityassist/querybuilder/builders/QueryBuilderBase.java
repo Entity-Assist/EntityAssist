@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
-import com.jwebmp.guicedinjection.GuiceContext;
-import com.jwebmp.guicedpersistence.db.exceptions.NoConnectionInfoException;
-import com.jwebmp.guicedpersistence.services.ITransactionHandler;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -18,18 +15,17 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.jwebmp.entityassist.querybuilder.EntityAssistStrings.*;
-import static com.jwebmp.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
 
 /**
  * Builds a Query Base
@@ -62,8 +58,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	private String selectIdentityString = "SELECT @@IDENTITY";
 
 	private E entity;
-
-	private boolean autoTransaction = false;
 
 	/**
 	 * Whether or not to run these queries as detached objects or within the entity managers scope
@@ -111,7 +105,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
-
 	public Integer getFirstResults()
 	{
 		return firstResults;
@@ -164,42 +157,10 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@NotNull
 	public J persistNow(E entity)
 	{
-		if (!getHandler().isPresent())
-		{
-			throw new NoConnectionInfoException("No tranaction handlers to automatically call for transaction control in persistNow method");
-		}
-		getHandler().get()
-		            .beginTransacation(true, getEntityManager());
 		persist(entity);
 		getEntityManager().flush();
-		getHandler().get()
-		            .commitTransacation(true, getEntityManager());
 		return (J) this;
 	}
-
-	private Optional<ITransactionHandler> getHandler()
-	{
-		QueryBuilderBase.log.log(Level.FINE, "Finding JTA Transaction Managers");
-		Optional<ITransactionHandler> firstHandler = Optional.empty();
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (handler.active())
-			{
-				firstHandler = Optional.of(GuiceContext.get(handler.getClass()));
-				break;
-			}
-		}
-		return firstHandler;
-	}
-
-	/**
-	 * Returns the assigned entity manager
-	 *
-	 * @return
-	 */
-	@NotNull
-	@Transient
-	protected abstract EntityManager getEntityManager();
 
 	/**
 	 * Persists this entity. Uses the get instance entity manager to operate.
@@ -212,7 +173,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	{
 		try
 		{
-			performBeginTransaction(isAutoTransaction());
 			onCreate(entity);
 			EntityManager entityManager = getEntityManager();
 			if (isRunDetached())
@@ -221,7 +181,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 				log.fine(insertString);
 				entityManager.createNativeQuery(insertString)
 				             .executeUpdate();
-				performCommitTransaction(isAutoTransaction());
 				if (isIdGenerated())
 				{
 					Query statmentSelectId = entityManager.createNativeQuery(selectIdentityString);
@@ -248,49 +207,13 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	}
 
 	/**
-	 * Determines if a transactions is needed and pushes off to any active transaction handler
-	 *
-	 * @param createNew
-	 * 		If a new transaction must be created regardless
-	 */
-	protected void performBeginTransaction(boolean createNew)
-	{
-		if (!getHandler().isPresent())
-		{
-			return;
-		}
-		ITransactionHandler handler = getHandler().get();
-		if (handler.active())
-		{
-			handler.beginTransacation(createNew, getEntityManager());
-		}
-	}
-
-	/**
-	 * If custom auto transaction is set
+	 * Returns the assigned entity manager
 	 *
 	 * @return
 	 */
-	public boolean isAutoTransaction()
-	{
-		return autoTransaction;
-	}
-
-	/**
-	 * Sets if auto transaction should be used
-	 *
-	 * @param autoTransaction
-	 * 		true for automated transaction control through a transaction manager
-	 *
-	 * @return This object
-	 */
-	@SuppressWarnings("unchecked")
 	@NotNull
-	public J setAutoTransaction(boolean autoTransaction)
-	{
-		this.autoTransaction = autoTransaction;
-		return (J) this;
-	}
+	@Transient
+	protected abstract EntityManager getEntityManager();
 
 	/**
 	 * Performed on create/persist
@@ -324,32 +247,25 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	}
 
 	/**
-	 * Performs the commit of the current transaction
-	 *
-	 * @param createNew
-	 * 		If a new transaction must be created regardless
-	 */
-	protected void performCommitTransaction(boolean createNew)
-	{
-
-		if (!getHandler().isPresent())
-		{
-			return;
-		}
-		ITransactionHandler handler = getHandler().get();
-		if (handler.active())
-		{
-			handler.commitTransacation(createNew, getEntityManager());
-		}
-	}
-
-	/**
 	 * If this ID is generated from the source and which form to use
 	 * Default is Generated
 	 *
 	 * @return Returns if the id column is a generated type
 	 */
 	protected abstract boolean isIdGenerated();
+
+	/**
+	 * Returns the annotation associated with the entity manager
+	 *
+	 * @return
+	 */
+	public Class<? extends Annotation> getEntityManagerAnnotation()
+	{
+		EntityManager em = getEntityManager();
+		Class<? extends Annotation> annotation = (Class<? extends Annotation>) em.getProperties()
+		                                                                         .get("annotation");
+		return annotation;
+	}
 
 	private void iterateThroughResultSetForGeneratedIDs(ResultSet generatedKeys) throws SQLException
 	{
@@ -403,11 +319,9 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	{
 		try
 		{
-			performBeginTransaction(isAutoTransaction());
 			onUpdate(entity);
 			if (isRunDetached())
 			{
-
 				//TODO UpdateStatement Generation
 				getEntityManager().merge(entity);
 			}
@@ -415,7 +329,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			{
 				getEntityManager().merge(entity);
 			}
-			performCommitTransaction(isAutoTransaction());
 		}
 		catch (IllegalStateException ise)
 		{

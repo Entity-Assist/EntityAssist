@@ -1,7 +1,6 @@
 package com.jwebmp.entityassist.querybuilder;
 
 import com.google.common.base.Strings;
-import com.google.inject.persist.Transactional;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.enumerations.OrderByType;
 import com.jwebmp.entityassist.querybuilder.builders.DefaultQueryBuilder;
@@ -106,6 +105,17 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	@Override
 	public abstract EntityManager getEntityManager();
 
+	private void applyCache(TypedQuery query)
+	{
+		if (!Strings.isNullOrEmpty(getCacheName()))
+		{
+			query.setHint("org.hibernate.cacheable", true);
+			query.setHint("org.hibernate.cacheRegion", super.cacheRegion);
+			query.setHint("javax.persistence.cache.retrieveMode", "USE");
+			query.setHint("javax.persistence.cache.storeMode", "USE");
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private void processCriteriaQuery()
 	{
@@ -195,7 +205,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return
 	 */
-	@Transactional
 	public int bulkUpdate(E updateFields, boolean allowEmpty)
 	{
 		if (!allowEmpty && getFilters().isEmpty())
@@ -216,10 +225,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			update.set(attributeName.getName(), value);
 		}
 		select();
-		performBeginTransaction(isAutoTransaction());
 		int result = getEntityManager().createQuery(update)
 		                               .executeUpdate();
-		performCommitTransaction(isAutoTransaction());
 		return result;
 	}
 
@@ -268,59 +275,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	{
 		this.returnFirst = returnFirst;
 		return get(getEntityClass());
-	}
-
-	/**
-	 * Goes through the object looking for fields, returns a set where the field name is mapped to the object
-	 *
-	 * @param updateFields
-	 *
-	 * @return
-	 */
-	protected Map<SingularAttribute, Object> getUpdateFieldMap(E updateFields)
-	{
-		Map<SingularAttribute, Object> map = new HashMap<>();
-		List<Field> fieldList = allFields(updateFields.getClass(), new ArrayList<>());
-
-		for (Field field : fieldList)
-		{
-			if (Modifier.isAbstract(field.getModifiers()) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(
-					Id.class))
-			{
-				continue;
-			}
-			field.setAccessible(true);
-			try
-			{
-				Object o = field.get(updateFields);
-				if (o != null)
-				{
-					String fieldName = field.getName();
-					String classPathReferenceName = updateFields.getClass()
-					                                            .getName() + "_";
-					Class clazz = Class.forName(classPathReferenceName);
-					Field f = clazz.getField(fieldName);
-					SingularAttribute at = (SingularAttribute) f.get(null);
-					map.put(at, o);
-				}
-			}
-			catch (IllegalAccessException | ClassNotFoundException | NoSuchFieldException e)
-			{
-				log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
-			}
-		}
-		return map;
-	}
-
-	/**
-	 * Returns a list of entities from a distinct or non distinct list
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public List<E> getAll()
-	{
-		return getAll(getEntityClass());
 	}
 
 	/**
@@ -384,104 +338,57 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 	}
 
-	private void applyCache(TypedQuery query)
+	/**
+	 * Goes through the object looking for fields, returns a set where the field name is mapped to the object
+	 *
+	 * @param updateFields
+	 *
+	 * @return
+	 */
+	protected Map<SingularAttribute, Object> getUpdateFieldMap(E updateFields)
 	{
-		if (!Strings.isNullOrEmpty(getCacheName()))
+		Map<SingularAttribute, Object> map = new HashMap<>();
+		List<Field> fieldList = allFields(updateFields.getClass(), new ArrayList<>());
+
+		for (Field field : fieldList)
 		{
-			query.setHint("org.hibernate.cacheable", true);
-			query.setHint("org.hibernate.cacheRegion", super.cacheRegion);
-			query.setHint("javax.persistence.cache.retrieveMode", "USE");
-			query.setHint("javax.persistence.cache.storeMode", "USE");
+			if (Modifier.isAbstract(field.getModifiers()) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(
+					Id.class))
+			{
+				continue;
+			}
+			field.setAccessible(true);
+			try
+			{
+				Object o = field.get(updateFields);
+				if (o != null)
+				{
+					String fieldName = field.getName();
+					String classPathReferenceName = updateFields.getClass()
+					                                            .getName() + "_";
+					Class clazz = Class.forName(classPathReferenceName);
+					Field f = clazz.getField(fieldName);
+					SingularAttribute at = (SingularAttribute) f.get(null);
+					map.put(at, o);
+				}
+			}
+			catch (IllegalAccessException | ClassNotFoundException | NoSuchFieldException e)
+			{
+				log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
+			}
 		}
+		return map;
 	}
 
 	/**
-	 * Force No Lock on the Criteria Query
+	 * Returns a list of entities from a distinct or non distinct list
 	 *
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public J noLock()
+	public List<E> getAll()
 	{
-		noLock = true;
-		return (J) this;
-	}
-
-	/**
-	 * Sets whether or not to detach the selected entity/ies
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public J detach()
-	{
-		detach = true;
-		return (J) this;
-	}
-
-	/**
-	 * Returns the number of rows affected by the delete.
-	 * <p>
-	 * Bulk Delete Operation
-	 * <p>
-	 * WARNING : Be very careful if you haven't added a filter this will truncate the table or throw a unsupported exception if no filters.
-	 *
-	 * @return
-	 */
-	public int delete()
-	{
-		if (getFilters().isEmpty())
-		{
-			throw new UnsupportedOperationException("Calling the delete method with no filters. This will truncate the table. Rather call truncate()");
-		}
-		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
-		setCriteriaDelete(deletion);
-		select();
-		performBeginTransaction(isAutoTransaction());
-		int result = getEntityManager().createQuery(deletion)
-		                         .executeUpdate();
-		performCommitTransaction(isAutoTransaction());
-		return result;
-	}
-
-	/**
-	 * Removes the entity using the entity manager
-	 *
-	 * @return
-	 */
-	public E deleteEntity(E entity)
-	{
-		getEntityManager().remove(entity);
-		return entity;
-	}
-
-	/**
-	 * Deletes the given entity through the entity manager
-	 *
-	 * @param entity
-	 *
-	 * @return
-	 */
-	public E delete(E entity)
-	{
-		getEntityManager().remove(entity);
-		return entity;
-	}
-
-	/**
-	 * Returns the number of rows affected by the delete.
-	 * WARNING : Be very careful if you haven't added a filter this will truncate the table or throw a unsupported exception if no filters.
-	 *
-	 * @return
-	 */
-	public int truncate()
-	{
-		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
-		setCriteriaDelete(deletion);
-		getFilters().clear();
-		select();
-		return getEntityManager().createQuery(deletion)
-		                         .executeUpdate();
+		return getAll(getEntityClass());
 	}
 
 	/**
@@ -526,6 +433,93 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			}
 		}
 		return j;
+	}
+
+	/**
+	 * Force No Lock on the Criteria Query
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J noLock()
+	{
+		noLock = true;
+		return (J) this;
+	}
+
+	/**
+	 * Sets whether or not to detach the selected entity/ies
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J detach()
+	{
+		detach = true;
+		return (J) this;
+	}
+
+	/**
+	 * Returns the number of rows affected by the delete.
+	 * <p>
+	 * Bulk Delete Operation
+	 * <p>
+	 * WARNING : Be very careful if you haven't added a filter this will truncate the table or throw a unsupported exception if no filters.
+	 *
+	 * @return
+	 */
+	public int delete()
+	{
+		if (getFilters().isEmpty())
+		{
+			throw new UnsupportedOperationException("Calling the delete method with no filters. This will truncate the table. Rather call truncate()");
+		}
+		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
+		setCriteriaDelete(deletion);
+		select();
+		int result = getEntityManager().createQuery(deletion)
+		                               .executeUpdate();
+		return result;
+	}
+
+	/**
+	 * Removes the entity using the entity manager
+	 *
+	 * @return
+	 */
+	public E deleteEntity(E entity)
+	{
+		getEntityManager().remove(entity);
+		return entity;
+	}
+
+	/**
+	 * Deletes the given entity through the entity manager
+	 *
+	 * @param entity
+	 *
+	 * @return
+	 */
+	public E delete(E entity)
+	{
+		getEntityManager().remove(entity);
+		return entity;
+	}
+
+	/**
+	 * Returns the number of rows affected by the delete.
+	 * WARNING : Be very careful if you haven't added a filter this will truncate the table or throw a unsupported exception if no filters.
+	 *
+	 * @return
+	 */
+	public int truncate()
+	{
+		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
+		setCriteriaDelete(deletion);
+		getFilters().clear();
+		select();
+		return getEntityManager().createQuery(deletion)
+		                         .executeUpdate();
 	}
 
 	private List<Field> allFields(Class<?> object, List<Field> fieldList)
