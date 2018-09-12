@@ -10,7 +10,6 @@ import com.jwebmp.guicedpersistence.db.AsyncPostStartup;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
 import com.jwebmp.logger.LogFactory;
 import com.jwebmp.logger.logging.LogColourFormatter;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.persistence.EntityManager;
@@ -29,8 +28,14 @@ public class TestEntities
 
 	private static TestEntities testEntities;
 
-	@BeforeAll
-	public static void beforeAll()
+	@Test
+	public void testMe()
+	{
+		configUp();
+		System.out.println("Override for server builds?");
+	}
+
+	private void configUp()
 	{
 		LogFactory.configureConsoleSingleLineOutput(Level.FINE);
 		LogColourFormatter.setRenderBlack(false);
@@ -51,12 +56,6 @@ public class TestEntities
 	}
 
 	@Test
-	public void testMe()
-	{
-		System.out.println("Override for server builds?");
-	}
-
-	@Test
 	public void testEntity()
 	{
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
@@ -70,6 +69,7 @@ public class TestEntities
 	@Test
 	public void testEntity2Really()
 	{
+		configUp();
 		testEntities.testEntity2();
 	}
 
@@ -103,6 +103,7 @@ public class TestEntities
 	@Test
 	public void testWhereInListReally()
 	{
+		configUp();
 		testEntities.testWhereInList();
 	}
 
@@ -130,6 +131,7 @@ public class TestEntities
 	@Test
 	public void testWhereEqualsReally()
 	{
+		configUp();
 		testEntities.testWhereEquals();
 	}
 
@@ -157,6 +159,7 @@ public class TestEntities
 	@Test
 	public void testWhereGreaterThanEqualsReally()
 	{
+		configUp();
 		testEntities.testWhereGreaterThanEquals();
 	}
 
@@ -185,6 +188,7 @@ public class TestEntities
 	@Test
 	public void testWhereGreaterReally()
 	{
+		configUp();
 		testEntities.testWhereGreater();
 	}
 
@@ -213,6 +217,7 @@ public class TestEntities
 	@Test
 	public void testWhereLessThanEqualsReally()
 	{
+		configUp();
 		testEntities.testWhereLessThanEquals();
 	}
 
@@ -241,6 +246,7 @@ public class TestEntities
 	@Test
 	public void testWhereLessThanReally()
 	{
+		configUp();
 		testEntities.testWhereLessThan();
 	}
 
@@ -269,6 +275,7 @@ public class TestEntities
 	@Test
 	public void testNotNullReally()
 	{
+		configUp();
 		testEntities.testNotNull();
 	}
 
@@ -297,6 +304,7 @@ public class TestEntities
 	@Test
 	public void testNullReally()
 	{
+		configUp();
 		testEntities.testNull();
 	}
 
@@ -325,6 +333,7 @@ public class TestEntities
 	@Test
 	public void testGetAllReally()
 	{
+		configUp();
 		testEntities.testGetAll();
 	}
 
@@ -340,6 +349,7 @@ public class TestEntities
 	@Test
 	public void testJoin()
 	{
+		configUp();
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
@@ -354,6 +364,7 @@ public class TestEntities
 	@Test
 	public void testJoinLeft()
 	{
+		configUp();
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
@@ -364,6 +375,7 @@ public class TestEntities
 	@Test
 	public void testInRangeSpecified()
 	{
+		configUp();
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
