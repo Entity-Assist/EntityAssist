@@ -10,7 +10,7 @@ import com.jwebmp.guicedpersistence.db.AsyncPostStartup;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
 import com.jwebmp.logger.LogFactory;
 import com.jwebmp.logger.logging.LogColourFormatter;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.persistence.EntityManager;
@@ -29,17 +29,25 @@ public class TestEntities
 
 	private static TestEntities testEntities;
 
-	@BeforeEach
-	public void before() throws InterruptedException
+	@BeforeAll
+	public static void beforeAll()
 	{
 		LogFactory.configureConsoleSingleLineOutput(Level.FINE);
 		LogColourFormatter.setRenderBlack(false);
 		GuiceContext.inject();
-
-		AsyncPostStartup.getExecutionService()
-		                .awaitTermination(10, TimeUnit.MINUTES);
-
-		testEntities = GuiceContext.get(TestEntities.class);
+		try
+		{
+			AsyncPostStartup.getExecutionService()
+			                .awaitTermination(10, TimeUnit.MINUTES);
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		if (testEntities == null)
+		{
+			testEntities = GuiceContext.get(TestEntities.class);
+		}
 	}
 
 	@Test
