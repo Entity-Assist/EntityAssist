@@ -46,6 +46,46 @@ public class InsertStatement
 		//Nothing needed
 	}
 
+	private static final String HEXES = "0123456789ABCDEF";
+
+	public static InsertStatement getInsertStatement()
+	{
+		return insertStatement;
+	}
+
+	/**
+	 * Returns the sdf format
+	 *
+	 * @return
+	 */
+	@NotNull
+	public SimpleDateFormat getSdf()
+	{
+		return sdf;
+	}
+
+	/**
+	 * Returns the date time formatter for LocalDate instances
+	 *
+	 * @return
+	 */
+	@NotNull
+	public DateTimeFormatter getDateFormat()
+	{
+		return dateFormat;
+	}
+
+	/**
+	 * Return the date time formatter for LocalDateTime instances
+	 *
+	 * @return
+	 */
+	@NotNull
+	public DateTimeFormatter getDateTimeFormat()
+	{
+		return dateTimeFormat;
+	}
+
 	/**
 	 * Builds the physical insert string for this entity class
 	 *
@@ -91,7 +131,7 @@ public class InsertStatement
 
 		for (Field field : fields)
 		{
-			if ( field.isAnnotationPresent(Transient.class) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()))
+			if (field.isAnnotationPresent(Transient.class) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()))
 			{
 				continue;
 			}
@@ -231,6 +271,14 @@ public class InsertStatement
 				            .append(wct.toString())
 				            .append("', ");
 			}
+			else if (columnValue instanceof byte[])
+			{
+
+				String bitString = "0x" + getHex((byte[]) columnValue);
+				insertString.append("")
+				            .append(bitString)
+				            .append(", ");
+			}
 		}
 
 		insertString.delete(insertString.length() - 2, insertString.length());
@@ -239,41 +287,14 @@ public class InsertStatement
 		return insertString.toString();
 	}
 
-	public static InsertStatement getInsertStatement()
+	static String getHex(byte[] raw)
 	{
-		return insertStatement;
-	}
-
-	/**
-	 * Returns the sdf format
-	 *
-	 * @return
-	 */
-	@NotNull
-	public SimpleDateFormat getSdf()
-	{
-		return sdf;
-	}
-
-	/**
-	 * Returns the date time formatter for LocalDate instances
-	 *
-	 * @return
-	 */
-	@NotNull
-	public DateTimeFormatter getDateFormat()
-	{
-		return dateFormat;
-	}
-
-	/**
-	 * Return the date time formatter for LocalDateTime instances
-	 *
-	 * @return
-	 */
-	@NotNull
-	public DateTimeFormatter getDateTimeFormat()
-	{
-		return dateTimeFormat;
+		final StringBuilder hex = new StringBuilder(2 * raw.length);
+		for (final byte b : raw)
+		{
+			hex.append(HEXES.charAt((b & 0xF0) >> 4))
+			   .append(HEXES.charAt((b & 0x0F)));
+		}
+		return hex.toString();
 	}
 }
