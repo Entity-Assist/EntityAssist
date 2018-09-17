@@ -15,6 +15,7 @@ public class EntityAssistTestDBModule
 		implements IGuiceModule
 {
 
+	@NotNull
 	@Override
 	protected String getPersistenceUnitName()
 	{
@@ -28,12 +29,14 @@ public class EntityAssistTestDBModule
 		return new JPAConnectionBaseInfo();
 	}
 
+	@NotNull
 	@Override
 	protected String getJndiMapping()
 	{
 		return "jdbc:eatest";
 	}
 
+	@NotNull
 	@Override
 	protected Class<? extends Annotation> getBindingAnnotation()
 	{
