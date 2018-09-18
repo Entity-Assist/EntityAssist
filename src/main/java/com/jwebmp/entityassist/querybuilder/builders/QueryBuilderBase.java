@@ -219,8 +219,14 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 * Performed on create/persist
 	 *
 	 * @param entity
+	 * 		The entity
+	 *
+	 * @return true if must still create
 	 */
-	protected abstract void onCreate(E entity);
+	protected boolean onCreate(E entity)
+	{
+		return true;
+	}
 
 	/**
 	 * If this entity should run in a detached and separate to the entity manager
@@ -345,8 +351,14 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 * Performed on update/persist
 	 *
 	 * @param entity
+	 * 		The entity
+	 *
+	 * @return true if must carry on updating
 	 */
-	protected abstract void onUpdate(E entity);
+	protected boolean onUpdate(E entity)
+	{
+		return true;
+	}
 
 	/**
 	 * Performs the constraint validation and returns a list of all constraint errors.
