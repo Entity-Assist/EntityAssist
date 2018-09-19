@@ -1,9 +1,13 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.inject.Key;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
+import com.jwebmp.guicedinjection.GuiceContext;
+import com.jwebmp.guicedpersistence.services.ITransactionHandler;
+import com.oracle.jaxb21.PersistenceUnit;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -26,6 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.jwebmp.entityassist.querybuilder.EntityAssistStrings.*;
+import static com.jwebmp.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
 
 /**
  * Builds a Query Base
@@ -150,9 +155,56 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@NotNull
 	public J persistNow(E entity)
 	{
+		boolean transactionAlreadyStarted = false;
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (handler.transactionExists(getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			{
+				transactionAlreadyStarted = true;
+				break;
+			}
+		}
+
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (!transactionAlreadyStarted && handler.active(GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			{
+				handler.beginTransacation(false, getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation())));
+			}
+		}
 		persist(entity);
 		getEntityManager().flush();
+
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (!transactionAlreadyStarted && handler.active(GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			{
+				handler.commitTransacation(false, getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation())));
+			}
+		}
 		return (J) this;
+	}
+
+	/**
+	 * Returns the assigned entity manager
+	 *
+	 * @return
+	 */
+	@NotNull
+	@Transient
+	protected abstract EntityManager getEntityManager();
+
+	/**
+	 * Returns the annotation associated with the entity manager
+	 *
+	 * @return
+	 */
+	public Class<? extends Annotation> getEntityManagerAnnotation()
+	{
+		EntityManager em = getEntityManager();
+		Class<? extends Annotation> annotation = (Class<? extends Annotation>) em.getProperties()
+		                                                                         .get("annotation");
+		return annotation;
 	}
 
 	/**
@@ -201,15 +253,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	}
 
 	/**
-	 * Returns the assigned entity manager
-	 *
-	 * @return
-	 */
-	@NotNull
-	@Transient
-	protected abstract EntityManager getEntityManager();
-
-	/**
 	 * Performed on create/persist
 	 *
 	 * @param entity
@@ -252,19 +295,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 * @return Returns if the id column is a generated type
 	 */
 	protected abstract boolean isIdGenerated();
-
-	/**
-	 * Returns the annotation associated with the entity manager
-	 *
-	 * @return
-	 */
-	public Class<? extends Annotation> getEntityManagerAnnotation()
-	{
-		EntityManager em = getEntityManager();
-		Class<? extends Annotation> annotation = (Class<? extends Annotation>) em.getProperties()
-		                                                                         .get("annotation");
-		return annotation;
-	}
 
 	private void iterateThroughResultSetForGeneratedIDs(ResultSet generatedKeys) throws SQLException
 	{
