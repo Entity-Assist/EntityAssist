@@ -18,9 +18,9 @@ public class EntityClassTwoBuilder
 	}
 
 	@Override
-	protected void onCreate(EntityClassTwo entity)
+	protected boolean onCreate(EntityClassTwo entity)
 	{
-
+		return true;
 	}
 
 	@Override
@@ -30,8 +30,8 @@ public class EntityClassTwoBuilder
 	}
 
 	@Override
-	protected void onUpdate(EntityClassTwo entity)
+	protected boolean onUpdate(EntityClassTwo entity)
 	{
-
+		return true;
 	}
 }

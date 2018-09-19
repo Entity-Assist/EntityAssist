@@ -165,26 +165,28 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	{
 		try
 		{
-			onCreate(entity);
-			EntityManager entityManager = getEntityManager();
-			if (isRunDetached())
+			if (onCreate(entity))
 			{
-				String insertString = InsertStatement.buildInsertString(entity);
-				log.fine(insertString);
-				entityManager.createNativeQuery(insertString)
-				             .executeUpdate();
-				if (isIdGenerated())
+				EntityManager entityManager = getEntityManager();
+				if (isRunDetached())
 				{
-					Query statmentSelectId = entityManager.createNativeQuery(selectIdentityString);
-					BigDecimal generatedId = ((BigDecimal) statmentSelectId.getSingleResult());
-					entity.setId((I) (Long) generatedId.longValue());
+					String insertString = InsertStatement.buildInsertString(entity);
+					log.fine(insertString);
+					entityManager.createNativeQuery(insertString)
+					             .executeUpdate();
+					if (isIdGenerated())
+					{
+						Query statmentSelectId = entityManager.createNativeQuery(selectIdentityString);
+						BigDecimal generatedId = ((BigDecimal) statmentSelectId.getSingleResult());
+						entity.setId((I) (Long) generatedId.longValue());
+					}
 				}
+				else
+				{
+					entityManager.persist(entity);
+				}
+				entity.setFake(false);
 			}
-			else
-			{
-				entityManager.persist(entity);
-			}
-			entity.setFake(false);
 		}
 		catch (IllegalStateException ise)
 		{
@@ -314,15 +316,17 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	{
 		try
 		{
-			onUpdate(entity);
-			if (isRunDetached())
+			if (onUpdate(entity))
 			{
-				//TODO UpdateStatement Generation
-				getEntityManager().merge(entity);
-			}
-			else
-			{
-				getEntityManager().merge(entity);
+				if (isRunDetached())
+				{
+					//TODO UpdateStatement Generation
+					getEntityManager().merge(entity);
+				}
+				else
+				{
+					getEntityManager().merge(entity);
+				}
 			}
 		}
 		catch (IllegalStateException ise)
