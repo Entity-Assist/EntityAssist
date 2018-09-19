@@ -27,7 +27,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	private static final String EFFECTIVE_FROM_DATE_COLUMN_NAME = "effectiveFromDate";
 	private static final String ACTIVE_FLAG_DATE_COLUMN_NAME = "activeFlag";
 
-	@SuppressWarnings("unchecked")
 	public J inActiveRange()
 	{
 		Set<ActiveFlag> flags = new LinkedHashSet<>();
@@ -48,7 +47,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		return inDateRange(LocalDateTime.now());
 	}
 
-	@SuppressWarnings("unchecked")
 	public J inDateRange(LocalDateTime effectiveFromAndToDate)
 	{
 		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get(EFFECTIVE_FROM_DATE_COLUMN_NAME), effectiveFromAndToDate));
@@ -57,7 +55,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		return (J) this;
 	}
 
-	@SuppressWarnings("unchecked")
 	public J inVisibleRange()
 	{
 		List<ActiveFlag> flags = new ArrayList<>();
@@ -78,7 +75,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		return inDateRange(fromDate, LocalDateTime.now());
 	}
 
-	@SuppressWarnings("unchecked")
 	public J inDateRange(LocalDateTime fromDate, LocalDateTime toDate)
 	{
 		getFilters().add(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get(EFFECTIVE_FROM_DATE_COLUMN_NAME), fromDate));
@@ -87,9 +83,10 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	}
 
 	@Override
-	protected void onUpdate(E entity)
+	protected boolean onUpdate(E entity)
 	{
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		return true;
 	}
 
 	/**

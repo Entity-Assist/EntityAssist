@@ -22,9 +22,9 @@ public class EntityClassBuilder
 	}
 
 	@Override
-	protected void onCreate(EntityClass entity)
+	protected boolean onCreate(EntityClass entity)
 	{
-
+		return true;
 	}
 
 	@Override
@@ -34,8 +34,8 @@ public class EntityClassBuilder
 	}
 
 	@Override
-	protected void onUpdate(EntityClass entity)
+	protected boolean onUpdate(EntityClass entity)
 	{
-
+		return true;
 	}
 }

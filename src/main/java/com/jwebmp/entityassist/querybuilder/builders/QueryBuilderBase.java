@@ -37,7 +37,6 @@ import static com.jwebmp.entityassist.querybuilder.EntityAssistStrings.*;
  * @param <I>
  * 		The entity ID type
  */
-@SuppressWarnings("unchecked")
 abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilder, I>, I extends Serializable>
 {
 
@@ -66,7 +65,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@Transient
 	private boolean runDetached;
 
-	@SuppressWarnings("unchecked")
 	protected QueryBuilderBase()
 	{
 		entityClass = getEntityClass();
@@ -77,7 +75,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	protected Class<E> getEntityClass()
 	{
 		return entityClass;
@@ -93,7 +90,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		return entity;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void setEntity(Object entity)
 	{
 		this.entity = (E) entity;
@@ -117,7 +113,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public J setFirstResults(Integer firstResults)
 	{
 		this.firstResults = firstResults;
@@ -141,7 +136,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public J setMaxResults(Integer maxResults)
 	{
 		this.maxResults = maxResults;
@@ -153,7 +147,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("all")
 	@NotNull
 	public J persistNow(E entity)
 	{
@@ -168,7 +161,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 * @return
 	 */
 	@NotNull
-	@SuppressWarnings("all")
 	public J persist(E entity)
 	{
 		try
@@ -245,7 +237,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public J setRunDetached(boolean runDetached)
 	{
 		this.runDetached = runDetached;
@@ -286,7 +277,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void processId(ResultSet generatedKeys, Object o) throws SQLException
 	{
 		if (o instanceof BigDecimal)
@@ -320,7 +310,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 * @return
 	 */
 	@NotNull
-	@SuppressWarnings("all")
 	public J update(E entity)
 	{
 		try
@@ -368,7 +357,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 * @return
 	 */
 	@NotNull
-	@SuppressWarnings("unused")
 	public List<String> validateEntity(E entity)
 	{
 		List<String> errors = new ArrayList<>();
