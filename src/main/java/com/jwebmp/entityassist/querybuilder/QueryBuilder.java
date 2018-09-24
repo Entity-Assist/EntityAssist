@@ -42,7 +42,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 */
 	private boolean returnFirst;
 
-	@SuppressWarnings("unchecked")
 	public Long getCount()
 	{
 		if (!selected)
@@ -70,7 +69,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	@NotNull
 	private J select()
 	{
@@ -116,7 +114,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void processCriteriaQuery()
 	{
 		CriteriaQuery<E> cq = getCriteriaQuery();
@@ -164,7 +161,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void processOrderBys(Attribute key, OrderByType value, CriteriaQuery cq)
 	{
 		switch (value)
@@ -225,9 +221,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			update.set(attributeName.getName(), value);
 		}
 		select();
-		int result = getEntityManager().createQuery(update)
-		                               .executeUpdate();
-		return result;
+		return getEntityManager().createQuery(update)
+		                         .executeUpdate();
 	}
 
 	/**
@@ -235,7 +230,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @param executor
 	 */
-	@SuppressWarnings("unchecked")
 	protected void processJoins(JoinExpression executor)
 	{
 		Attribute value = executor.getAttribute();
@@ -283,9 +277,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	@NotNull
-	public <T> Optional<T> get(@NotNull @SuppressWarnings("unused") Class<T> asType)
+	public <T> Optional<T> get(@NotNull Class<T> asType)
 	{
 		if (!selected)
 		{
@@ -385,7 +378,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public List<E> getAll()
 	{
 		return getAll(getEntityClass());
@@ -399,9 +391,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	@NotNull
-	public <T> List<T> getAll(@SuppressWarnings("unused") Class<T> returnClassType)
+	public <T> List<T> getAll(Class<T> returnClassType)
 	{
 		if (!selected)
 		{
@@ -440,7 +431,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public J noLock()
 	{
 		noLock = true;
@@ -452,7 +442,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public J detach()
 	{
 		detach = true;
@@ -477,9 +466,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
 		setCriteriaDelete(deletion);
 		select();
-		int result = getEntityManager().createQuery(deletion)
-		                               .executeUpdate();
-		return result;
+		return getEntityManager().createQuery(deletion)
+		                         .executeUpdate();
 	}
 
 	/**

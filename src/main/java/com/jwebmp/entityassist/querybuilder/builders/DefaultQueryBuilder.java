@@ -60,6 +60,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private final Set<WhereExpression> whereExpressions;
 	private final Set<OrderByExpression> orderByExpressions;
 	private final Set<GroupByExpression> groupByExpressions;
+	protected String cacheRegion;
 	/**
 	 * The physical criteria query
 	 */
@@ -73,13 +74,9 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	private CriteriaUpdate criteriaUpdate;
 	private Class<? extends BaseEntity> construct;
-
 	private boolean delete;
 	private boolean update;
-
 	private String cacheName;
-	protected String cacheRegion;
-
 	/**
 	 * Returns the root object of this entity
 	 */
@@ -1214,10 +1211,11 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void setEntity(Object entity)
+	public J setEntity(Object entity)
 	{
 		super.setEntity(entity);
 		root = criteriaQuery.from(entity.getClass());
+		return (J) this;
 	}
 
 	Set<OrderByExpression> getOrderByExpressions()
@@ -1291,6 +1289,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 
 	/**
 	 * Returns the currently associated cache name
+	 *
 	 * @return The cache name associated
 	 */
 	public String getCacheName()
@@ -1300,15 +1299,18 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 
 	/**
 	 * Enables query caching on the given query with the associated name
-	 * @param cacheName The name for the given query
+	 *
+	 * @param cacheName
+	 * 		The name for the given query
+	 *
 	 * @return Always this object
 	 */
 	@NotNull
 	@SuppressWarnings("unchecked")
-	public J setCacheName(@NotNull String cacheName,@NotNull String cacheRegion)
+	public J setCacheName(@NotNull String cacheName, @NotNull String cacheRegion)
 	{
 		this.cacheName = cacheName;
 		this.cacheRegion = cacheRegion;
-		return (J)this;
+		return (J) this;
 	}
 }

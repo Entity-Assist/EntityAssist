@@ -27,6 +27,7 @@ public class InsertStatement
 		implements EntityAssistStrings
 {
 	private static final Logger log = Logger.getLogger(InsertStatement.class.getName());
+	private static final String HEXES = "0123456789ABCDEF";
 	private static InsertStatement insertStatement = new InsertStatement();
 	/**
 	 * The standard sdf format
@@ -46,53 +47,12 @@ public class InsertStatement
 		//Nothing needed
 	}
 
-	private static final String HEXES = "0123456789ABCDEF";
-
-	public static InsertStatement getInsertStatement()
-	{
-		return insertStatement;
-	}
-
-	/**
-	 * Returns the sdf format
-	 *
-	 * @return
-	 */
-	@NotNull
-	public SimpleDateFormat getSdf()
-	{
-		return sdf;
-	}
-
-	/**
-	 * Returns the date time formatter for LocalDate instances
-	 *
-	 * @return
-	 */
-	@NotNull
-	public DateTimeFormatter getDateFormat()
-	{
-		return dateFormat;
-	}
-
-	/**
-	 * Return the date time formatter for LocalDateTime instances
-	 *
-	 * @return
-	 */
-	@NotNull
-	public DateTimeFormatter getDateTimeFormat()
-	{
-		return dateTimeFormat;
-	}
-
 	/**
 	 * Builds the physical insert string for this entity class
 	 *
 	 * @return
 	 */
 	@NotNull
-	@SuppressWarnings("all")
 	public static String buildInsertString(Object o)
 	{
 		StringBuilder insertString = new StringBuilder("INSERT INTO ");
@@ -287,6 +247,11 @@ public class InsertStatement
 		return insertString.toString();
 	}
 
+	public static InsertStatement getInsertStatement()
+	{
+		return insertStatement;
+	}
+
 	static String getHex(byte[] raw)
 	{
 		final StringBuilder hex = new StringBuilder(2 * raw.length);
@@ -296,5 +261,38 @@ public class InsertStatement
 			   .append(HEXES.charAt((b & 0x0F)));
 		}
 		return hex.toString();
+	}
+
+	/**
+	 * Returns the sdf format
+	 *
+	 * @return
+	 */
+	@NotNull
+	public SimpleDateFormat getSdf()
+	{
+		return sdf;
+	}
+
+	/**
+	 * Returns the date time formatter for LocalDate instances
+	 *
+	 * @return
+	 */
+	@NotNull
+	public DateTimeFormatter getDateFormat()
+	{
+		return dateFormat;
+	}
+
+	/**
+	 * Return the date time formatter for LocalDateTime instances
+	 *
+	 * @return
+	 */
+	@NotNull
+	public DateTimeFormatter getDateTimeFormat()
+	{
+		return dateTimeFormat;
 	}
 }

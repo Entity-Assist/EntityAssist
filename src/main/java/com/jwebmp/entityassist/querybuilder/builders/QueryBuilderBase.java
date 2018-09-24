@@ -95,16 +95,27 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		return entity;
 	}
 
-	public void setEntity(Object entity)
+	/**
+	 * Sets the entity for this particular builder
+	 *
+	 * @param entity
+	 * 		The entity
+	 *
+	 * @return J This object
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J setEntity(Object entity)
 	{
 		this.entity = (E) entity;
 		entityClass = (Class<E>) entity.getClass();
+		return (J) this;
 	}
 
 	/**
 	 * Returns the current set first results
 	 *
-	 * @return
+	 * @return where to start the first results
 	 */
 	public Integer getFirstResults()
 	{
@@ -118,6 +129,8 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
 	public J setFirstResults(Integer firstResults)
 	{
 		this.firstResults = firstResults;
@@ -141,6 +154,8 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
 	public J setMaxResults(Integer maxResults)
 	{
 		this.maxResults = maxResults;
@@ -199,12 +214,12 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public Class<? extends Annotation> getEntityManagerAnnotation()
 	{
 		EntityManager em = getEntityManager();
-		Class<? extends Annotation> annotation = (Class<? extends Annotation>) em.getProperties()
-		                                                                         .get("annotation");
-		return annotation;
+		return (Class<? extends Annotation>) em.getProperties()
+		                                       .get("annotation");
 	}
 
 	/**
@@ -212,6 +227,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	@NotNull
 	public J persist(E entity)
 	{
@@ -219,23 +235,23 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		{
 			if (onCreate(entity))
 			{
-				EntityManager entityManager = getEntityManager();
 				if (isRunDetached())
 				{
 					String insertString = InsertStatement.buildInsertString(entity);
 					log.fine(insertString);
-					entityManager.createNativeQuery(insertString)
-					             .executeUpdate();
+					Query query = getEntityManager().createNativeQuery(insertString);
+					query.executeUpdate();
+
 					if (isIdGenerated())
 					{
-						Query statmentSelectId = entityManager.createNativeQuery(selectIdentityString);
+						Query statmentSelectId = getEntityManager().createNativeQuery(selectIdentityString);
 						BigDecimal generatedId = ((BigDecimal) statmentSelectId.getSingleResult());
 						entity.setId((I) (Long) generatedId.longValue());
 					}
 				}
 				else
 				{
-					entityManager.persist(entity);
+					getEntityManager().persist(entity);
 				}
 				entity.setFake(false);
 			}
@@ -309,6 +325,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void processId(ResultSet generatedKeys, Object o) throws SQLException
 	{
 		if (o instanceof BigDecimal)
@@ -316,14 +333,14 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			if (entity.getClassIDType()
 			          .isAssignableFrom(Long.class))
 			{
-				entity.setId((I) (Long) BigDecimal.class.cast(o)
-				                                        .longValue());
+				entity.setId((I) (Long) ((BigDecimal) o)
+						                        .longValue());
 			}
 			else if (entity.getClassIDType()
 			               .isAssignableFrom(Integer.class))
 			{
-				entity.setId((I) (Integer) BigDecimal.class.cast(o)
-				                                           .intValue());
+				entity.setId((I) (Integer) ((BigDecimal) o)
+						                           .intValue());
 			}
 			else
 			{
@@ -350,7 +367,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			{
 				if (isRunDetached())
 				{
-					//TODO UpdateStatement Generation
 					getEntityManager().merge(entity);
 				}
 				else
