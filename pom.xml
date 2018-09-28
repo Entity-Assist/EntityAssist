@@ -25,9 +25,9 @@
                 <executions>
                     <execution>
                         <configuration>
-                            <failOnError>true</failOnError>
+                            <failOnError>false</failOnError>
                             <enableLazyInitialization>true</enableLazyInitialization>
-                            <enableDirtyTracking>true</enableDirtyTracking>
+                            <enableDirtyTracking>false</enableDirtyTracking>
                             <enableAssociationManagement>true</enableAssociationManagement>
                             <enableExtendedEnhancement>false</enableExtendedEnhancement>
                         </configuration>
@@ -38,9 +38,9 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <failOnError>true</failOnError>
+                    <failOnError>false</failOnError>
                     <enableLazyInitialization>true</enableLazyInitialization>
-                    <enableDirtyTracking>true</enableDirtyTracking>
+                    <enableDirtyTracking>false</enableDirtyTracking>
                     <enableAssociationManagement>true</enableAssociationManagement>
                     <enableExtendedEnhancement>false</enableExtendedEnhancement>
                 </configuration>

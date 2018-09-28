@@ -285,11 +285,23 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			select();
 		}
 		TypedQuery<T> query = getEntityManager().createQuery(getCriteriaQuery());
+		if (getMaxResults() != null)
+		{
+			query.setMaxResults(getMaxResults());
+		}
+		if (getFirstResults() != null)
+		{
+			query.setFirstResult(getFirstResults());
+		}
 		applyCache(query);
 		T j = null;
 		try
 		{
 			j = query.getSingleResult();
+			if (j == null)
+			{
+				return Optional.empty();
+			}
 			if (BaseEntity.class.isAssignableFrom(j.getClass()))
 			{
 				((BaseEntity) j)
@@ -301,7 +313,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			}
 			return Optional.of(j);
 		}
-		catch (NoResultException nre)
+		catch (NoResultException | NullPointerException nre)
 		{
 			log.log(Level.FINER, "Couldn't find object : " + getEntityClass().getName() + "}", nre);
 			return Optional.empty();
@@ -311,16 +323,20 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			log.log(Level.FINER, "Non Unique Result. Couldn't find object for class : " + getEntityClass().getName() + "}", nure);
 			if (returnFirst)
 			{
+				query.setMaxResults(1);
 				List<T> returnedList = query.getResultList();
 				j = returnedList.get(0);
-				if (BaseEntity.class.isAssignableFrom(j.getClass()))
+				if (j != null)
 				{
-					((BaseEntity) j)
-							.setFake(false);
-				}
-				if (detach)
-				{
-					getEntityManager().detach(j);
+					if (BaseEntity.class.isAssignableFrom(j.getClass()))
+					{
+						((BaseEntity) j)
+								.setFake(false);
+					}
+					if (detach)
+					{
+						getEntityManager().detach(j);
+					}
 				}
 				return Optional.of(j);
 			}
@@ -518,5 +534,31 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			allFields(object.getSuperclass(), fieldList);
 		}
 		return fieldList;
+	}
+
+	/**
+	 * If this builder is configured to return the first row
+	 *
+	 * @return
+	 */
+	public boolean isReturnFirst()
+	{
+		return returnFirst;
+	}
+
+	/**
+	 * If a Non-Unique Exception is thrown re-run the query as a list and return the first item
+	 *
+	 * @param returnFirst
+	 * 		if must return first
+	 *
+	 * @return J
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J setReturnFirst(boolean returnFirst)
+	{
+		this.returnFirst = returnFirst;
+		return (J) this;
 	}
 }
