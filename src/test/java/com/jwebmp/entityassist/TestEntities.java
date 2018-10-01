@@ -6,7 +6,6 @@ import com.jwebmp.entityassist.entities.EntityClassTwo_;
 import com.jwebmp.entityassist.entities.EntityClass_;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.guicedinjection.GuiceContext;
-import com.jwebmp.guicedpersistence.db.AsyncPostStartup;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
 import com.jwebmp.logger.LogFactory;
 import com.jwebmp.logger.logging.LogColourFormatter;
@@ -18,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,15 +38,7 @@ public class TestEntities
 		LogFactory.configureConsoleSingleLineOutput(Level.FINE);
 		LogColourFormatter.setRenderBlack(false);
 		GuiceContext.inject();
-		try
-		{
-			AsyncPostStartup.getExecutionService()
-			                .awaitTermination(10, TimeUnit.MINUTES);
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+
 		if (testEntities == null)
 		{
 			testEntities = GuiceContext.get(TestEntities.class);
