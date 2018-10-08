@@ -1205,7 +1205,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	public J setCriteriaDelete(CriteriaDelete criteriaDelete)
 	{
 		this.criteriaDelete = criteriaDelete;
-		delete = true;
+		setDelete(true);
 		return (J) this;
 	}
 
