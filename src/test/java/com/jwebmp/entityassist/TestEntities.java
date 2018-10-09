@@ -2,6 +2,7 @@ package com.jwebmp.entityassist;
 
 import com.google.inject.Key;
 import com.jwebmp.entityassist.entities.EntityClass;
+import com.jwebmp.entityassist.entities.EntityClassGeneratedID;
 import com.jwebmp.entityassist.entities.EntityClassTwo_;
 import com.jwebmp.entityassist.entities.EntityClass_;
 import com.jwebmp.entityassist.enumerations.Operand;
@@ -377,4 +378,40 @@ public class TestEntities
 			fail("Rows not inserted?");
 		}
 	}
+
+	@Test
+	public void testDeleteReally()
+	{
+		configUp();
+		//testEntities.testDelete();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+	public void testDelete()
+	{
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		EntityClass ec = new EntityClass();
+		ec.setId(21L);
+		ec.persistNow();
+
+		EntityClass ec2 = new EntityClass();
+		ec2.setId(22L);
+		ec2.persistNow();
+
+		List resultList = new ArrayList();
+		resultList.add(21L);
+		resultList.add(22L);
+		long resultCount = ec.builder()
+		                     .where(EntityClass_.id, Operand.Null, (Long) null)
+		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .getCount();
+		assertTrue(0 == resultCount);
+
+		EntityClassGeneratedID generatedID = new EntityClassGeneratedID();
+		generatedID.builder()
+		           .setRunDetached(true)
+		           .persist(generatedID);
+		generatedID.delete();
+	}
+
 }

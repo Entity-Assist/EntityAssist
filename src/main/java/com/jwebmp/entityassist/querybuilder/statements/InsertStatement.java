@@ -235,8 +235,7 @@ public class InsertStatement
 			{
 
 				String bitString = "0x" + getHex((byte[]) columnValue);
-				insertString.append("")
-				            .append(bitString)
+				insertString.append(bitString)
 				            .append(", ");
 			}
 		}
@@ -254,8 +253,8 @@ public class InsertStatement
 
 	static String getHex(byte[] raw)
 	{
-		final StringBuilder hex = new StringBuilder(2 * raw.length);
-		for (final byte b : raw)
+		StringBuilder hex = new StringBuilder(2 * raw.length);
+		for (byte b : raw)
 		{
 			hex.append(HEXES.charAt((b & 0xF0) >> 4))
 			   .append(HEXES.charAt((b & 0x0F)));

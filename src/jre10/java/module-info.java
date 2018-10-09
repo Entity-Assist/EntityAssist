@@ -8,6 +8,7 @@ module com.jwebmp.entityassist {
 	exports com.jwebmp.entityassist.converters;
 	exports com.jwebmp.entityassist.enumerations;
 	exports com.jwebmp.entityassist.querybuilder;
+	exports com.jwebmp.entityassist.exceptions;
 	exports com.jwebmp.entityassist.querybuilder.builders;
 	exports com.jwebmp.entityassist.querybuilder.statements;
 

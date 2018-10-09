@@ -22,6 +22,7 @@ public enum ActiveFlag
 	Deleted,
 	Hidden,
 	Invisible,
+	Errored,
 	/**
 	 * VisibleRange
 	 */
@@ -29,6 +30,8 @@ public enum ActiveFlag
 	LongTermStorage,
 	MidTermStorage,
 	ShortTermStorage,
+	Resolved,
+	Completed,
 	/**
 	 * ActiveRange
 	 */
@@ -53,11 +56,15 @@ public enum ActiveFlag
 	private static final Set<ActiveFlag> ActiveRangeAndUp = EnumSet.of(Active, Current, Important, Highlighted, Always, Permanent);
 	private static final Set<ActiveFlag> ActiveRange = EnumSet.of(Active, Current);
 
-	private static final Set<ActiveFlag> VisibleRangeAndUp = EnumSet.of(Archived, LongTermStorage, MidTermStorage, ShortTermStorage, Active, Current, Important, Highlighted, Always, Permanent);
-	private static final Set<ActiveFlag> VisibleRange = EnumSet.of(Archived, LongTermStorage, MidTermStorage, ShortTermStorage);
+	private static final Set<ActiveFlag> VisibleRangeAndUp = EnumSet.of(Archived, LongTermStorage, MidTermStorage, ShortTermStorage, Resolved, Completed, Active, Current,
+	                                                                    Important,
+	                                                                    Highlighted, Always, Permanent);
+	private static final Set<ActiveFlag> VisibleRange = EnumSet.of(Archived, LongTermStorage, MidTermStorage, ShortTermStorage, Resolved, Completed);
 
-	private static final Set<ActiveFlag> RemovedRangeAndUp = EnumSet.of(Deleted, Hidden, Invisible, Archived, LongTermStorage, MidTermStorage, ShortTermStorage, Active, Current, Important, Highlighted, Always, Permanent);
-	private static final Set<ActiveFlag> RemovedRange = EnumSet.of(Deleted, Hidden, Invisible);
+	private static final Set<ActiveFlag> RemovedRangeAndUp = EnumSet.of(Deleted, Hidden, Invisible, Archived, LongTermStorage, MidTermStorage, ShortTermStorage, Resolved,
+	                                                                    Completed, Errored,
+	                                                                    Active, Current, Important, Highlighted, Always, Permanent);
+	private static final Set<ActiveFlag> RemovedRange = EnumSet.of(Deleted, Hidden, Invisible, Errored);
 
 	/**
 	 * Returns the permanent range of values

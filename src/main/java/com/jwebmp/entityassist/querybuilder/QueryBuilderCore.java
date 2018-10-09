@@ -27,6 +27,11 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	private static final String EFFECTIVE_FROM_DATE_COLUMN_NAME = "effectiveFromDate";
 	private static final String ACTIVE_FLAG_DATE_COLUMN_NAME = "activeFlag";
 
+	/**
+	 * Filters from the Active Flag suite where it is in the active range
+	 *
+	 * @return
+	 */
 	public J inActiveRange()
 	{
 		Set<ActiveFlag> flags = new LinkedHashSet<>();
@@ -109,7 +114,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveFromDate(LocalDateTime.now());
-		entity.setEffectiveToDate(LocalDateTime.of(2999, 12, 31, 11, 59, 59, 999));
+		entity.setEffectiveToDate(EndOfTime);
 		entity.setActiveFlag(ActiveFlag.Active);
 		persist(entity);
 
@@ -128,17 +133,23 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	{
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveToDate(LocalDateTime.now());
-		entity.setActiveFlag(ActiveFlag.Deleted);
+		entity.setActiveFlag(ActiveFlag.Archived);
 
 		getEntityManager().merge(entity);
 		getEntityManager().detach(entity);
 
-		entity.setId(null);
+		if (entity.builder()
+		          .isIdGenerated())
+		{
+			entity.setId(null);
+		}
+
+
 		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveFromDate(LocalDateTime.now());
-		entity.setEffectiveToDate(LocalDateTime.of(2999, 12, 31, 11, 59, 59, 999));
-		entity.setActiveFlag(ActiveFlag.Active);
+		entity.setEffectiveToDate(EndOfTime);
+		entity.setActiveFlag(ActiveFlag.Deleted);
 		persist(entity);
 
 		return entity;
@@ -157,7 +168,38 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveFromDate(LocalDateTime.now());
-		entity.setEffectiveToDate(LocalDateTime.of(2999, 12, 31, 11, 59, 59, 999));
+		entity.setEffectiveToDate(EndOfTime);
+		entity.setActiveFlag(ActiveFlag.Active);
+		persist(entity);
+
+		return entity;
+	}
+
+	/**
+	 * Marks the given entity as the given status, with the effective to date and warehouse last updated as now
+	 * Merges the entity, then detaches,
+	 * <p>
+	 * Persists the new record down with the end of time used
+	 *
+	 * @param entity
+	 * @param status
+	 *
+	 * @return
+	 */
+	public E closeAndReturnNewlyUpdate(E entity, ActiveFlag status)
+	{
+		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		entity.setEffectiveToDate(LocalDateTime.now());
+		entity.setActiveFlag(status);
+
+		getEntityManager().merge(entity);
+		getEntityManager().detach(entity);
+
+		entity.setId(null);
+		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
+		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		entity.setEffectiveFromDate(LocalDateTime.now());
+		entity.setEffectiveToDate(EndOfTime);
 		entity.setActiveFlag(ActiveFlag.Active);
 		persist(entity);
 

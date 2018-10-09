@@ -12,6 +12,7 @@
 
         <class>com.jwebmp.entityassist.entities.EntityClass</class>
         <class>com.jwebmp.entityassist.entities.EntityClassTwo</class>
+        <class>com.jwebmp.entityassist.entities.EntityClassGeneratedID</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>

@@ -26,7 +26,7 @@ public class EntityClassTwoBuilder
 	@Override
 	protected boolean isIdGenerated()
 	{
-		return true;
+		return false;
 	}
 
 	@Override
