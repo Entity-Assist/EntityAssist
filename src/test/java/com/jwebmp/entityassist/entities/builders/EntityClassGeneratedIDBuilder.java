@@ -13,6 +13,7 @@ public class EntityClassGeneratedIDBuilder
 {
 	public EntityClassGeneratedIDBuilder()
 	{
+		setSelectIdentityString("CALL SCOPE_IDENTITY();");
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.jwebmp.entityassist.querybuilder.statements;
 
 import com.jwebmp.entityassist.CoreEntity;
 import com.jwebmp.entityassist.querybuilder.EntityAssistStrings;
+import com.jwebmp.logger.LogFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -26,9 +27,12 @@ import java.util.logging.Logger;
 public class InsertStatement
 		implements EntityAssistStrings
 {
-	private static final Logger log = Logger.getLogger(InsertStatement.class.getName());
+	private static final Logger log = LogFactory.getLog(InsertStatement.class.getName());
+
 	private static final String HEXES = "0123456789ABCDEF";
+
 	private static InsertStatement insertStatement = new InsertStatement();
+
 	/**
 	 * The standard sdf format
 	 */
@@ -122,15 +126,7 @@ public class InsertStatement
 					columnName = field.getName();
 				}
 
-				if (fieldObject instanceof CoreEntity)
-				{
-					CoreEntity wct = (CoreEntity) fieldObject;
-					if (Long.class.cast(wct.getId()) == Long.MAX_VALUE)
-					{
-						continue;
-					}
-				}
-				else if (fieldObject instanceof Long)
+				if (fieldObject instanceof Long)
 				{
 					Long wct = (Long) fieldObject;
 					if (wct == Long.MAX_VALUE)
@@ -154,7 +150,7 @@ public class InsertStatement
 		for (String columnName : columnsNames)
 		{
 			insertString.append(columnName)
-			            .append(", ");
+			            .append(STRING_COMMNA_SPACE);
 		}
 		insertString.delete(insertString.length() - 2, insertString.length());
 		insertString.append(") VALUES (");
@@ -163,80 +159,80 @@ public class InsertStatement
 			if (columnValue instanceof Boolean)
 			{
 				insertString.append(Boolean.class.cast(columnValue) ? "1" : "0")
-				            .append(", ");
+				            .append(STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof Long)
 			{
 				insertString.append(columnValue)
-				            .append(", ");
+				            .append(STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof Integer)
 			{
 				insertString.append(columnValue)
-				            .append(", ");
+				            .append(STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof BigInteger)
 			{
 				insertString.append(((BigInteger) columnValue).longValue())
-				            .append(", ");
+				            .append(STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof BigDecimal)
 			{
 				insertString.append(((BigDecimal) columnValue).doubleValue())
-				            .append(", ");
+				            .append(STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof Short)
 			{
 				short columnVal = (short) columnValue;
 				insertString.append(columnVal)
-				            .append(", ");
+				            .append(STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof String)
 			{
-				insertString.append("'")
-				            .append(((String) columnValue).replaceAll("'", "''"))
-				            .append("', ");
+				insertString.append(STRING_SINGLE_QUOTES)
+				            .append(((String) columnValue).replaceAll(STRING_SINGLE_QUOTES, STRING_SINGLE_QUOTES + STRING_SINGLE_QUOTES))
+				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof Date)
 			{
 				Date date = (Date) columnValue;
-				insertString.append("'")
+				insertString.append(STRING_SINGLE_QUOTES)
 				            .append(getInsertStatement().sdf.format(date))
-				            .append("', ");
+				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof LocalDate)
 			{
 				LocalDate date = (LocalDate) columnValue;
-				insertString.append("'")
+				insertString.append(STRING_SINGLE_QUOTES)
 				            .append(getInsertStatement().dateFormat.format(date))
-				            .append("', ");
+				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof LocalDateTime)
 			{
 				LocalDateTime date = (LocalDateTime) columnValue;
-				insertString.append("'")
+				insertString.append(STRING_SINGLE_QUOTES)
 				            .append(getInsertStatement().dateTimeFormat.format(date))
-				            .append("', ");
+				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof CoreEntity)
 			{
 				CoreEntity wct = (CoreEntity) columnValue;
 				insertString.append(wct.getId())
-				            .append(", ");
+				            .append(STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof Enum)
 			{
 				Enum wct = (Enum) columnValue;
-				insertString.append("'")
+				insertString.append(STRING_SINGLE_QUOTES)
 				            .append(wct.toString())
-				            .append("', ");
+				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof byte[])
 			{
 
 				String bitString = "0x" + getHex((byte[]) columnValue);
 				insertString.append(bitString)
-				            .append(", ");
+				            .append(STRING_COMMNA_SPACE);
 			}
 		}
 

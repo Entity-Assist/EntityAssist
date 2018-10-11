@@ -1,16 +1,14 @@
 package com.jwebmp.entityassist;
 
 import com.google.inject.Key;
-import com.jwebmp.entityassist.entities.EntityClass;
-import com.jwebmp.entityassist.entities.EntityClassGeneratedID;
-import com.jwebmp.entityassist.entities.EntityClassTwo_;
-import com.jwebmp.entityassist.entities.EntityClass_;
+import com.jwebmp.entityassist.entities.*;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
 import com.jwebmp.logger.LogFactory;
 import com.jwebmp.logger.logging.LogColourFormatter;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;
@@ -20,7 +18,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
+import static com.jwebmp.entityassist.enumerations.Operand.*;
 import static org.junit.jupiter.api.Assertions.*;
+
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 
 public class TestEntities
 {
@@ -142,7 +143,7 @@ public class TestEntities
 		resultList.add(6);
 		resultList.add(7);
 		long resultCount = ec.builder()
-		                     .where(EntityClass_.id, Operand.Equals, 6L)
+		                     .where(EntityClass_.id, Equals, 6L)
 		                     .getCount();
 		assertEquals(1L, resultCount);
 	}
@@ -383,7 +384,7 @@ public class TestEntities
 	public void testDeleteReally()
 	{
 		configUp();
-		//testEntities.testDelete();
+		testEntities.testDelete();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -412,6 +413,53 @@ public class TestEntities
 		           .setRunDetached(true)
 		           .persist(generatedID);
 		generatedID.delete();
+
+
+		//Test delete from builder
+		EntityClassGeneratedID generatedID2 = new EntityClassGeneratedID();
+		generatedID2.builder()
+		            .setRunDetached(true)
+		            .persist(generatedID2);
+
+		generatedID2.builder()
+		            .where(EntityClassGeneratedID_.id, Equals, generatedID2.getId())
+		            .delete();
 	}
 
+	@Test
+	public void testOrCollectionReally()
+	{
+		configUp();
+		testEntities.testOrCollection();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+	public void testOrCollection()
+	{
+
+		EntityClassGeneratedID generatedID = new EntityClassGeneratedID();
+		generatedID.builder()
+		           .setRunDetached(true)
+		           .persist(generatedID);
+
+		//Test delete from builder
+		EntityClassGeneratedID generatedID2 = new EntityClassGeneratedID();
+		generatedID2.builder()
+		            .setRunDetached(true)
+		            .persist(generatedID2);
+
+		EntityClassGeneratedID generatedID3 = new EntityClassGeneratedID();
+		generatedID3.builder()
+		            .setRunDetached(true)
+		            .persist(generatedID3);
+
+		long resultCount = generatedID.builder()
+		                              .where(EntityClass_.id, Operand.Equals, generatedID.getId())
+		                              .or(EntityClass_.id, Operand.Equals, generatedID2.getId(), true)
+		                              .or(EntityClass_.id, Operand.Equals, generatedID3.getId())
+		                              .where(EntityClass_.id, NotNull, (Long) null)
+		                              .getCount();
+
+		assertTrue(3 == resultCount);
+	}
 }

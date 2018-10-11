@@ -15,37 +15,73 @@ public enum ActiveFlag
 	 * UnknownRange
 	 */
 	Unknown,
+	/**
+	 * If the item is unspecified
+	 */
 	Unspecified,
 	/**
 	 * RemovedRange
 	 **/
 	Deleted,
+	/**
+	 * If the item is simply hidden
+	 */
 	Hidden,
+	/**
+	 * If the item should be invisible
+	 */
 	Invisible,
+	/**
+	 * If the active status is errored
+	 */
 	Errored,
 	/**
 	 * VisibleRange
 	 */
 	Archived,
+	/**
+	 * If the item is saved for long term storage
+	 */
 	LongTermStorage,
+	/**
+	 * If the item is saved for mid term storage
+	 */
 	MidTermStorage,
+	/**
+	 * If the item is saved for short term storage
+	 */
 	ShortTermStorage,
+	/**
+	 * If the item is resolved
+	 */
 	Resolved,
+	/**
+	 * If the item is completed
+	 */
 	Completed,
 	/**
 	 * ActiveRange
 	 */
 	Active,
+	/**
+	 * If the item is current
+	 */
 	Current,
 	/**
 	 * HighlightedRange
 	 **/
 	Important,
+	/**
+	 * If the item is highlighted
+	 */
 	Highlighted,
 	/**
 	 * PermanentRange
 	 */
 	Always,
+	/**
+	 * If the item is permanent
+	 */
 	Permanent;
 
 	private static final Set<ActiveFlag> PermanentRange = EnumSet.of(Always, Permanent);
@@ -69,7 +105,7 @@ public enum ActiveFlag
 	/**
 	 * Returns the permanent range of values
 	 *
-	 * @return
+	 * @return ActiveFlags
 	 */
 	@NotNull
 	public static Set<ActiveFlag> getPermanentRange()
@@ -80,7 +116,7 @@ public enum ActiveFlag
 	/**
 	 * Returns the highlighted and up range of values
 	 *
-	 * @return
+	 * @return ActiveFlags
 	 */
 	@NotNull
 	public static Set<ActiveFlag> getHighlightedRangeAndUp()
@@ -91,7 +127,7 @@ public enum ActiveFlag
 	/**
 	 * Returns the highlighted range of visible values
 	 *
-	 * @return
+	 * @return ActiveFlags
 	 */
 	@NotNull
 	public static Set<ActiveFlag> getHighlightedRange()
@@ -102,7 +138,7 @@ public enum ActiveFlag
 	/**
 	 * Returns the active range and up values
 	 *
-	 * @return
+	 * @return ActiveFlags
 	 */
 	@NotNull
 	public static Set<ActiveFlag> getActiveRangeAndUp()
@@ -113,7 +149,7 @@ public enum ActiveFlag
 	/**
 	 * Returns the active range only
 	 *
-	 * @return
+	 * @return ActiveFlags
 	 */
 	@NotNull
 	public static Set<ActiveFlag> getActiveRange()
@@ -124,7 +160,7 @@ public enum ActiveFlag
 	/**
 	 * Returns the visible range and up values
 	 *
-	 * @return
+	 * @return ActiveFlags
 	 */
 	@NotNull
 	public static Set<ActiveFlag> getVisibleRangeAndUp()
@@ -135,7 +171,7 @@ public enum ActiveFlag
 	/**
 	 * Returns the visible range
 	 *
-	 * @return
+	 * @return ActiveFlags
 	 */
 	@NotNull
 	public static Set<ActiveFlag> getVisibleRange()
@@ -146,7 +182,7 @@ public enum ActiveFlag
 	/**
 	 * Returns the removed range and up values
 	 *
-	 * @return
+	 * @return ActiveFlags
 	 */
 	@NotNull
 	public static Set<ActiveFlag> getRemovedRangeAndUp()
@@ -157,7 +193,7 @@ public enum ActiveFlag
 	/**
 	 * Returns the removed range
 	 *
-	 * @return
+	 * @return ActiveFlags
 	 */
 	@NotNull
 	public static Set<ActiveFlag> getRemovedRange()

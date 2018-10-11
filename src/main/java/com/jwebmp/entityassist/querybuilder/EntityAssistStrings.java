@@ -21,6 +21,7 @@ public interface EntityAssistStrings
 	String STRING_SHARP_BRACE_CLOSED = ">";
 	String STRING_HASH = "#";
 	String STRING_COMMNA = ",";
+	String STRING_COMMNA_SPACE = ", ";
 	String STRING_DOT = ".";
 	String STRING_SEMICOLON = ";";
 	String STRING_BRACES_OPEN = "{";

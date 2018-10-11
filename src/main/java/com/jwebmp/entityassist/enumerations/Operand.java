@@ -13,7 +13,7 @@ public enum Operand
 	LessThanEqualTo,
 	GreaterThan,
 	GreaterThanEqualTo,
+
 	InList,
 	NotInList,
-
 }

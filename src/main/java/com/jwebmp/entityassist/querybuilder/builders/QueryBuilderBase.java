@@ -1,6 +1,5 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.inject.Key;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.QueryBuilder;
@@ -12,7 +11,6 @@ import com.oracle.jaxb21.PersistenceUnit;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.Transient;
-import javax.persistence.metamodel.*;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -21,11 +19,12 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
-import java.sql.ResultSet;
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +43,6 @@ import static com.jwebmp.guicedpersistence.scanners.PersistenceServiceLoadersBin
  */
 abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilder, I>, I extends Serializable>
 {
-
 	private static final Logger log = Logger.getLogger("QueryBuilderBase");
 	/**
 	 * The maximum number of results
@@ -58,18 +56,24 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 * The given entity class
 	 */
 	private Class<E> entityClass;
-
+	/**
+	 * A Query to execute to return any generated ID
+	 */
 	private String selectIdentityString = "SELECT @@IDENTITY";
-
+	/**
+	 * The actual entity event
+	 */
 	private E entity;
 
 	/**
 	 * Whether or not to run these queries as detached objects or within the entity managers scope
 	 */
-	@JsonIgnore
 	@Transient
 	private boolean runDetached;
 
+	/**
+	 * Constructor QueryBuilderBase creates a new QueryBuilderBase instance.
+	 */
 	protected QueryBuilderBase()
 	{
 		entityClass = getEntityClass();
@@ -110,6 +114,17 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		this.entity = (E) entity;
 		entityClass = (Class<E>) entity.getClass();
 		return (J) this;
+	}
+
+	/**
+	 * Method setEntity sets the entity of this QueryBuilderBase object.
+	 *
+	 * @param entity
+	 * 		the entity of this QueryBuilderBase object.
+	 */
+	public void setEntity(E entity)
+	{
+		this.entity = entity;
 	}
 
 	/**
@@ -241,12 +256,9 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 					log.fine(insertString);
 					Query query = getEntityManager().createNativeQuery(insertString);
 					query.executeUpdate();
-
 					if (isIdGenerated())
 					{
-						Query statmentSelectId = getEntityManager().createNativeQuery(selectIdentityString);
-						BigDecimal generatedId = ((BigDecimal) statmentSelectId.getSingleResult());
-						entity.setId((I) (Long) generatedId.longValue());
+						iterateThroughResultSetForGeneratedIDs();
 					}
 				}
 				else
@@ -312,44 +324,184 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 */
 	protected abstract boolean isIdGenerated();
 
-	private void iterateThroughResultSetForGeneratedIDs(ResultSet generatedKeys) throws SQLException
+	/**
+	 * Method iterateThroughResultSetForGeneratedIDs ...
+	 *
+	 * @throws SQLException
+	 * 		when
+	 */
+	private void iterateThroughResultSetForGeneratedIDs() throws SQLException
 	{
-		if (generatedKeys.next())
-		{
-			Object o = generatedKeys.getObject(1);
-			processId(generatedKeys, o);
-		}
-		else
-		{
-			throw new SQLException("Creating user failed, no ID obtained.");
-		}
+		Query statmentSelectId = getEntityManager().createNativeQuery(selectIdentityString);
+		Object o = statmentSelectId.getSingleResult();
+		processId(o);
 	}
 
+	/**
+	 * Method processId ...
+	 *
+	 * @param o
+	 * 		of type Object
+	 *
+	 * @throws SQLException
+	 * 		when
+	 */
 	@SuppressWarnings("unchecked")
-	private void processId(ResultSet generatedKeys, Object o) throws SQLException
+	private void processId(Object o) throws SQLException
 	{
-		if (o instanceof BigDecimal)
+		if (BigInteger.class.isAssignableFrom(o.getClass()))
 		{
-			if (entity.getClassIDType()
-			          .isAssignableFrom(Long.class))
+			BigInteger actual = (BigInteger) o;
+			switch (entity.getClassIDType()
+			              .getSimpleName())
 			{
-				entity.setId((I) (Long) ((BigDecimal) o)
-						                        .longValue());
+				case "BigInteger":
+				{
+					entity.setId((I) actual);
+					break;
+				}
+				case "Integer":
+				{
+					entity.setId((I) (Integer) actual.intValue());
+					break;
+				}
+				case "Long":
+				{
+					entity.setId((I) (Long) actual.longValue());
+					break;
+				}
+				case "BigDecimal":
+				{
+					entity.setId((I) new BigDecimal(actual));
+					break;
+				}
 			}
-			else if (entity.getClassIDType()
-			               .isAssignableFrom(Integer.class))
+		}
+		else if (BigDecimal.class.isAssignableFrom(o.getClass()))
+		{
+			BigDecimal actual = (BigDecimal) o;
+			switch (entity.getClassIDType()
+			              .getSimpleName())
 			{
-				entity.setId((I) (Integer) ((BigDecimal) o)
-						                           .intValue());
+				case "BigInteger":
+				{
+					entity.setId((I) actual.unscaledValue());
+					break;
+				}
+				case "Integer":
+				{
+					entity.setId((I) (Integer) actual.intValue());
+					break;
+				}
+				case "BigDecimal":
+				{
+					entity.setId((I) actual);
+					break;
+				}
+				case "Long":
+				{
+					entity.setId((I) (Long) actual.longValue());
+					break;
+				}
 			}
-			else
+		}
+		else if (Long.class.isAssignableFrom(o.getClass()))
+		{
+			Long actual = (Long) o;
+			switch (entity.getClassIDType()
+			              .getSimpleName())
 			{
-				entity.setId((I) generatedKeys.getObject(1));
+				case "BigInteger":
+				{
+					entity.setId((I) BigInteger.valueOf(actual));
+					break;
+				}
+				case "Integer":
+				{
+					entity.setId((I) (Integer) actual.intValue());
+					break;
+				}
+				case "BigDecimal":
+				{
+					entity.setId((I) BigDecimal.valueOf(actual));
+					break;
+				}
+				case "Long":
+				{
+					entity.setId((I) actual);
+					break;
+				}
+			}
+		}
+		else if (Integer.class.isAssignableFrom(o.getClass()))
+		{
+			Integer actual = (Integer) o;
+			switch (entity.getClassIDType()
+			              .getSimpleName())
+			{
+				case "BigInteger":
+				{
+					entity.setId((I) BigInteger.valueOf(actual));
+					break;
+				}
+				case "Integer":
+				{
+					entity.setId((I) actual);
+					break;
+				}
+				case "BigDecimal":
+				{
+					entity.setId((I) BigDecimal.valueOf(actual));
+					break;
+				}
+				case "Long":
+				{
+					entity.setId((I) actual);
+					break;
+				}
+			}
+		}
+		else if (String.class.isAssignableFrom(o.getClass()))
+		{
+			String actual = (String) o;
+			switch (entity.getClassIDType()
+			              .getSimpleName())
+			{
+				case "BigInteger":
+				{
+					entity.setId((I) BigInteger.valueOf(Long.parseLong(actual)));
+					break;
+				}
+				case "Integer":
+				{
+					entity.setId((I) (Integer) Integer.parseInt(actual));
+					break;
+				}
+				case "BigDecimal":
+				{
+					entity.setId((I) BigDecimal.valueOf(Long.parseLong(actual)));
+					break;
+				}
+				case "Long":
+				{
+					entity.setId((I) (Long) Long.parseLong(actual));
+					break;
+				}
+				case "String":
+				{
+					entity.setId((I) actual);
+					break;
+				}
+				case "UUID":
+				{
+					entity.setId((I) UUID.fromString(actual));
+					break;
+				}
 			}
 		}
 		else
 		{
-			entity.setId((I) generatedKeys.getObject(1));
+			log.warning("Cannot set the generated ID");
 		}
 	}
 
@@ -428,62 +580,23 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	}
 
 	/**
-	 * Returns if the class is a singular attribute
+	 * Method getSelectIdentityString returns the selectIdentityString of this QueryBuilderBase object.
 	 *
-	 * @param attribute
-	 *
-	 * @return
+	 * @return the selectIdentityString (type String) of this QueryBuilderBase object.
 	 */
-	protected boolean isSingularAttribute(Attribute attribute)
+	public String getSelectIdentityString()
 	{
-		return SingularAttribute.class.isAssignableFrom(attribute.getClass());
+		return selectIdentityString;
 	}
 
 	/**
-	 * Returns if the attribute is plural or map
+	 * Method setSelectIdentityString sets the selectIdentityString of this QueryBuilderBase object.
 	 *
-	 * @param attribute
-	 *
-	 * @return
+	 * @param selectIdentityString
+	 * 		the selectIdentityString of this QueryBuilderBase object.
 	 */
-	protected boolean isPluralOrMapAttribute(Attribute attribute)
+	public void setSelectIdentityString(String selectIdentityString)
 	{
-		return isPluralAttribute(attribute) || isMapAttribute(attribute);
-	}
-
-	/**
-	 * Returns if the class is a singular attribute
-	 *
-	 * @param attribute
-	 *
-	 * @return
-	 */
-	protected boolean isPluralAttribute(Attribute attribute)
-	{
-		return PluralAttribute.class.isAssignableFrom(attribute.getClass());
-	}
-
-	/**
-	 * Returns if the class is a singular attribute
-	 *
-	 * @param attribute
-	 *
-	 * @return
-	 */
-	protected boolean isMapAttribute(Attribute attribute)
-	{
-		return MapAttribute.class.isAssignableFrom(attribute.getClass());
-	}
-
-	/**
-	 * Returns if the attribute is plural or map
-	 *
-	 * @param attribute
-	 *
-	 * @return
-	 */
-	protected boolean isCollectionAttribute(Attribute attribute)
-	{
-		return CollectionAttribute.class.isAssignableFrom(attribute.getClass());
+		this.selectIdentityString = selectIdentityString;
 	}
 }

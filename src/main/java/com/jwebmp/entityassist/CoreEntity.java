@@ -38,6 +38,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 		implements Serializable
 {
 	public static final LocalDateTime EndOfTime = LocalDateTime.of(2999, 12, 31, 23, 59, 59, 999);
+
 	private static final long serialVersionUID = 1L;
 	/**
 	 * Returns the date time formatter
@@ -222,6 +223,21 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	public J setWarehouseCreatedTimestamp(@NotNull LocalDateTime warehouseCreatedTimestamp)
 	{
 		this.warehouseCreatedTimestamp = warehouseCreatedTimestamp;
+		return (J) this;
+	}
+
+	/**
+	 * Deletes this entity with the entity mananger. This will remove the row.
+	 *
+	 * @return
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J delete()
+	{
+		((QueryBuilderCore) builder())
+				.delete(this);
 		return (J) this;
 	}
 

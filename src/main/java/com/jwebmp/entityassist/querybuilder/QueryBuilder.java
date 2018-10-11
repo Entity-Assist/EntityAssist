@@ -20,6 +20,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.jwebmp.entityassist.querybuilder.builders.IFilterExpression.*;
+
 public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 		extends DefaultQueryBuilder<J, E, I>
 {
@@ -108,7 +110,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		if (!Strings.isNullOrEmpty(getCacheName()))
 		{
 			query.setHint("org.hibernate.cacheable", true);
-			query.setHint("org.hibernate.cacheRegion", super.cacheRegion);
+			query.setHint("org.hibernate.cacheRegion", getCacheRegion());
 			query.setHint("javax.persistence.cache.retrieveMode", "USE");
 			query.setHint("javax.persistence.cache.storeMode", "USE");
 		}
@@ -121,7 +123,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		Predicate[] preds = new Predicate[allWheres.size()];
 		preds = allWheres.toArray(preds);
 		getCriteriaQuery().where(preds);
-
 		for (Expression p : getGroupBys())
 		{
 			cq.groupBy(p);
@@ -321,7 +322,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		catch (NonUniqueResultException nure)
 		{
 			log.log(Level.FINER, "Non Unique Result. Couldn't find object for class : " + getEntityClass().getName() + "}", nure);
-			if (returnFirst)
+			if (isReturnFirst())
 			{
 				query.setMaxResults(1);
 				List<T> returnedList = query.getResultList();
@@ -345,6 +346,32 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				return Optional.empty();
 			}
 		}
+	}
+
+	/**
+	 * If this builder is configured to return the first row
+	 *
+	 * @return
+	 */
+	public boolean isReturnFirst()
+	{
+		return returnFirst;
+	}
+
+	/**
+	 * If a Non-Unique Exception is thrown re-run the query as a list and return the first item
+	 *
+	 * @param returnFirst
+	 * 		if must return first
+	 *
+	 * @return J
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J setReturnFirst(boolean returnFirst)
+	{
+		this.returnFirst = returnFirst;
+		return (J) this;
 	}
 
 	/**
@@ -480,21 +507,11 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			throw new UnsupportedOperationException("Calling the delete method with no filters. This will truncate the table. Rather call truncate()");
 		}
 		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
+		reset(deletion.from(getEntityClass()));
 		setCriteriaDelete(deletion);
 		select();
 		return getEntityManager().createQuery(deletion)
 		                         .executeUpdate();
-	}
-
-	/**
-	 * Removes the entity using the entity manager
-	 *
-	 * @return
-	 */
-	public E deleteEntity(E entity)
-	{
-		getEntityManager().remove(entity);
-		return entity;
 	}
 
 	/**
@@ -520,6 +537,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	{
 		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
 		setCriteriaDelete(deletion);
+		reset(deletion.from(getEntityClass()));
 		getFilters().clear();
 		select();
 		return getEntityManager().createQuery(deletion)
@@ -534,31 +552,5 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			allFields(object.getSuperclass(), fieldList);
 		}
 		return fieldList;
-	}
-
-	/**
-	 * If this builder is configured to return the first row
-	 *
-	 * @return
-	 */
-	public boolean isReturnFirst()
-	{
-		return returnFirst;
-	}
-
-	/**
-	 * If a Non-Unique Exception is thrown re-run the query as a list and return the first item
-	 *
-	 * @param returnFirst
-	 * 		if must return first
-	 *
-	 * @return J
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J setReturnFirst(boolean returnFirst)
-	{
-		this.returnFirst = returnFirst;
-		return (J) this;
 	}
 }

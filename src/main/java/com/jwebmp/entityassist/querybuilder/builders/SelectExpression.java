@@ -5,11 +5,13 @@ import com.jwebmp.entityassist.enumerations.SelectAggregrate;
 import javax.persistence.metamodel.Attribute;
 import java.io.Serializable;
 
-final class SelectExpression implements Serializable
+final class SelectExpression
+		implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
 	private transient Attribute attribute;
+
 	private SelectAggregrate aggregrate;
 
 	SelectExpression()

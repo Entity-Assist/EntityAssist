@@ -1,6 +1,4 @@
-import com.jwebmp.entityassist.querybuilder.builders.LocalDateEntityManagerConvertorProperties;
 import com.jwebmp.guicedpersistence.services.ITransactionHandler;
-import com.jwebmp.guicedpersistence.services.PropertiesEntityManagerReader;
 
 module com.jwebmp.entityassist {
 
@@ -32,5 +30,4 @@ module com.jwebmp.entityassist {
 
 	uses ITransactionHandler;
 
-	provides PropertiesEntityManagerReader with LocalDateEntityManagerConvertorProperties;
 }

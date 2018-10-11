@@ -108,15 +108,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setEffectiveToDate(LocalDateTime.now());
 		entity.setActiveFlag(newActiveFlagType);
 		getEntityManager().merge(entity);
-		getEntityManager().detach(entity);
-
-		entity.setId(null);
-		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
-		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
-		entity.setEffectiveFromDate(LocalDateTime.now());
-		entity.setEffectiveToDate(EndOfTime);
-		entity.setActiveFlag(ActiveFlag.Active);
-		persist(entity);
 
 		return entity;
 	}
@@ -133,25 +124,8 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 	{
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveToDate(LocalDateTime.now());
-		entity.setActiveFlag(ActiveFlag.Archived);
-
-		getEntityManager().merge(entity);
-		getEntityManager().detach(entity);
-
-		if (entity.builder()
-		          .isIdGenerated())
-		{
-			entity.setId(null);
-		}
-
-
-		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
-		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
-		entity.setEffectiveFromDate(LocalDateTime.now());
-		entity.setEffectiveToDate(EndOfTime);
 		entity.setActiveFlag(ActiveFlag.Deleted);
-		persist(entity);
-
+		getEntityManager().merge(entity);
 		return entity;
 	}
 
@@ -162,16 +136,6 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setActiveFlag(ActiveFlag.Archived);
 
 		getEntityManager().merge(entity);
-		getEntityManager().detach(entity);
-
-		entity.setId(null);
-		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
-		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
-		entity.setEffectiveFromDate(LocalDateTime.now());
-		entity.setEffectiveToDate(EndOfTime);
-		entity.setActiveFlag(ActiveFlag.Active);
-		persist(entity);
-
 		return entity;
 	}
 
@@ -196,6 +160,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		getEntityManager().detach(entity);
 
 		entity.setId(null);
+
 		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveFromDate(LocalDateTime.now());
