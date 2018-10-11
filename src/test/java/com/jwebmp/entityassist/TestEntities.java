@@ -22,7 +22,6 @@ import static com.jwebmp.entityassist.enumerations.Operand.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-
 public class TestEntities
 {
 
@@ -40,11 +39,7 @@ public class TestEntities
 		LogFactory.configureConsoleSingleLineOutput(Level.FINE);
 		LogColourFormatter.setRenderBlack(false);
 		GuiceContext.inject();
-
-		if (testEntities == null)
-		{
-			testEntities = GuiceContext.get(TestEntities.class);
-		}
+		testEntities = GuiceContext.get(TestEntities.class);
 	}
 
 	@Test
