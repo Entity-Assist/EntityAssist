@@ -19,23 +19,24 @@ final class WhereExpression<X, Y>
 {
 	private static final Logger log = LogFactory.getLog("WhereExpression");
 
-	private transient Attribute<X, Y> attribute;
+	private Attribute<X, Y> expressionAttribute;
 
 	private Operand operand;
-	private transient Object value;
+	private Object expressionValue;
 
-	private transient From root;
-	private transient CriteriaBuilder criteriaBuilder;
+	private From root;
+
+	private CriteriaBuilder criteriaBuilder;
 
 	WhereExpression()
 	{
 	}
 
-	WhereExpression(Attribute<X, Y> attribute, Operand operand, Object value)
+	WhereExpression(Attribute<X, Y> expressionAttribute, Operand operand, Object expressionValue)
 	{
-		this.attribute = attribute;
+		this.expressionAttribute = expressionAttribute;
 		this.operand = operand;
-		this.value = value;
+		this.expressionValue = expressionValue;
 	}
 
 	@Override
@@ -88,7 +89,7 @@ final class WhereExpression<X, Y>
 	@SuppressWarnings("unchecked")
 	private Optional<Predicate> processWhereNulls(WhereExpression whereExpression)
 	{
-		Attribute attribute = whereExpression.getAttribute();
+		Attribute attribute = whereExpression.getExpressionAttribute();
 		switch (whereExpression.getOperand())
 		{
 			case Null:
@@ -123,8 +124,8 @@ final class WhereExpression<X, Y>
 	@SuppressWarnings("unchecked")
 	private Optional<Predicate> processWhereEquals(WhereExpression whereExpression)
 	{
-		Attribute attribute = whereExpression.getAttribute();
-		Object value = whereExpression.getValue();
+		Attribute attribute = whereExpression.getExpressionAttribute();
+		Object value = whereExpression.getExpressionValue();
 		switch (whereExpression.getOperand())
 		{
 			case Equals:
@@ -160,8 +161,8 @@ final class WhereExpression<X, Y>
 	@SuppressWarnings("unchecked")
 	private Optional<Predicate> processWhereLike(WhereExpression whereExpression)
 	{
-		Attribute attribute = whereExpression.getAttribute();
-		Object value = whereExpression.getValue();
+		Attribute attribute = whereExpression.getExpressionAttribute();
+		Object value = whereExpression.getExpressionValue();
 		switch (whereExpression.getOperand())
 		{
 			case Like:
@@ -196,8 +197,8 @@ final class WhereExpression<X, Y>
 	@SuppressWarnings("unchecked")
 	private Optional<Predicate> processWhereLists(WhereExpression whereExpression)
 	{
-		Attribute attribute = whereExpression.getAttribute();
-		Object value = whereExpression.getValue();
+		Attribute attribute = whereExpression.getExpressionAttribute();
+		Object value = whereExpression.getExpressionValue();
 		switch (whereExpression.getOperand())
 		{
 			case InList:
@@ -241,8 +242,8 @@ final class WhereExpression<X, Y>
 	@NotNull
 	private <T extends Comparable<T>> Optional<Predicate> processWhereCompare(WhereExpression whereExpression)
 	{
-		Attribute attribute = whereExpression.getAttribute();
-		T value = (T) whereExpression.getValue();
+		Attribute attribute = whereExpression.getExpressionAttribute();
+		T value = (T) whereExpression.getExpressionValue();
 		switch (whereExpression.getOperand())
 		{
 			case LessThan:
@@ -285,22 +286,22 @@ final class WhereExpression<X, Y>
 	 *
 	 * @return The attribute
 	 */
-	public Attribute<X, Y> getAttribute()
+	public Attribute<X, Y> getExpressionAttribute()
 	{
-		return attribute;
+		return expressionAttribute;
 	}
 
 	/**
 	 * Sets the attribute
 	 *
-	 * @param attribute
+	 * @param expressionAttribute
 	 * 		The attribute
 	 *
 	 * @return This
 	 */
-	public WhereExpression setAttribute(Attribute<X, Y> attribute)
+	public WhereExpression setExpressionAttribute(Attribute<X, Y> expressionAttribute)
 	{
-		this.attribute = attribute;
+		this.expressionAttribute = expressionAttribute;
 		return this;
 	}
 
@@ -353,22 +354,22 @@ final class WhereExpression<X, Y>
 	 *
 	 * @return The given value, nullable for isNull
 	 */
-	public Object getValue()
+	public Object getExpressionValue()
 	{
-		return value;
+		return expressionValue;
 	}
 
 	/**
 	 * Whatever the value object is
 	 *
-	 * @param value
+	 * @param expressionValue
 	 * 		The value, null for not and is null
 	 *
 	 * @return This
 	 */
-	public WhereExpression setValue(Object value)
+	public WhereExpression setExpressionValue(Object expressionValue)
 	{
-		this.value = value;
+		this.expressionValue = expressionValue;
 		return this;
 	}
 }

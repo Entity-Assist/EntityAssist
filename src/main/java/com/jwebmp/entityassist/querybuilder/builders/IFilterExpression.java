@@ -7,6 +7,10 @@ import javax.persistence.metamodel.*;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 
+/**
+ * Designates a portion that can be used in a where statement or join statement
+ */
+@FunctionalInterface
 public interface IFilterExpression
 {
 	/**
@@ -69,6 +73,7 @@ public interface IFilterExpression
 	 *
 	 * @return boolean
 	 */
+	@SuppressWarnings("unused")
 	static boolean isCollectionAttribute(Attribute attribute)
 	{
 		return CollectionAttribute.class.isAssignableFrom(attribute.getClass());
@@ -84,7 +89,7 @@ public interface IFilterExpression
 	 *
 	 * @return The given collection as a set for the in clause
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "UnusedReturnValue"})
 	@NotNull
 	static Set buildInObject(CriteriaBuilder.In<Object> inClause, @NotNull Object object)
 	{

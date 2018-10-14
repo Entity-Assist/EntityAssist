@@ -22,10 +22,13 @@ import java.util.logging.Logger;
 
 import static com.jwebmp.entityassist.querybuilder.builders.IFilterExpression.*;
 
+@SuppressWarnings("unchecked")
 public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 		extends DefaultQueryBuilder<J, E, I>
 {
-
+	/**
+	 * The logger
+	 */
 	private static final Logger log = LogFactory.getLog(QueryBuilder.class.getName());
 	/**
 	 * Marks if this query is selected
@@ -36,14 +39,15 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 */
 	private boolean detach;
 	/**
-	 * Force no lock on the query built
-	 */
-	private boolean noLock;
-	/**
 	 * If the first result must be returned from a list
 	 */
 	private boolean returnFirst;
 
+	/**
+	 * Returns a long of the count for the given builder
+	 *
+	 * @return Long of results - generally never null
+	 */
 	public Long getCount()
 	{
 		if (!selected)
@@ -53,7 +57,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 		TypedQuery<Long> query = getEntityManager().createQuery(getCriteriaQuery());
 		applyCache(query);
-		Long j = null;
+		Long j;
 		try
 		{
 			j = query.getSingleResult();
@@ -69,7 +73,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	/**
 	 * Prepares the select statement
 	 *
-	 * @return
+	 * @return This
 	 */
 	@NotNull
 	private J select()
@@ -102,9 +106,22 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		return (J) this;
 	}
 
+	/**
+	 * Returns the assigned entity manager
+	 *
+	 * @return The entity manager to use for this run
+	 */
 	@Override
 	public abstract EntityManager getEntityManager();
 
+	/**
+	 * Physically applies the cache attributes to the query
+	 * <p>
+	 * Adds cacheable, cache region, and sets persistence cache retrieve mode as use, and store mode as use
+	 *
+	 * @param query
+	 * 		The query to apply to
+	 */
 	private void applyCache(TypedQuery query)
 	{
 		if (!Strings.isNullOrEmpty(getCacheName()))
@@ -116,6 +133,9 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 	}
 
+	/**
+	 * Builds up the criteria query to perform (Criteria Query Only)
+	 */
 	private void processCriteriaQuery()
 	{
 		CriteriaQuery<E> cq = getCriteriaQuery();
@@ -128,7 +148,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			cq.groupBy(p);
 		}
 
-		for (Expression expression : getHaving())
+		for (Expression expression : getHavingExpressions())
 		{
 			cq.having(expression);
 		}
@@ -162,6 +182,16 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 	}
 
+	/**
+	 * Processes the order bys into the given query
+	 *
+	 * @param key
+	 * 		The attribute to apply
+	 * @param value
+	 * 		The value to use
+	 * @param cq
+	 * 		The criteria query to apply to
+	 */
 	private void processOrderBys(Attribute key, OrderByType value, CriteriaQuery cq)
 	{
 		switch (value)
@@ -199,9 +229,11 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 * Returns the number of rows or an unsupported exception if there are no filters added
 	 *
 	 * @param updateFields
+	 * 		Allows to use the Criteria Update to run a bulk update on the table
 	 *
-	 * @return
+	 * @return number of rows updated
 	 */
+	@SuppressWarnings("UnusedReturnValue")
 	public int bulkUpdate(E updateFields, boolean allowEmpty)
 	{
 		if (!allowEmpty && getFilters().isEmpty())
@@ -230,8 +262,9 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 * Processors the join section
 	 *
 	 * @param executor
+	 * 		Processes the joins into the expression
 	 */
-	protected void processJoins(JoinExpression executor)
+	private void processJoins(JoinExpression executor)
 	{
 		Attribute value = executor.getAttribute();
 		JoinType jt = executor.getJoinType();
@@ -251,7 +284,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	/**
 	 * Returns a non-distinct list and returns an empty optional if a non-unique-result exception is thrown
 	 *
-	 * @return
+	 * @return An optional of the result
 	 */
 	public Optional<E> get()
 	{
@@ -262,8 +295,9 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 * Returns the first result returned
 	 *
 	 * @param returnFirst
+	 * 		If the first should be returned in the instance of many results
 	 *
-	 * @return
+	 * @return Optional of the required object
 	 */
 	@NotNull
 	public Optional<E> get(boolean returnFirst)
@@ -276,7 +310,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from
 	 * a list with the same criteria
 	 *
-	 * @return
+	 * @return Optional of the given class type (which should be a select column)
 	 */
 	@NotNull
 	public <T> Optional<T> get(@NotNull Class<T> asType)
@@ -295,7 +329,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			query.setFirstResult(getFirstResults());
 		}
 		applyCache(query);
-		T j = null;
+		T j;
 		try
 		{
 			j = query.getSingleResult();
@@ -339,7 +373,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 						getEntityManager().detach(j);
 					}
 				}
-				return Optional.of(j);
+				return Optional.ofNullable(j);
 			}
 			else
 			{
@@ -351,8 +385,9 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	/**
 	 * If this builder is configured to return the first row
 	 *
-	 * @return
+	 * @return If the first record must be returned
 	 */
+	@SuppressWarnings("WeakerAccess")
 	public boolean isReturnFirst()
 	{
 		return returnFirst;
@@ -378,10 +413,12 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 * Goes through the object looking for fields, returns a set where the field name is mapped to the object
 	 *
 	 * @param updateFields
+	 * 		Returns a map of field to update with the values
 	 *
-	 * @return
+	 * @return A map of SingularAttribute and its object type
 	 */
-	protected Map<SingularAttribute, Object> getUpdateFieldMap(E updateFields)
+	@NotNull
+	public Map<SingularAttribute, Object> getUpdateFieldMap(E updateFields)
 	{
 		Map<SingularAttribute, Object> map = new HashMap<>();
 		List<Field> fieldList = allFields(updateFields.getClass(), new ArrayList<>());
@@ -419,7 +456,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	/**
 	 * Returns a list of entities from a distinct or non distinct list
 	 *
-	 * @return
+	 * @return A list of entities returned
 	 */
 	public List<E> getAll()
 	{
@@ -430,9 +467,11 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 * Returns the list as the selected class type (for when specifying single select columns)
 	 *
 	 * @param returnClassType
+	 * 		Returns a list of a given column
 	 * @param <T>
+	 * 		The type of the column returned
 	 *
-	 * @return
+	 * @return The type of the column returned
 	 */
 	@NotNull
 	public <T> List<T> getAll(Class<T> returnClassType)
@@ -470,20 +509,9 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	}
 
 	/**
-	 * Force No Lock on the Criteria Query
-	 *
-	 * @return
-	 */
-	public J noLock()
-	{
-		noLock = true;
-		return (J) this;
-	}
-
-	/**
 	 * Sets whether or not to detach the selected entity/ies
 	 *
-	 * @return
+	 * @return This
 	 */
 	public J detach()
 	{
@@ -498,7 +526,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 * <p>
 	 * WARNING : Be very careful if you haven't added a filter this will truncate the table or throw a unsupported exception if no filters.
 	 *
-	 * @return
+	 * @return number of results deleted
 	 */
 	public int delete()
 	{
@@ -518,8 +546,9 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 * Deletes the given entity through the entity manager
 	 *
 	 * @param entity
+	 * 		Deletes through the entity manager
 	 *
-	 * @return
+	 * @return This
 	 */
 	public E delete(E entity)
 	{
@@ -531,8 +560,9 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 * Returns the number of rows affected by the delete.
 	 * WARNING : Be very careful if you haven't added a filter this will truncate the table or throw a unsupported exception if no filters.
 	 *
-	 * @return
+	 * @return The number of records deleted
 	 */
+	@SuppressWarnings("unused")
 	public int truncate()
 	{
 		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
@@ -544,6 +574,16 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		                         .executeUpdate();
 	}
 
+	/**
+	 * Returns a lsit of all fields for an object recursively
+	 *
+	 * @param object
+	 * 		THe object class
+	 * @param fieldList
+	 * 		The list of fields
+	 *
+	 * @return A list of type Field
+	 */
 	private List<Field> allFields(Class<?> object, List<Field> fieldList)
 	{
 		fieldList.addAll(Arrays.asList(object.getDeclaredFields()));

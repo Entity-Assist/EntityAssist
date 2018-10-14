@@ -3,6 +3,7 @@ package com.jwebmp.entityassist.exceptions;
 /**
  * Occurs when a query builder exception happens
  */
+@SuppressWarnings("unused")
 public class QueryBuilderException
 		extends Exception
 {

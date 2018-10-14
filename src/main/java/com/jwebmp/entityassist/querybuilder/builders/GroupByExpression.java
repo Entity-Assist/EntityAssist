@@ -1,28 +1,46 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
 import javax.persistence.metamodel.Attribute;
-import java.io.Serializable;
 
-final class GroupByExpression implements Serializable
+/**
+ * Desginates a group by expression for a query
+ */
+@SuppressWarnings("unused")
+final class GroupByExpression
 {
-	private static final long serialVersionUID = 1L;
+	/**
+	 * The attribute to apply
+	 */
+	private Attribute groupByAttribute;
 
-	private transient Attribute attribute;
-
-
+	/**
+	 * A new blank instance
+	 */
 	GroupByExpression()
 	{
+		//No config required
 	}
 
-	GroupByExpression(Attribute attribute)
+	/**
+	 * A new group by expression with the given attribute
+	 *
+	 * @param groupByAttribute
+	 * 		The attribute to use
+	 */
+	GroupByExpression(Attribute groupByAttribute)
 	{
-		this.attribute = attribute;
+		this.groupByAttribute = groupByAttribute;
 
 	}
 
-	public Attribute getAttribute()
+	/**
+	 * Returns the attribute applied for the group bys
+	 *
+	 * @return The attribute
+	 */
+	public Attribute getGroupByAttribute()
 	{
-		return attribute;
+		return groupByAttribute;
 	}
 
 }

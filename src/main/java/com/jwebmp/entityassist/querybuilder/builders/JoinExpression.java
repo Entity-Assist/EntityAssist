@@ -1,57 +1,127 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
+import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 
 import javax.persistence.criteria.JoinType;
 import javax.persistence.metamodel.Attribute;
-import java.io.Serializable;
 
-public final class JoinExpression implements Serializable
+/**
+ * Public join expression
+ */
+@SuppressWarnings("unused")
+public final class JoinExpression<X extends BaseEntity<X, ?, ?>, Y>
 {
-	private static final long serialVersionUID = 1L;
-
-	private transient QueryBuilder executor;
+	/**
+	 * The query build that will run the execution for the join
+	 */
+	private QueryBuilder<?, X, ?> executor;
+	/**
+	 * The given join type
+	 */
 	private JoinType joinType;
-	private transient Attribute attribute;
+	/**
+	 * The attribute type to apply
+	 */
+	private Attribute<X, Y> attribute;
 
+	/**
+	 * The join expression to build
+	 */
 	public JoinExpression()
 	{
-
+		//No config required
 	}
 
-	public JoinExpression(QueryBuilder executor, JoinType joinType, Attribute attribute)
+	/**
+	 * A new expression with the given configurations
+	 *
+	 * @param executor
+	 * 		The Query Builder to use
+	 * @param joinType
+	 * 		The join type to apply
+	 * @param attribute
+	 * 		The attribute to apply it with
+	 */
+	@SuppressWarnings("WeakerAccess")
+	public JoinExpression(QueryBuilder<?, X, ?> executor, JoinType joinType, Attribute<X, Y> attribute)
 	{
 		this.executor = executor;
 		this.joinType = joinType;
 		this.attribute = attribute;
 	}
 
-	public QueryBuilder getExecutor()
+	/**
+	 * Method getExecutor returns the executor of this JoinExpression object.
+	 * <p>
+	 * The query build that will run the execution for the join
+	 *
+	 * @return the executor (type QueryBuilder ?, X, ? ) of this JoinExpression object.
+	 */
+	public QueryBuilder<?, X, ?> getExecutor()
 	{
 		return executor;
 	}
 
-	public void setExecutor(QueryBuilder executor)
+	/**
+	 * Method setExecutor sets the executor of this JoinExpression object.
+	 * <p>
+	 * The query build that will run the execution for the join
+	 *
+	 * @param executor
+	 * 		the executor of this JoinExpression object.
+	 */
+	public void setExecutor(QueryBuilder<?, X, ?> executor)
 	{
 		this.executor = executor;
 	}
 
+	/**
+	 * Method getJoinType returns the joinType of this JoinExpression object.
+	 * <p>
+	 * The given join type
+	 *
+	 * @return the joinType (type JoinType) of this JoinExpression object.
+	 */
 	public JoinType getJoinType()
 	{
 		return joinType;
 	}
 
+	/**
+	 * Method setJoinType sets the joinType of this JoinExpression object.
+	 * <p>
+	 * The given join type
+	 *
+	 * @param joinType
+	 * 		the joinType of this JoinExpression object.
+	 */
 	public void setJoinType(JoinType joinType)
 	{
 		this.joinType = joinType;
 	}
 
-	public Attribute getAttribute()
+	/**
+	 * Method getAttribute returns the attribute of this JoinExpression object.
+	 * <p>
+	 * The attribute type to apply
+	 *
+	 * @return the attribute (type Attribute X, Y) of this JoinExpression object.
+	 */
+	public Attribute<X, Y> getAttribute()
 	{
 		return attribute;
 	}
 
-	public void setAttribute(Attribute attribute)
+	/**
+	 * Method setAttribute sets the attribute of this JoinExpression object.
+	 * <p>
+	 * The attribute type to apply
+	 *
+	 * @param attribute
+	 * 		the attribute of this JoinExpression object.
+	 */
+	public void setAttribute(Attribute<X, Y> attribute)
 	{
 		this.attribute = attribute;
 	}

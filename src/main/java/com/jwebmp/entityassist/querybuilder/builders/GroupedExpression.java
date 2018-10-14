@@ -7,24 +7,59 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 import java.util.*;
 
+/**
+ * A grouped filter expression (bla bla bla) and (bla bla group 2)
+ */
+@SuppressWarnings("WeakerAccess")
 public class GroupedExpression
 		implements IFilterExpression
 {
+	/**
+	 * The final set of expressions
+	 */
 	private final Set<IFilterExpression> filterExpressions = new LinkedHashSet<>();
 
+	/**
+	 * The type of filter to apply
+	 */
 	private GroupedFilterType groupedFilterType;
 
+	/**
+	 * Returns the grouped filter type
+	 *
+	 * @return The given type
+	 */
+	@SuppressWarnings("unused")
 	public GroupedFilterType getGroupedFilterType()
 	{
 		return groupedFilterType;
 	}
 
+	/**
+	 * Method setGroupedFilterType sets the groupedFilterType of this GroupedExpression object.
+	 * <p>
+	 * The type of filter to apply
+	 *
+	 * @param groupedFilterType
+	 * 		the groupedFilterType of this GroupedExpression object.
+	 *
+	 * @return GroupedExpression
+	 */
+	@SuppressWarnings("UnusedReturnValue")
 	public GroupedExpression setGroupedFilterType(GroupedFilterType groupedFilterType)
 	{
 		this.groupedFilterType = groupedFilterType;
 		return this;
 	}
 
+	/**
+	 * Produces a predicate for the given filter expression
+	 *
+	 * @param entityRoot
+	 * 		The root (from) to use
+	 *
+	 * @return The predicate to apply
+	 */
 	@Override
 	public Optional<Predicate> toPredicate(From entityRoot, CriteriaBuilder builder)
 	{
@@ -32,10 +67,7 @@ public class GroupedExpression
 		for (IFilterExpression filterExpression : getFilterExpressions())
 		{
 			Optional<Predicate> op = filterExpression.toPredicate(entityRoot, builder);
-			if (op.isPresent())
-			{
-				wheres.add(op.get());
-			}
+			op.ifPresent(wheres::add);
 		}
 		if (wheres.isEmpty())
 		{
@@ -50,6 +82,13 @@ public class GroupedExpression
 		}
 	}
 
+	/**
+	 * Method getFilterExpressions returns the filterExpressions of this GroupedExpression object.
+	 * <p>
+	 * The final set of expressions
+	 *
+	 * @return the filterExpressions (type Set IFilterExpression ) of this GroupedExpression object.
+	 */
 	public Set<IFilterExpression> getFilterExpressions()
 	{
 		return filterExpressions;

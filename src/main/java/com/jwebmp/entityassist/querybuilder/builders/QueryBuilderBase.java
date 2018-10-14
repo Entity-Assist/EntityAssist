@@ -6,11 +6,13 @@ import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.services.ITransactionHandler;
+import com.jwebmp.logger.LogFactory;
 import com.oracle.jaxb21.PersistenceUnit;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.Transient;
+import javax.persistence.metamodel.Attribute;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -18,9 +20,9 @@ import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -41,9 +43,29 @@ import static com.jwebmp.guicedpersistence.scanners.PersistenceServiceLoadersBin
  * @param <I>
  * 		The entity ID type
  */
+@SuppressWarnings({"SqlNoDataSourceInspection", "WeakerAccess", "UnusedReturnValue", "WrapperTypeMayBePrimitive", "unused"})
 abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilder, I>, I extends Serializable>
 {
-	private static final Logger log = Logger.getLogger("QueryBuilderBase");
+	/**
+	 * This logger
+	 */
+	private static final Logger log = LogFactory.getLog("QueryBuilderBase");
+	/**
+	 * The class name to process big integers
+	 */
+	private static final String BigIntegerClassName = "BigInteger";
+	/**
+	 * The class name to process integers
+	 */
+	private static final String IntegerClassName = "Integer";
+	/**
+	 * The class name to process longs
+	 */
+	private static final String LongClassName = "Long";
+	/**
+	 * The class name process big decimals
+	 */
+	private static final String BigDecimalClassName = "BigDecimal";
 	/**
 	 * The maximum number of results
 	 */
@@ -64,7 +86,6 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 * The actual entity event
 	 */
 	private E entity;
-
 	/**
 	 * Whether or not to run these queries as detached objects or within the entity managers scope
 	 */
@@ -82,7 +103,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	/**
 	 * Returns the associated entity class for this builder
 	 *
-	 * @return
+	 * @return class of type entity
 	 */
 	protected Class<E> getEntityClass()
 	{
@@ -92,7 +113,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	/**
 	 * Returns a mapped entity on this builder
 	 *
-	 * @return
+	 * @return the actual entity
 	 */
 	public E getEntity()
 	{
@@ -109,22 +130,11 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J setEntity(Object entity)
-	{
-		this.entity = (E) entity;
-		entityClass = (Class<E>) entity.getClass();
-		return (J) this;
-	}
-
-	/**
-	 * Method setEntity sets the entity of this QueryBuilderBase object.
-	 *
-	 * @param entity
-	 * 		the entity of this QueryBuilderBase object.
-	 */
-	public void setEntity(E entity)
+	public J setEntity(E entity)
 	{
 		this.entity = entity;
+		entityClass = (Class<E>) entity.getClass();
+		return (J) this;
 	}
 
 	/**
@@ -141,8 +151,9 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 * Sets the first restults to return
 	 *
 	 * @param firstResults
+	 * 		the number of results to skip before loading
 	 *
-	 * @return
+	 * @return This
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
@@ -155,7 +166,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	/**
 	 * Returns the current set maximum results
 	 *
-	 * @return
+	 * @return int
 	 */
 	public Integer getMaxResults()
 	{
@@ -166,8 +177,9 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 * Sets the maximum results to return
 	 *
 	 * @param maxResults
+	 * 		the maximum number of results to return
 	 *
-	 * @return
+	 * @return This
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
@@ -179,10 +191,13 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 
 	/**
 	 * Persist and Flush
+	 * <p>
+	 * doesn't set run detached - executes flush after persist
 	 *
-	 * @return
+	 * @return This
 	 */
 	@NotNull
+	@SuppressWarnings("unchecked")
 	public J persistNow(E entity)
 	{
 		boolean transactionAlreadyStarted = false;
@@ -218,7 +233,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	/**
 	 * Returns the assigned entity manager
 	 *
-	 * @return
+	 * @return The entity manager to use for this run
 	 */
 	@NotNull
 	@Transient
@@ -227,7 +242,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	/**
 	 * Returns the annotation associated with the entity manager
 	 *
-	 * @return
+	 * @return The annotations associated with this builder
 	 */
 	@SuppressWarnings("unchecked")
 	public Class<? extends Annotation> getEntityManagerAnnotation()
@@ -240,7 +255,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	/**
 	 * Persists this entity. Uses the get instance entity manager to operate.
 	 *
-	 * @return
+	 * @return This
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
@@ -295,8 +310,10 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 
 	/**
 	 * If this entity should run in a detached and separate to the entity manager
+	 * <p>
+	 * If the library generates the sql and runs it through a native query. Use InsertStatement, SelectStatement, Delete and UpdateStatement to view the queries that will get run
 	 *
-	 * @return
+	 * @return boolean
 	 */
 	public boolean isRunDetached()
 	{
@@ -305,11 +322,16 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 
 	/**
 	 * If this entity should run in a detached and separate to the entity manager
+	 * <p>
+	 * If the library generates the sql and runs it through a native query. Use InsertStatement, SelectStatement, Delete and UpdateStatement to view the queries that will get run
 	 *
 	 * @param runDetached
+	 * 		if must do
 	 *
-	 * @return
+	 * @return This
 	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
 	public J setRunDetached(boolean runDetached)
 	{
 		this.runDetached = runDetached;
@@ -326,11 +348,8 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 
 	/**
 	 * Method iterateThroughResultSetForGeneratedIDs ...
-	 *
-	 * @throws SQLException
-	 * 		when
 	 */
-	private void iterateThroughResultSetForGeneratedIDs() throws SQLException
+	private void iterateThroughResultSetForGeneratedIDs()
 	{
 		Query statmentSelectId = getEntityManager().createNativeQuery(selectIdentityString);
 		Object o = statmentSelectId.getSingleResult();
@@ -342,12 +361,9 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * @param o
 	 * 		of type Object
-	 *
-	 * @throws SQLException
-	 * 		when
 	 */
 	@SuppressWarnings("unchecked")
-	private void processId(Object o) throws SQLException
+	private void processId(Object o)
 	{
 		if (BigInteger.class.isAssignableFrom(o.getClass()))
 		{
@@ -355,22 +371,22 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			switch (entity.getClassIDType()
 			              .getSimpleName())
 			{
-				case "BigInteger":
+				case BigIntegerClassName:
 				{
 					entity.setId((I) actual);
 					break;
 				}
-				case "Integer":
+				case IntegerClassName:
 				{
 					entity.setId((I) (Integer) actual.intValue());
 					break;
 				}
-				case "Long":
+				case LongClassName:
 				{
 					entity.setId((I) (Long) actual.longValue());
 					break;
 				}
-				case "BigDecimal":
+				case BigDecimalClassName:
 				{
 					entity.setId((I) new BigDecimal(actual));
 					break;
@@ -383,22 +399,22 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			switch (entity.getClassIDType()
 			              .getSimpleName())
 			{
-				case "BigInteger":
+				case BigIntegerClassName:
 				{
 					entity.setId((I) actual.unscaledValue());
 					break;
 				}
-				case "Integer":
+				case IntegerClassName:
 				{
 					entity.setId((I) (Integer) actual.intValue());
 					break;
 				}
-				case "BigDecimal":
+				case BigDecimalClassName:
 				{
 					entity.setId((I) actual);
 					break;
 				}
-				case "Long":
+				case LongClassName:
 				{
 					entity.setId((I) (Long) actual.longValue());
 					break;
@@ -411,22 +427,22 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			switch (entity.getClassIDType()
 			              .getSimpleName())
 			{
-				case "BigInteger":
+				case BigIntegerClassName:
 				{
 					entity.setId((I) BigInteger.valueOf(actual));
 					break;
 				}
-				case "Integer":
+				case IntegerClassName:
 				{
 					entity.setId((I) (Integer) actual.intValue());
 					break;
 				}
-				case "BigDecimal":
+				case BigDecimalClassName:
 				{
 					entity.setId((I) BigDecimal.valueOf(actual));
 					break;
 				}
-				case "Long":
+				case LongClassName:
 				{
 					entity.setId((I) actual);
 					break;
@@ -439,22 +455,22 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			switch (entity.getClassIDType()
 			              .getSimpleName())
 			{
-				case "BigInteger":
+				case BigIntegerClassName:
 				{
 					entity.setId((I) BigInteger.valueOf(actual));
 					break;
 				}
-				case "Integer":
+				case IntegerClassName:
 				{
 					entity.setId((I) actual);
 					break;
 				}
-				case "BigDecimal":
+				case BigDecimalClassName:
 				{
 					entity.setId((I) BigDecimal.valueOf(actual));
 					break;
 				}
-				case "Long":
+				case LongClassName:
 				{
 					entity.setId((I) actual);
 					break;
@@ -467,22 +483,22 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			switch (entity.getClassIDType()
 			              .getSimpleName())
 			{
-				case "BigInteger":
+				case BigIntegerClassName:
 				{
 					entity.setId((I) BigInteger.valueOf(Long.parseLong(actual)));
 					break;
 				}
-				case "Integer":
+				case IntegerClassName:
 				{
 					entity.setId((I) (Integer) Integer.parseInt(actual));
 					break;
 				}
-				case "BigDecimal":
+				case BigDecimalClassName:
 				{
 					entity.setId((I) BigDecimal.valueOf(Long.parseLong(actual)));
 					break;
 				}
-				case "Long":
+				case LongClassName:
 				{
 					entity.setId((I) (Long) Long.parseLong(actual));
 					break;
@@ -506,11 +522,51 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	}
 
 	/**
-	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
+	 * Persist and Flush using the detached method (as a native query)
 	 *
-	 * @return
+	 * @return This
 	 */
 	@NotNull
+	@SuppressWarnings("unchecked")
+	public J persistNow(E entity, boolean runDetached)
+	{
+		boolean transactionAlreadyStarted = false;
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (handler.transactionExists(getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			{
+				transactionAlreadyStarted = true;
+				break;
+			}
+		}
+
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (!transactionAlreadyStarted && handler.active(GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			{
+				handler.beginTransacation(false, getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation())));
+			}
+		}
+		setRunDetached(runDetached);
+		persist(entity);
+
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (!transactionAlreadyStarted && handler.active(GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			{
+				handler.commitTransacation(false, getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation())));
+			}
+		}
+		return (J) this;
+	}
+
+	/**
+	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
+	 *
+	 * @return This
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
 	public J update(E entity)
 	{
 		try
@@ -533,7 +589,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 		}
 		catch (Exception e)
 		{
-			log.log(Level.SEVERE, "Cannot update this entity the state of this object is not ready : \n", e);
+			log.log(Level.SEVERE, "Cannot update this entity  unknown exception the state of this object is not ready : \n", e);
 		}
 		return (J) this;
 	}
@@ -556,7 +612,7 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	 *
 	 * <b>Great for form checking</b>
 	 *
-	 * @return
+	 * @return List of Strings
 	 */
 	@NotNull
 	public List<String> validateEntity(E entity)
@@ -577,6 +633,29 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 			}
 		}
 		return errors;
+	}
+
+	/**
+	 * Returns the given attribute for a field name by reflectively accesing the static class
+	 *
+	 * @param fieldName
+	 *
+	 * @return
+	 */
+	public Attribute getAttribute(String fieldName)
+	{
+		String clazz = getEntityClass().getCanonicalName() + "_";
+		try
+		{
+			Class c = Class.forName(clazz);
+			Field f = c.getField(fieldName);
+			return (Attribute) f.get(null);
+		}
+		catch (Exception e)
+		{
+			log.log(Level.SEVERE, "Unable to field field in class [" + clazz + "]-[" + fieldName + "]");
+		}
+		return null;
 	}
 
 	/**

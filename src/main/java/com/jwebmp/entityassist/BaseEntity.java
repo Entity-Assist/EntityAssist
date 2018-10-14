@@ -87,17 +87,30 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	}
 
 	/**
-	 * Deletes this entity with the entity mananger. This will remove the row.
+	 * Returns the builder associated with this entity
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "notnull"})
 	@NotNull
-	public J delete()
+	public Q builder()
 	{
-		((QueryBuilder) builder())
-				.delete(this);
-		return (J) this;
+		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
+		QueryBuilder<?, ?, ?> instance = null;
+		try
+		{
+			instance = foundQueryBuilderClass.getDeclaredConstructor()
+			                                 .newInstance();
+			GuiceContext.inject()
+			            .injectMembers(instance);
+			instance.setEntity(this);
+			return (Q) instance;
+		}
+		catch (Exception e)
+		{
+			log.log(Level.SEVERE, "Unable to instantiate the query builder class. Make sure there is a blank constructor", e);
+			throw new EntityAssistException("Unable to construct builder", e);
+		}
 	}
 
 	/**
@@ -129,30 +142,17 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	}
 
 	/**
-	 * Returns the builder associated with this entity
+	 * Deletes this entity with the entity mananger. This will remove the row.
 	 *
 	 * @return
 	 */
-	@SuppressWarnings({"unchecked", "notnull"})
+	@SuppressWarnings("unchecked")
 	@NotNull
-	public Q builder()
+	public J delete()
 	{
-		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
-		QueryBuilder<?, ?, ?> instance = null;
-		try
-		{
-			instance = foundQueryBuilderClass.getDeclaredConstructor()
-			                                 .newInstance();
-			GuiceContext.inject()
-			            .injectMembers(instance);
-			instance.setEntity(this);
-			return (Q) instance;
-		}
-		catch (Exception e)
-		{
-			log.log(Level.SEVERE, "Unable to instantiate the query builder class. Make sure there is a blank constructor", e);
-			throw new EntityAssistException("Unable to construct builder", e);
-		}
+		((QueryBuilder) builder())
+				.delete(this);
+		return (J) this;
 	}
 
 	/**
@@ -282,7 +282,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 				log.log(Level.SEVERE,
 				        "Cannot return the class for uncheckeds. Embeddables are allowed. Config seems wrong. Check that a builder is attached to this entity as the second generic field type e.g. \n" +
 				        "public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>\n\n" +
-				        "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/za/co/mmagon/entityassist/entities",
+				        "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/com/jwebmp/entityassist/entities",
 				        e);
 				idTypeClass = null;
 			}

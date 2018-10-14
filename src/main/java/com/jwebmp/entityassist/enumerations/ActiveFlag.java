@@ -84,22 +84,30 @@ public enum ActiveFlag
 	 */
 	Permanent;
 
+
 	private static final Set<ActiveFlag> PermanentRange = EnumSet.of(Always, Permanent);
+
 
 	private static final Set<ActiveFlag> HighlightedRangeAndUp = EnumSet.of(Important, Highlighted, Always, Permanent);
 	private static final Set<ActiveFlag> HighlightedRange = EnumSet.of(Important, Highlighted);
 
+
 	private static final Set<ActiveFlag> ActiveRangeAndUp = EnumSet.of(Active, Current, Important, Highlighted, Always, Permanent);
 	private static final Set<ActiveFlag> ActiveRange = EnumSet.of(Active, Current);
+
 
 	private static final Set<ActiveFlag> VisibleRangeAndUp = EnumSet.of(Archived, LongTermStorage, MidTermStorage, ShortTermStorage, Resolved, Completed, Active, Current,
 	                                                                    Important,
 	                                                                    Highlighted, Always, Permanent);
+
+
 	private static final Set<ActiveFlag> VisibleRange = EnumSet.of(Archived, LongTermStorage, MidTermStorage, ShortTermStorage, Resolved, Completed);
 
 	private static final Set<ActiveFlag> RemovedRangeAndUp = EnumSet.of(Deleted, Hidden, Invisible, Archived, LongTermStorage, MidTermStorage, ShortTermStorage, Resolved,
 	                                                                    Completed, Errored,
 	                                                                    Active, Current, Important, Highlighted, Always, Permanent);
+
+
 	private static final Set<ActiveFlag> RemovedRange = EnumSet.of(Deleted, Hidden, Invisible, Errored);
 
 	/**

@@ -35,11 +35,8 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 @JsonInclude(NON_NULL)
 public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryBuilderCore<Q, J, I>, I extends Serializable>
 		extends BaseEntity<J, Q, I>
-		implements Serializable
 {
 	public static final LocalDateTime EndOfTime = LocalDateTime.of(2999, 12, 31, 23, 59, 59, 999);
-
-	private static final long serialVersionUID = 1L;
 	/**
 	 * Returns the date time formatter
 	 */
