@@ -28,6 +28,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
  * @version 1.0
  * @since 06 Dec 2016
  */
+@SuppressWarnings("unused")
 @MappedSuperclass()
 @JsonAutoDetect(fieldVisibility = ANY,
 		getterVisibility = NONE,
@@ -36,40 +37,59 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryBuilderCore<Q, J, I>, I extends Serializable>
 		extends BaseEntity<J, Q, I>
 {
+	/**
+	 * A timestamp designating the end of time or not applied
+	 */
 	public static final LocalDateTime EndOfTime = LocalDateTime.of(2999, 12, 31, 23, 59, 59, 999);
 	/**
 	 * Returns the date time formatter
 	 */
-	private static final transient DateTimeFormatter dateTimeOffsetFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+	private static final DateTimeFormatter dateTimeOffsetFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+	/**
+	 * A reference ID for this entity - separate to ID
+	 */
 	@JsonProperty(value = "$jwid")
 	@Transient
 	private String referenceId;
+	/**
+	 * A date to designate when this record is effective from
+	 */
 	@Basic(optional = false,
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "EffectiveFromDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
-
 	private LocalDateTime effectiveFromDate;
+	/**
+	 * A date to designate when this record is effective to
+	 */
 	@Basic(optional = false,
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "EffectiveToDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
-
 	private LocalDateTime effectiveToDate;
+	/**
+	 * A date to mark when a warehouse can fetch the given record
+	 */
 	@Basic(optional = false,
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "WarehouseCreatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime warehouseCreatedTimestamp;
+	/**
+	 * A marker for the warehouse to identify when last this field was updated
+	 */
 	@Basic(optional = false,
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "WarehouseLastUpdatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	private LocalDateTime warehouseLastUpdatedTimestamp;
+	/**
+	 * A Row status identifier for a warehouse or OLAP system
+	 */
 	@Basic(optional = false,
 			fetch = FetchType.EAGER)
 	@Column(nullable = false,
@@ -93,8 +113,9 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * Constructs with no parameters set, Great for search criteria
 	 *
 	 * @param blank
+	 * 		constructs with nothing
 	 */
-	public CoreEntity(boolean blank)
+	public CoreEntity(@SuppressWarnings("unused") boolean blank)
 	{
 		//No Config
 	}
@@ -141,7 +162,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @param effectiveToDate
 	 *
-	 * @return
+	 * @return This
 	 */
 	@NotNull
 	@SuppressWarnings("all")
@@ -154,7 +175,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	/**
 	 * Returns the active flag
 	 *
-	 * @return
+	 * @return The associated active flag
 	 */
 	public ActiveFlag getActiveFlag()
 	{
@@ -165,10 +186,12 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * Sets the active flag
 	 *
 	 * @param activeFlag
+	 * 		The active flag
 	 *
-	 * @return
+	 * @return This
 	 */
 	@SuppressWarnings("unchecked")
+	@NotNull
 	public J setActiveFlag(ActiveFlag activeFlag)
 	{
 		this.activeFlag = activeFlag;
@@ -179,8 +202,9 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * Finds the entity with the given ID
 	 *
 	 * @param id
+	 * 		The id to look for
 	 *
-	 * @return
+	 * @return If it is found through a get method
 	 */
 	public Optional<J> find(I id)
 	{
@@ -191,7 +215,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	/**
 	 * Finds all the entity types
 	 *
-	 * @return
+	 * @return A list of get all from the current builder
 	 */
 	public List<J> findAll()
 	{
@@ -201,7 +225,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	/**
 	 * Returns the warehouse created timestamp column value
 	 *
-	 * @return
+	 * @return The current time
 	 */
 	public LocalDateTime getWarehouseCreatedTimestamp()
 	{
@@ -212,8 +236,9 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * Sets the warehouse created timestamp
 	 *
 	 * @param warehouseCreatedTimestamp
+	 * 		The time to apply
 	 *
-	 * @return
+	 * @return This
 	 */
 	@NotNull
 	@SuppressWarnings("all")
@@ -226,7 +251,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	/**
 	 * Deletes this entity with the entity mananger. This will remove the row.
 	 *
-	 * @return
+	 * @return This
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -241,7 +266,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	/**
 	 * Returns the last time the warehouse timestamp column was updated
 	 *
-	 * @return
+	 * @return The time
 	 */
 	@SuppressWarnings("all")
 	public LocalDateTime getWarehouseLastUpdatedTimestamp()
@@ -254,7 +279,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @param warehouseLastUpdatedTimestamp
 	 *
-	 * @return
+	 * @return This
 	 */
 	@NotNull
 	@SuppressWarnings("all")
@@ -267,7 +292,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	/**
 	 * Sets the JW ID to send if necessary
 	 *
-	 * @return
+	 * @return any associated reference id
 	 */
 	public String getReferenceId()
 	{
@@ -278,6 +303,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * Sets the JW ID to send if necessary
 	 *
 	 * @param referenceId
+	 * 		a transient identifier
 	 */
 	@NotNull
 	@SuppressWarnings("all")
@@ -290,7 +316,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	/**
 	 * Returns the formatter for date time offset (sql server)
 	 *
-	 * @return
+	 * @return the formatter used for UTC
 	 */
 	@NotNull
 	protected DateTimeFormatter getDateTimeOffsetFormatter()

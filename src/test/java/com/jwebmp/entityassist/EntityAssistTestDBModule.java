@@ -1,6 +1,5 @@
 package com.jwebmp.entityassist;
 
-import com.jwebmp.guicedinjection.interfaces.IGuiceModule;
 import com.jwebmp.guicedpersistence.db.AbstractDatabaseProviderModule;
 import com.jwebmp.guicedpersistence.db.ConnectionBaseInfo;
 import com.jwebmp.guicedpersistence.jpa.JPAConnectionBaseInfo;
@@ -11,8 +10,7 @@ import java.lang.annotation.Annotation;
 import java.util.Properties;
 
 public class EntityAssistTestDBModule
-		extends AbstractDatabaseProviderModule
-		implements IGuiceModule
+		extends AbstractDatabaseProviderModule<EntityAssistTestDBModule>
 {
 
 	@NotNull
