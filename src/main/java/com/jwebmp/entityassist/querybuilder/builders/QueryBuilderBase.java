@@ -2,8 +2,10 @@ package com.jwebmp.entityassist.querybuilder.builders;
 
 import com.google.inject.Key;
 import com.jwebmp.entityassist.BaseEntity;
+import com.jwebmp.entityassist.injections.EntityAssistBinder;
 import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
+import com.jwebmp.entityassist.services.EntityAssistIDMapping;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.services.ITransactionHandler;
 import com.jwebmp.logger.LogFactory;
@@ -21,12 +23,9 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,28 +43,12 @@ import static com.jwebmp.guicedpersistence.scanners.PersistenceServiceLoadersBin
  * 		The entity ID type
  */
 @SuppressWarnings({"SqlNoDataSourceInspection", "WeakerAccess", "UnusedReturnValue", "WrapperTypeMayBePrimitive", "unused"})
-abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilder, I>, I extends Serializable>
+public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilder, I>, I extends Serializable>
 {
 	/**
 	 * This logger
 	 */
 	private static final Logger log = LogFactory.getLog("QueryBuilderBase");
-	/**
-	 * The class name to process big integers
-	 */
-	private static final String BigIntegerClassName = "BigInteger";
-	/**
-	 * The class name to process integers
-	 */
-	private static final String IntegerClassName = "Integer";
-	/**
-	 * The class name to process longs
-	 */
-	private static final String LongClassName = "Long";
-	/**
-	 * The class name process big decimals
-	 */
-	private static final String BigDecimalClassName = "BigDecimal";
 	/**
 	 * The maximum number of results
 	 */
@@ -365,160 +348,8 @@ abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends B
 	@SuppressWarnings("unchecked")
 	private void processId(Object o)
 	{
-		if (BigInteger.class.isAssignableFrom(o.getClass()))
-		{
-			BigInteger actual = (BigInteger) o;
-			switch (entity.getClassIDType()
-			              .getSimpleName())
-			{
-				case BigIntegerClassName:
-				{
-					entity.setId((I) actual);
-					break;
-				}
-				case IntegerClassName:
-				{
-					entity.setId((I) (Integer) actual.intValue());
-					break;
-				}
-				case LongClassName:
-				{
-					entity.setId((I) (Long) actual.longValue());
-					break;
-				}
-				case BigDecimalClassName:
-				{
-					entity.setId((I) new BigDecimal(actual));
-					break;
-				}
-			}
-		}
-		else if (BigDecimal.class.isAssignableFrom(o.getClass()))
-		{
-			BigDecimal actual = (BigDecimal) o;
-			switch (entity.getClassIDType()
-			              .getSimpleName())
-			{
-				case BigIntegerClassName:
-				{
-					entity.setId((I) actual.unscaledValue());
-					break;
-				}
-				case IntegerClassName:
-				{
-					entity.setId((I) (Integer) actual.intValue());
-					break;
-				}
-				case BigDecimalClassName:
-				{
-					entity.setId((I) actual);
-					break;
-				}
-				case LongClassName:
-				{
-					entity.setId((I) (Long) actual.longValue());
-					break;
-				}
-			}
-		}
-		else if (Long.class.isAssignableFrom(o.getClass()))
-		{
-			Long actual = (Long) o;
-			switch (entity.getClassIDType()
-			              .getSimpleName())
-			{
-				case BigIntegerClassName:
-				{
-					entity.setId((I) BigInteger.valueOf(actual));
-					break;
-				}
-				case IntegerClassName:
-				{
-					entity.setId((I) (Integer) actual.intValue());
-					break;
-				}
-				case BigDecimalClassName:
-				{
-					entity.setId((I) BigDecimal.valueOf(actual));
-					break;
-				}
-				case LongClassName:
-				{
-					entity.setId((I) actual);
-					break;
-				}
-			}
-		}
-		else if (Integer.class.isAssignableFrom(o.getClass()))
-		{
-			Integer actual = (Integer) o;
-			switch (entity.getClassIDType()
-			              .getSimpleName())
-			{
-				case BigIntegerClassName:
-				{
-					entity.setId((I) BigInteger.valueOf(actual));
-					break;
-				}
-				case IntegerClassName:
-				{
-					entity.setId((I) actual);
-					break;
-				}
-				case BigDecimalClassName:
-				{
-					entity.setId((I) BigDecimal.valueOf(actual));
-					break;
-				}
-				case LongClassName:
-				{
-					entity.setId((I) actual);
-					break;
-				}
-			}
-		}
-		else if (String.class.isAssignableFrom(o.getClass()))
-		{
-			String actual = (String) o;
-			switch (entity.getClassIDType()
-			              .getSimpleName())
-			{
-				case BigIntegerClassName:
-				{
-					entity.setId((I) BigInteger.valueOf(Long.parseLong(actual)));
-					break;
-				}
-				case IntegerClassName:
-				{
-					entity.setId((I) (Integer) Integer.parseInt(actual));
-					break;
-				}
-				case BigDecimalClassName:
-				{
-					entity.setId((I) BigDecimal.valueOf(Long.parseLong(actual)));
-					break;
-				}
-				case LongClassName:
-				{
-					entity.setId((I) (Long) Long.parseLong(actual));
-					break;
-				}
-				case "String":
-				{
-					entity.setId((I) actual);
-					break;
-				}
-				case "UUID":
-				{
-					entity.setId((I) UUID.fromString(actual));
-					break;
-				}
-			}
-		}
-		else
-		{
-			log.warning("Cannot set the generated ID");
-		}
+		EntityAssistIDMapping mapping = EntityAssistBinder.lookup(o.getClass(), entity.getClassIDType());
+		entity.setId((I) mapping.toObject(o));
 	}
 
 	/**
