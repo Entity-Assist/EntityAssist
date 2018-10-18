@@ -160,22 +160,27 @@
                 <dependency>
                     <groupId>javax.persistence</groupId>
                     <artifactId>javax.persistence-api</artifactId>
+                    <type>jar</type>
                 </dependency>
                 <dependency>
                     <groupId>javax.validation</groupId>
                     <artifactId>validation-api</artifactId>
+                    <type>jar</type>
                 </dependency>
                 <dependency>
                     <groupId>javax.transaction</groupId>
                     <artifactId>javax.transaction-api</artifactId>
+                    <type>jar</type>
                 </dependency>
                 <dependency>
                     <groupId>javax.transaction</groupId>
                     <artifactId>jta</artifactId>
+                    <type>jar</type>
                 </dependency>
                 <dependency>
                     <groupId>org.hibernate</groupId>
                     <artifactId>hibernate-jpamodelgen</artifactId>
+                    <type>jar</type>
                 </dependency>
             </dependencies>
         </profile>
