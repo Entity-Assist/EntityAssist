@@ -7,7 +7,6 @@ import com.jwebmp.entityassist.EntityAssistException;
 import com.jwebmp.entityassist.services.EntityAssistIDMapping;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedinjection.abstractions.GuiceInjectorModule;
-import com.jwebmp.guicedinjection.interfaces.IDefaultService;
 import com.jwebmp.guicedinjection.interfaces.IGuiceDefaultBinder;
 import com.jwebmp.guicedinjection.pairing.Pair;
 
@@ -49,7 +48,8 @@ public class EntityAssistBinder
 		                  {
 			                  if (entityIDMappings.isEmpty())
 			                  {
-				                  Set<EntityAssistIDMapping> loader = IDefaultService.loaderToSet(ServiceLoader.load(EntityAssistIDMapping.class));
+				                  Set<EntityAssistIDMapping> loader = GuiceContext.instance()
+				                                                                  .getLoader(EntityAssistIDMapping.class, ServiceLoader.load(EntityAssistIDMapping.class));
 				                  for (EntityAssistIDMapping mapping : loader)
 				                  {
 					                  @SuppressWarnings("unchecked")

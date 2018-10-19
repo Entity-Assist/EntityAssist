@@ -31,6 +31,13 @@ module com.jwebmp.entityassist {
 
 	opens com.jwebmp.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind;
 
+
+	opens com.jwebmp.entityassist.injections.bigdecimal to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
+	opens com.jwebmp.entityassist.injections.biginteger to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
+	opens com.jwebmp.entityassist.injections.integer to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
+	opens com.jwebmp.entityassist.injections.longs to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
+	opens com.jwebmp.entityassist.injections.strings to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
+
 	provides IGuiceDefaultBinder with EntityAssistBinder;
 	provides EntityAssistIDMapping with com.jwebmp.entityassist.injections.bigdecimal.BigDecimalToBigIntIDMapping,
 			                               com.jwebmp.entityassist.injections.bigdecimal.BigDecimalToDoubleIDMapping,
