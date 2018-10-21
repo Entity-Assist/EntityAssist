@@ -362,9 +362,10 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	public J persistNow(E entity, boolean runDetached)
 	{
 		boolean transactionAlreadyStarted = false;
+		PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
-			if (handler.transactionExists(getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
 			{
 				transactionAlreadyStarted = true;
 				break;
@@ -373,19 +374,19 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
-			if (!transactionAlreadyStarted && handler.active(GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			if (!transactionAlreadyStarted && handler.active(unit))
 			{
-				handler.beginTransacation(false, getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation())));
+				handler.beginTransacation(false, getEntityManager(), unit);
 			}
 		}
+
 		setRunDetached(runDetached);
 		persist(entity);
-
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
-			if (!transactionAlreadyStarted && handler.active(GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			if (!transactionAlreadyStarted && handler.active(unit))
 			{
-				handler.commitTransacation(false, getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation())));
+				handler.commitTransacation(false, getEntityManager(), unit);
 			}
 		}
 		return (J) this;
