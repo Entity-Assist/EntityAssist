@@ -54,7 +54,7 @@
             <artifactId>guiced-persistence</artifactId>
             <version>${project.version}</version>
             <classifier>${jwebmp.runtime.classifier}</classifier>
-            <optional>true</optional>
+            <!--<optional>true</optional>-->
             <type>jar</type>
         </dependency>
 
@@ -63,7 +63,7 @@
             <artifactId>jwebmp-log-master</artifactId>
             <version>${project.version}</version>
             <classifier>${jwebmp.runtime.classifier}</classifier>
-            <optional>true</optional>
+            <!--<optional>true</optional>-->
             <type>jar</type>
         </dependency>
 
@@ -72,7 +72,7 @@
             <artifactId>guiced-injection</artifactId>
             <version>${project.version}</version>
             <classifier>${jwebmp.runtime.classifier}</classifier>
-            <optional>true</optional>
+            <!--<optional>true</optional>-->
             <type>jar</type>
         </dependency>
 
@@ -194,7 +194,7 @@
                                 <groupId>org.hibernate</groupId>
                                 <artifactId>hibernate-jpamodelgen</artifactId>
                                 <version>${maven.hibernate.version}</version>
-                                <optional>true</optional>
+                                <!--<optional>true</optional>-->
                             </dependency>
                             <dependency>
                                 <groupId>javax.xml.bind</groupId>
@@ -281,7 +281,7 @@
                                 <groupId>org.hibernate</groupId>
                                 <artifactId>hibernate-jpamodelgen</artifactId>
                                 <version>${maven.hibernate.version}</version>
-                                <optional>true</optional>
+                                <!--<optional>true</optional>-->
                             </dependency>
                             <dependency>
                                 <groupId>javax.xml.bind</groupId>
@@ -339,7 +339,7 @@
                     <groupId>org.hibernate</groupId>
                     <artifactId>hibernate-jpamodelgen</artifactId>
                     <version>${maven.hibernate.version}</version>
-                    <optional>true</optional>
+                    <!--<optional>true</optional>-->
                 </dependency>
                 <dependency>
                     <groupId>javax.xml.bind</groupId>
