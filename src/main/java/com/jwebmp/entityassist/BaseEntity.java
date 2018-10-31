@@ -44,7 +44,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	private transient Class<I> idTypeClass;
 	@Transient
 	@JsonIgnore
-	private Map<Serializable, Serializable> properties;
+	private Map<Serializable, Object> properties;
 
 	/**
 	 * Constructs a new base entity type
@@ -215,7 +215,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 * @return
 	 */
 	@NotNull
-	public Map<Serializable, Serializable> getProperties()
+	public Map<Serializable, Object> getProperties()
 	{
 		if (properties == null)
 		{
@@ -234,7 +234,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 */
 	@NotNull
 	@SuppressWarnings("unchecked")
-	public J setProperties(@NotNull Map<Serializable, Serializable> properties)
+	public J setProperties(@NotNull Map<Serializable, Object> properties)
 	{
 		this.properties = properties;
 		return (J) this;
