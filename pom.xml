@@ -25,11 +25,11 @@
                 <executions>
                     <execution>
                         <configuration>
-                            <failOnError>false</failOnError>
+                            <failOnError>true</failOnError>
                             <enableLazyInitialization>true</enableLazyInitialization>
                             <enableDirtyTracking>false</enableDirtyTracking>
                             <enableAssociationManagement>true</enableAssociationManagement>
-                            <enableExtendedEnhancement>false</enableExtendedEnhancement>
+                            <enableExtendedEnhancement>true</enableExtendedEnhancement>
                         </configuration>
                         <phase>compile</phase>
                         <goals>
@@ -38,11 +38,11 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <failOnError>false</failOnError>
+                    <failOnError>true</failOnError>
                     <enableLazyInitialization>true</enableLazyInitialization>
                     <enableDirtyTracking>false</enableDirtyTracking>
                     <enableAssociationManagement>true</enableAssociationManagement>
-                    <enableExtendedEnhancement>false</enableExtendedEnhancement>
+                    <enableExtendedEnhancement>true</enableExtendedEnhancement>
                 </configuration>
             </plugin>
         </plugins>
@@ -56,7 +56,6 @@
             <classifier>${jwebmp.runtime.classifier}</classifier>
             <type>jar</type>
         </dependency>
-
 
         <dependency>
             <groupId>com.jwebmp</groupId>
