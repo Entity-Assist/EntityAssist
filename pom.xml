@@ -17,35 +17,7 @@
     <url>https://github.com/GedMarc/EntityAssist</url>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.hibernate.orm.tooling</groupId>
-                <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                <version>${maven.hibernate.version}</version>
-                <executions>
-                    <execution>
-                        <configuration>
-                            <failOnError>true</failOnError>
-                            <enableLazyInitialization>true</enableLazyInitialization>
-                            <enableDirtyTracking>false</enableDirtyTracking>
-                            <enableAssociationManagement>true</enableAssociationManagement>
-                            <enableExtendedEnhancement>true</enableExtendedEnhancement>
-                        </configuration>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>enhance</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <failOnError>true</failOnError>
-                    <enableLazyInitialization>true</enableLazyInitialization>
-                    <enableDirtyTracking>false</enableDirtyTracking>
-                    <enableAssociationManagement>true</enableAssociationManagement>
-                    <enableExtendedEnhancement>true</enableExtendedEnhancement>
-                </configuration>
-            </plugin>
-        </plugins>
+
     </build>
 
     <dependencies>
@@ -143,52 +115,31 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>${maven.compiler.version}</version>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
+                        <groupId>org.hibernate.orm.tooling</groupId>
+                        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+                        <version>${maven.hibernate.version}</version>
+                        <executions>
+                            <execution>
+                                <configuration>
+                                    <failOnError>true</failOnError>
+                                    <enableLazyInitialization>true</enableLazyInitialization>
+                                    <enableDirtyTracking>false</enableDirtyTracking>
+                                    <enableAssociationManagement>true</enableAssociationManagement>
+                                    <enableExtendedEnhancement>true</enableExtendedEnhancement>
+                                </configuration>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>enhance</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/generated-sources/annotations</outputDirectory>
-                            <annotationProcessorPaths>
-                                <annotationProcessorPath>
-                                    <groupId>org.hibernate</groupId>
-                                    <artifactId>hibernate-jpamodelgen</artifactId>
-                                    <version>${maven.hibernate.version}</version>
-                                </annotationProcessorPath>
-                                <annotationProcessorPath>
-                                    <groupId>javax.xml.bind</groupId>
-                                    <artifactId>jaxb-api</artifactId>
-                                    <version>${jaxb.version}</version>
-                                </annotationProcessorPath>
-                            </annotationProcessorPaths>
-                            <annotationProcessors>
-                                <annotationProcessor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</annotationProcessor>
-                            </annotationProcessors>
-                            <compilerArgs>
-                                <arg>-AaddGeneratedAnnotation=false</arg>
-                            </compilerArgs>
-                            <compilerArguments>
-                                <AaddGeneratedAnnotation>false</AaddGeneratedAnnotation>
-                                <Adebug>true</Adebug>
-                            </compilerArguments>
                             <failOnError>true</failOnError>
+                            <enableLazyInitialization>true</enableLazyInitialization>
+                            <enableDirtyTracking>false</enableDirtyTracking>
+                            <enableAssociationManagement>true</enableAssociationManagement>
+                            <enableExtendedEnhancement>true</enableExtendedEnhancement>
                         </configuration>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.hibernate</groupId>
-                                <artifactId>hibernate-jpamodelgen</artifactId>
-                                <version>${maven.hibernate.version}</version>
-                                <!--<optional>true</optional>-->
-                            </dependency>
-                            <dependency>
-                                <groupId>javax.xml.bind</groupId>
-                                <artifactId>jaxb-api</artifactId>
-                                <version>${jaxb.version}</version>
-                                <type>jar</type>
-                            </dependency>
-                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
@@ -294,6 +245,7 @@
                         <goals>
                             <goal>compile</goal>
                         </goals>
+                        <inherited>true</inherited>
                         <configuration>
                             <outputDirectory>${project.build.directory}/generated-sources/annotations</outputDirectory>
                             <annotationProcessorPaths>
