@@ -19,9 +19,10 @@ public class EntityAssistBinder
 		implements IGuiceDefaultBinder<EntityAssistBinder, GuiceInjectorModule>
 {
 	public static final Key<Map> entityIDMappingsKey = Key.get(Map.class, Names.named("EntityAssistIDMap"));
+
 	private final Map<Class<? extends EntityAssistIDMapping>, Pair<Class<?>, Class<?>>> entityIDMappings = new ConcurrentHashMap<>();
 
-
+	@SuppressWarnings("unchecked")
 	public static EntityAssistIDMapping lookup(Class dbType, Class fieldType)
 	{
 		Map<Class<? extends EntityAssistIDMapping>, Pair<Class<?>, Class<?>>> map = GuiceContext.get(entityIDMappingsKey);

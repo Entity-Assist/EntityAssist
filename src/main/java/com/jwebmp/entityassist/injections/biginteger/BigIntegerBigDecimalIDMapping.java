@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class BigIntegerBigDecimalIDMapping
-		extends EntityAssistIDMapping<BigInteger, BigDecimal>
+		implements EntityAssistIDMapping<BigInteger, BigDecimal>
 {
 
 	@Override

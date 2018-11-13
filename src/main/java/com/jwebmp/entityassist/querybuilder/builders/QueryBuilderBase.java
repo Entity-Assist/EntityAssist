@@ -485,7 +485,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 		catch (Exception e)
 		{
-			log.log(Level.SEVERE, "Unable to field field in class [" + clazz + "]-[" + fieldName + "]");
+			log.log(Level.SEVERE, "Unable to field field in class [" + clazz + "]-[" + fieldName + "]", e);
 		}
 		return null;
 	}

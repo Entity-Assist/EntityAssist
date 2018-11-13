@@ -60,8 +60,8 @@ public class InsertStatement
 	public static String buildInsertString(Object o)
 	{
 		StringBuilder insertString = new StringBuilder("INSERT INTO ");
-		Class c = o.getClass();
-		Table t = (Table) c.getAnnotation(Table.class);
+		Class<?> c = o.getClass();
+		Table t = c.getAnnotation(Table.class);
 		String tableName = "";
 		if (t != null)
 		{
@@ -69,7 +69,7 @@ public class InsertStatement
 		}
 		if (tableName.isEmpty())
 		{
-			Entity e = (Entity) c.getAnnotation(Entity.class);
+			Entity e = c.getAnnotation(Entity.class);
 			if (e != null)
 			{
 				tableName = e.name();

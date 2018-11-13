@@ -3,7 +3,7 @@ package com.jwebmp.entityassist.injections.integer;
 import com.jwebmp.entityassist.services.EntityAssistIDMapping;
 
 public class IntegerFloatIDMapping
-		extends EntityAssistIDMapping<Integer, Float>
+		implements EntityAssistIDMapping<Integer, Float>
 {
 
 	@Override
