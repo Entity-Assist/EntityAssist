@@ -10,6 +10,7 @@ import com.jwebmp.guicedinjection.abstractions.GuiceInjectorModule;
 import com.jwebmp.guicedinjection.interfaces.IGuiceDefaultBinder;
 import com.jwebmp.guicedinjection.pairing.Pair;
 
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -49,9 +50,9 @@ public class EntityAssistBinder
 		                  {
 			                  if (entityIDMappings.isEmpty())
 			                  {
-				                  Set<EntityAssistIDMapping> loader = GuiceContext.instance()
-				                                                                  .getLoader(EntityAssistIDMapping.class, ServiceLoader.load(EntityAssistIDMapping.class));
-				                  for (EntityAssistIDMapping mapping : loader)
+				                  @NotNull Set<EntityAssistIDMapping> loader = GuiceContext.instance()
+				                                                                           .getLoader(EntityAssistIDMapping.class, ServiceLoader.load(EntityAssistIDMapping.class));
+				                  for (EntityAssistIDMapping<?, ?> mapping : loader)
 				                  {
 					                  @SuppressWarnings("unchecked")
 					                  Pair<Class<?>, Class<?>> pair = new Pair<>(mapping.getDBClassType(), mapping.getObjectClassType());

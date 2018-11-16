@@ -3,7 +3,7 @@ package com.jwebmp.entityassist.injections.integer;
 import com.jwebmp.entityassist.services.EntityAssistIDMapping;
 
 public class IntegerStringIDMapping
-		implements EntityAssistIDMapping<Integer, String>
+		extends EntityAssistIDMapping<Integer, String>
 {
 
 	@Override

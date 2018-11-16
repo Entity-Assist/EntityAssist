@@ -5,7 +5,7 @@ import com.jwebmp.entityassist.services.EntityAssistIDMapping;
 import java.math.BigInteger;
 
 public class BigIntegerIntegerIDMapping
-		implements EntityAssistIDMapping<BigInteger, Integer>
+		extends EntityAssistIDMapping<BigInteger, Integer>
 {
 
 	@Override

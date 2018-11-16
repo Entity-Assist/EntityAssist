@@ -16,13 +16,13 @@ import java.util.logging.Level;
  * @param <OBJECT>
  * 		The object to render
  */
-public interface EntityAssistIDMapping<DB, OBJECT>
-		extends IDefaultService<EntityAssistIDMapping<DB, OBJECT>>
+public abstract class EntityAssistIDMapping<DB, OBJECT>
+		implements IDefaultService<EntityAssistIDMapping<DB, OBJECT>>
 {
-	OBJECT toObject(DB dbReturned);
+	public abstract OBJECT toObject(DB dbReturned);
 
 	@SuppressWarnings("unchecked")
-	default Class<DB> getDBClassType()
+	public Class<DB> getDBClassType()
 	{
 		try
 		{
@@ -35,13 +35,13 @@ public interface EntityAssistIDMapping<DB, OBJECT>
 			          .log(Level.SEVERE,
 			               "Cannot return the db or entity id class - config seems wrong. " +
 			               "Check that a builder is attached to this entity as the second generic field type\n" +
-			               e);
+			               e, e);
 		}
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
-	default Class<OBJECT> getObjectClassType()
+	public Class<OBJECT> getObjectClassType()
 	{
 		try
 		{
@@ -53,7 +53,7 @@ public interface EntityAssistIDMapping<DB, OBJECT>
 			          .log(Level.SEVERE,
 			               "Cannot return the db or entity id class - config seems wrong. " +
 			               "Check that a builder is attached to this entity as the second generic field type\n" +
-			               e);
+			               e, e);
 		}
 		return null;
 	}

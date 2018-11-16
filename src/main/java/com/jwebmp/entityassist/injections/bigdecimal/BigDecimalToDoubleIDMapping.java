@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  * Maps Big Decimals ID Returned Types
  */
 public class BigDecimalToDoubleIDMapping
-		implements EntityAssistIDMapping<BigDecimal, Double>
+		extends EntityAssistIDMapping<BigDecimal, Double>
 {
 	@Override
 	public Double toObject(BigDecimal dbReturned)

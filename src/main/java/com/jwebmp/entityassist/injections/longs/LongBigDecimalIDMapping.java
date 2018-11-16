@@ -5,7 +5,7 @@ import com.jwebmp.entityassist.services.EntityAssistIDMapping;
 import java.math.BigDecimal;
 
 public class LongBigDecimalIDMapping
-		implements EntityAssistIDMapping<Long, BigDecimal>
+		extends EntityAssistIDMapping<Long, BigDecimal>
 {
 
 	@Override
