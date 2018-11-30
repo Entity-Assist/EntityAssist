@@ -116,7 +116,8 @@ public class InsertStatement
 
 				JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
 				Column col = field.getAnnotation(Column.class);
-				if (col == joinCol) //fuzzy logic, if both null continue
+				Id idCol = field.getAnnotation(Id.class);
+				if (col == joinCol && joinCol == idCol) //fuzzy logic, if everything is null go to next field
 				{
 					continue;
 				}
