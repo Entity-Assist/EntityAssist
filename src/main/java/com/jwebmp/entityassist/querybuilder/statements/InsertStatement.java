@@ -117,7 +117,7 @@ public class InsertStatement
 				JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
 				Column col = field.getAnnotation(Column.class);
 				Id idCol = field.getAnnotation(Id.class);
-				if (col == joinCol && joinCol == idCol) //fuzzy logic, if everything is null go to next field
+				if (col == joinCol && joinCol == idCol) //fuzzy logic, if everything is null go to next field, easier than is null
 				{
 					continue;
 				}
@@ -159,7 +159,7 @@ public class InsertStatement
 		{
 			if (columnValue instanceof Boolean)
 			{
-				insertString.append(Boolean.class.cast(columnValue) ? "1" : "0")
+				insertString.append((Boolean) columnValue ? "1" : "0")
 				            .append(STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof Long)
