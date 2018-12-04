@@ -39,8 +39,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
+            <groupId>com.jwebmp</groupId>
             <artifactId>commons-text</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -54,8 +55,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
+            <groupId>com.jwebmp</groupId>
             <artifactId>commons-lang3</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
