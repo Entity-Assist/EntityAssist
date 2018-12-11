@@ -9,7 +9,6 @@ import com.jwebmp.entityassist.entities.EntityClass_;
 import com.jwebmp.entityassist.enumerations.ActiveFlag;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
-import com.jwebmp.guicedpersistence.jpa.implementations.JPAAutomatedTransactionHandler;
 import com.jwebmp.logger.LogFactory;
 import com.jwebmp.logger.logging.LogColourFormatter;
 import org.junit.jupiter.api.BeforeEach;
