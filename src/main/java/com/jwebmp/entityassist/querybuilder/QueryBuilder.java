@@ -155,7 +155,10 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 
 		if (!getOrderBys().isEmpty())
 		{
-			getOrderBys().forEach((key, value) -> processOrderBys(key, value, cq));
+			List<Order> orderBys = new ArrayList<>();
+			getOrderBys().forEach((key, value) ->
+					                      orderBys.add(processOrderBys(key, value)));
+			cq.orderBy(orderBys);
 		}
 
 		if (getSelections().isEmpty())
@@ -189,10 +192,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 * 		The attribute to apply
 	 * @param value
 	 * 		The value to use
-	 * @param cq
-	 * 		The criteria query to apply to
 	 */
-	private void processOrderBys(Attribute key, OrderByType value, CriteriaQuery cq)
+	private Order processOrderBys(Attribute key, OrderByType value)
 	{
 		switch (value)
 		{
@@ -201,26 +202,26 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			{
 				if (isSingularAttribute(key))
 				{
-					cq.orderBy(getCriteriaBuilder().desc(getRoot().get((SingularAttribute) key)));
+					return getCriteriaBuilder().desc(getRoot().get((SingularAttribute) key));
 				}
 				else if (isPluralOrMapAttribute(key))
 				{
-					cq.orderBy(getCriteriaBuilder().desc(getRoot().get((PluralAttribute) key)));
+					return getCriteriaBuilder().desc(getRoot().get((PluralAttribute) key));
 				}
-				break;
+				return getCriteriaBuilder().desc(getRoot().get((SingularAttribute) key));
 			}
 			case ASC:
 			default:
 			{
 				if (isSingularAttribute(key))
 				{
-					cq.orderBy(getCriteriaBuilder().asc(getRoot().get((SingularAttribute) key)));
+					return getCriteriaBuilder().asc(getRoot().get((SingularAttribute) key));
 				}
 				else if (isPluralOrMapAttribute(key))
 				{
-					cq.orderBy(getCriteriaBuilder().asc(getRoot().get((PluralAttribute) key)));
+					return getCriteriaBuilder().asc(getRoot().get((PluralAttribute) key));
 				}
-				break;
+				return getCriteriaBuilder().asc(getRoot().get((SingularAttribute) key));
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 package com.jwebmp.entityassist;
 
-import com.jwebmp.guicedpersistence.db.AbstractDatabaseProviderModule;
+import com.jwebmp.guicedpersistence.db.DatabaseModule;
 import com.jwebmp.guicedpersistence.db.ConnectionBaseInfo;
 import com.oracle.jaxb21.PersistenceUnit;
 
@@ -9,7 +9,7 @@ import java.lang.annotation.Annotation;
 import java.util.Properties;
 
 public class EntityAssistTestDBModule
-		extends AbstractDatabaseProviderModule<EntityAssistTestDBModule>
+		extends DatabaseModule<EntityAssistTestDBModule>
 {
 
 	@NotNull
