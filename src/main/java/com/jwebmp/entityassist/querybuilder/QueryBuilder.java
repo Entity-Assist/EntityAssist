@@ -75,6 +75,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return This
 	 */
+	@SuppressWarnings("UnusedReturnValue")
 	@NotNull
 	private J select()
 	{

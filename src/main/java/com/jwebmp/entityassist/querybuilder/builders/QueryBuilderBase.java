@@ -200,6 +200,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				handler.beginTransacation(false, getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation())));
 			}
 		}
+		getEntityManager().clear();
 		persist(entity);
 		getEntityManager().flush();
 
@@ -248,8 +249,10 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		{
 			if (onCreate(entity))
 			{
+				getEntityManager().clear();
 				if (isRunDetached())
 				{
+					getEntityManager().clear();
 					String insertString = InsertStatement.buildInsertString(entity);
 					log.fine(insertString);
 					Query query = getEntityManager().createNativeQuery(insertString);
@@ -405,6 +408,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		{
 			if (onUpdate(entity))
 			{
+				getEntityManager().clear();
 				if (isRunDetached())
 				{
 					getEntityManager().merge(entity);
