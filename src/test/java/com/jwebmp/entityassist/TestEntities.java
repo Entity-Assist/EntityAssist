@@ -5,6 +5,7 @@ import com.jwebmp.entityassist.entities.*;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
+import com.jwebmp.logger.LogFactory;
 import com.jwebmp.testing.BaseTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static com.jwebmp.entityassist.enumerations.Operand.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestEntities
 		extends BaseTest
 {
+	private static final Logger log = LogFactory.getLog(TestEntities.class);
 
 	private static TestEntities testEntities;
 
