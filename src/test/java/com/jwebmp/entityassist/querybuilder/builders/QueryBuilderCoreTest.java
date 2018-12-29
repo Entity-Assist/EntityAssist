@@ -9,32 +9,21 @@ import com.jwebmp.entityassist.entities.EntityClass_;
 import com.jwebmp.entityassist.enumerations.ActiveFlag;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
-import com.jwebmp.logger.LogFactory;
-import com.jwebmp.logger.logging.LogColourFormatter;
-import org.junit.jupiter.api.BeforeEach;
+import com.jwebmp.testing.BaseTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;
 import java.util.List;
-import java.util.logging.Level;
 
 import static com.jwebmp.entityassist.enumerations.Operand.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class QueryBuilderCoreTest
+		extends BaseTest
 {
-
-	@BeforeEach
-	public void before()
-	{
-		LogFactory.configureConsoleSingleLineOutput(Level.FINE);
-		LogColourFormatter.setRenderBlack(false);
-		GuiceContext.inject();
-		JPAAutomatedTransactionHandler.setActive(true);
-	}
 
 	@Test
 	public void testVisibleRange()

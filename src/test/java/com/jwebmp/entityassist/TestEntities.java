@@ -5,8 +5,7 @@ import com.jwebmp.entityassist.entities.*;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
-import com.jwebmp.logger.LogFactory;
-import com.jwebmp.logger.logging.LogColourFormatter;
+import com.jwebmp.testing.BaseTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -16,13 +15,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 
 import static com.jwebmp.entityassist.enumerations.Operand.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestEntities
+		extends BaseTest
 {
 
 	private static TestEntities testEntities;
@@ -36,9 +35,6 @@ public class TestEntities
 
 	private void configUp()
 	{
-		LogFactory.configureConsoleSingleLineOutput(Level.FINE);
-		LogColourFormatter.setRenderBlack(false);
-		GuiceContext.inject();
 		testEntities = GuiceContext.get(TestEntities.class);
 	}
 
