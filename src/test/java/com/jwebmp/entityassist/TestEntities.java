@@ -6,10 +6,9 @@ import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
 import com.jwebmp.logger.LogFactory;
-import com.jwebmp.logger.logging.LogColourFormatter;
 import com.jwebmp.testing.BaseTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import com.jwebmp.testing.IBaseTest;
+import org.junit.jupiter.api.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.jwebmp.entityassist.enumerations.Operand.*;
@@ -27,9 +25,34 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestEntities
 		extends BaseTest
 {
-	private static final Logger log = LogFactory.getLog(TestEntities.class);
-
 	private static TestEntities testEntities;
+
+	@AfterAll
+	public static void tearDownAll()
+	{
+		IBaseTest.tearDownAll();
+	}
+
+	@BeforeAll
+	public static void initAll()
+	{
+		IBaseTest.initAll();
+	}
+
+	@Override
+	@AfterEach
+	public void tearDown()
+	{
+		super.tearDown();
+	}
+
+	@Override
+	@BeforeEach
+	public void init()
+	{
+		super.init();
+		testEntities = GuiceContext.get(TestEntities.class);
+	}
 
 	@Test
 	public void testMe()
@@ -38,13 +61,9 @@ public class TestEntities
 		System.out.println("Override for server builds?");
 	}
 
+
 	private void configUp()
 	{
-		LogFactory.configureConsoleColourOutput(Level.FINE);
-		LogColourFormatter.setRenderBlack(false);
-		System.setErr(System.out);
-		log.config("Starting Up Instance");
-		testEntities = GuiceContext.get(TestEntities.class);
 	}
 
 	@Test

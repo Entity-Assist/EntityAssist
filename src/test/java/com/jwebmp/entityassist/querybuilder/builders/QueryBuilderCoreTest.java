@@ -1,6 +1,7 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
 import com.google.inject.Key;
+import com.jwebmp.entityassist.TestEntities;
 import com.jwebmp.entityassist.TestEntityAssistCustomPersistenceLoader;
 import com.jwebmp.entityassist.entities.EntityClass;
 import com.jwebmp.entityassist.entities.EntityClassTwo;
@@ -10,8 +11,8 @@ import com.jwebmp.entityassist.enumerations.ActiveFlag;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
 import com.jwebmp.testing.BaseTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import com.jwebmp.testing.IBaseTest;
+import org.junit.jupiter.api.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;
@@ -24,6 +25,32 @@ import static org.junit.jupiter.api.Assertions.*;
 public class QueryBuilderCoreTest
 		extends BaseTest
 {
+
+	@AfterAll
+	public static void tearDownAll()
+	{
+		IBaseTest.tearDownAll();
+	}
+
+	@BeforeAll
+	public static void initAll()
+	{
+		IBaseTest.initAll();
+	}
+
+	@Override
+	@AfterEach
+	public void tearDown()
+	{
+		super.tearDown();
+	}
+
+	@Override
+	@BeforeEach
+	public void init()
+	{
+		super.init();
+	}
 
 	@Test
 	public void testVisibleRange()
