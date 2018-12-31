@@ -1,15 +1,12 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
 import com.google.inject.Key;
-import com.jwebmp.entityassist.TestEntities;
 import com.jwebmp.entityassist.TestEntityAssistCustomPersistenceLoader;
 import com.jwebmp.entityassist.entities.EntityClass;
 import com.jwebmp.entityassist.entities.EntityClassTwo;
 import com.jwebmp.entityassist.entities.EntityClassTwo_;
-import com.jwebmp.entityassist.entities.EntityClass_;
 import com.jwebmp.entityassist.enumerations.ActiveFlag;
 import com.jwebmp.guicedinjection.GuiceContext;
-import com.jwebmp.guicedpersistence.db.annotations.Transactional;
 import com.jwebmp.testing.BaseTest;
 import com.jwebmp.testing.IBaseTest;
 import org.junit.jupiter.api.*;
@@ -115,24 +112,5 @@ public class QueryBuilderCoreTest
 		{
 			fail("Rows not inserted?");
 		}
-	}
-
-	@Test
-	public void testBulkUpdateReally()
-	{
-		GuiceContext.get(QueryBuilderCoreTest.class)
-		            .testBulkUpdate();
-	}
-
-	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
-	public void testBulkUpdate()
-	{
-		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
-		System.out.println("EM Open : " + em.isOpen());
-		EntityClass updates = new EntityClass(true);
-		updates.setActiveFlag(ActiveFlag.Archived);
-		new EntityClass().builder()
-		                 .where(EntityClass_.activeFlag, Equals, ActiveFlag.Invisible)
-		                 .bulkUpdate(updates, true);
 	}
 }

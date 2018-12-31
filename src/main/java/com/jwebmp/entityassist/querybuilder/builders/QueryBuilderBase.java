@@ -42,7 +42,7 @@ import static com.jwebmp.guicedpersistence.scanners.PersistenceServiceLoadersBin
  * @param <I>
  * 		The entity ID type
  */
-@SuppressWarnings({"SqlNoDataSourceInspection", "WeakerAccess", "UnusedReturnValue", "WrapperTypeMayBePrimitive", "unused"})
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue", "unused"})
 public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilder, I>, I extends Serializable>
 {
 	/**
@@ -180,13 +180,14 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 * @return This
 	 */
 	@NotNull
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "Duplicates"})
 	public J persistNow(E entity)
 	{
 		boolean transactionAlreadyStarted = false;
+		PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
-			if (handler.transactionExists(getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			if (handler.transactionExists(getEntityManager(), unit))
 			{
 				transactionAlreadyStarted = true;
 				break;
@@ -195,20 +196,18 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
-			if (!transactionAlreadyStarted && handler.active(GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			if (!transactionAlreadyStarted && handler.active(unit))
 			{
-				handler.beginTransacation(false, getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation())));
+				handler.beginTransacation(false, getEntityManager(), unit);
 			}
 		}
-		getEntityManager().clear();
 		persist(entity);
 		getEntityManager().flush();
-
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
-			if (!transactionAlreadyStarted && handler.active(GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()))))
+			if (!transactionAlreadyStarted && handler.active(unit))
 			{
-				handler.commitTransacation(false, getEntityManager(), GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation())));
+				handler.commitTransacation(false, getEntityManager(), unit);
 			}
 		}
 		return (J) this;
@@ -249,10 +248,8 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		{
 			if (onCreate(entity))
 			{
-				getEntityManager().clear();
 				if (isRunDetached())
 				{
-					getEntityManager().clear();
 					String insertString = InsertStatement.buildInsertString(entity);
 					log.fine(insertString);
 					Query query = getEntityManager().createNativeQuery(insertString);
@@ -361,7 +358,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 * @return This
 	 */
 	@NotNull
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "Duplicates"})
 	public J persistNow(E entity, boolean runDetached)
 	{
 		boolean transactionAlreadyStarted = false;
@@ -382,7 +379,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				handler.beginTransacation(false, getEntityManager(), unit);
 			}
 		}
-
 		setRunDetached(runDetached);
 		persist(entity);
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
@@ -408,7 +404,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		{
 			if (onUpdate(entity))
 			{
-				getEntityManager().clear();
 				if (isRunDetached())
 				{
 					getEntityManager().merge(entity);
@@ -457,7 +452,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		Validator validator = factory.getValidator();
 		Set constraintViolations = validator.validate(entity);
-
 		if (!constraintViolations.isEmpty())
 		{
 			for (Object constraintViolation : constraintViolations)

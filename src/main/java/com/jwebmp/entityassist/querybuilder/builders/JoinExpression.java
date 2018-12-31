@@ -24,6 +24,10 @@ public final class JoinExpression<X extends BaseEntity<X, ?, ?>, Y>
 	 * The attribute type to apply
 	 */
 	private Attribute<X, Y> attribute;
+	/**
+	 * The builder to use for the on clause
+	 */
+	private QueryBuilder<?, X, ?> onBuilder;
 
 	/**
 	 * The join expression to build
@@ -49,6 +53,15 @@ public final class JoinExpression<X extends BaseEntity<X, ?, ?>, Y>
 		this.executor = executor;
 		this.joinType = joinType;
 		this.attribute = attribute;
+	}
+
+	@SuppressWarnings("WeakerAccess")
+	public JoinExpression(QueryBuilder<?, X, ?> executor, JoinType joinType, Attribute<X, Y> attribute, QueryBuilder<?, X, ?> onBuilder)
+	{
+		this.executor = executor;
+		this.joinType = joinType;
+		this.attribute = attribute;
+		this.onBuilder = onBuilder;
 	}
 
 	/**
@@ -124,5 +137,26 @@ public final class JoinExpression<X extends BaseEntity<X, ?, ?>, Y>
 	public void setAttribute(Attribute<X, Y> attribute)
 	{
 		this.attribute = attribute;
+	}
+
+	/**
+	 * Getter for property 'onBuilder'.
+	 *
+	 * @return Value for property 'onBuilder'.
+	 */
+	public QueryBuilder<?, X, ?> getOnBuilder()
+	{
+		return onBuilder;
+	}
+
+	/**
+	 * Setter for property 'onBuilder'.
+	 *
+	 * @param onBuilder
+	 * 		Value to set for property 'onBuilder'.
+	 */
+	public void setOnBuilder(QueryBuilder<?, X, ?> onBuilder)
+	{
+		this.onBuilder = onBuilder;
 	}
 }

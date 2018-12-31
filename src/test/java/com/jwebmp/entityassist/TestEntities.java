@@ -1,11 +1,14 @@
 package com.jwebmp.entityassist;
 
 import com.google.inject.Key;
-import com.jwebmp.entityassist.entities.*;
+import com.jwebmp.entityassist.entities.EntityClass;
+import com.jwebmp.entityassist.entities.EntityClassGeneratedID;
+import com.jwebmp.entityassist.entities.EntityClassTwo_;
+import com.jwebmp.entityassist.entities.EntityClass_;
+import com.jwebmp.entityassist.enumerations.ActiveFlag;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
-import com.jwebmp.logger.LogFactory;
 import com.jwebmp.testing.BaseTest;
 import com.jwebmp.testing.IBaseTest;
 import org.junit.jupiter.api.*;
@@ -16,8 +19,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
+import static com.jwebmp.entityassist.entities.EntityClass_.*;
 import static com.jwebmp.entityassist.enumerations.Operand.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,8 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestEntities
 		extends BaseTest
 {
-	private static TestEntities testEntities;
-
 	@AfterAll
 	public static void tearDownAll()
 	{
@@ -51,13 +52,11 @@ public class TestEntities
 	public void init()
 	{
 		super.init();
-		testEntities = GuiceContext.get(TestEntities.class);
 	}
 
 	@Test
 	public void testMe()
 	{
-		configUp();
 		System.out.println("Override for server builds?");
 	}
 
@@ -80,8 +79,8 @@ public class TestEntities
 	@Test
 	public void testEntity2Really()
 	{
-		configUp();
-		testEntities.testEntity2();
+		GuiceContext.get(TestEntities.class)
+		            .testEntity2();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -91,31 +90,43 @@ public class TestEntities
 		System.out.println("EM Open : " + em.isOpen());
 
 		EntityClass ec = new EntityClass();
-		ec.setId(2L);
-
-		EntityClass ec2 = new EntityClass();
-		ec2.setId(3L);
-
+		long l;
+		ec.setId(l = getNextNumber());
 		ec.persistNow();
+
+
+		long l2;
+		EntityClass ec2 = new EntityClass();
+		ec2.setId(l2 = getNextNumber());
 		ec2.persistNow();
 
-		Optional<EntityClass> ec1 = new EntityClass().find(2L);
+		Optional<EntityClass> ec1 = new EntityClass().find(l);
 		System.out.println("ec after find: " + ec1);
 
 		System.out.println("Number of all rows : " + ec.builder()
 		                                               .getCount());
 
 		List<EntityClass> numberofresults = ec.builder()
-		                                      .where(EntityClass_.id, Operand.InList, 2L)
+		                                      .where(id, Operand.InList, l2)
 		                                      .getAll();
 		System.out.println("Wow that returned : " + numberofresults);
+	}
+
+	public long getNextNumber()
+	{
+		Optional<Long> max = new EntityClass().builder()
+		                                      .selectMax(id)
+		                                      .get(Long.class);
+		return max.map(aLong -> aLong + 1)
+		          .orElse(1L);
 	}
 
 	@Test
 	public void testWhereInListReally()
 	{
 		configUp();
-		testEntities.testWhereInList();
+		GuiceContext.get(TestEntities.class)
+		            .testWhereInList();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -123,18 +134,21 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
-		ec.setId(4L);
+
+		long l;
+		ec.setId(l = getNextNumber());
 		ec.persistNow();
 
+		long l2;
 		EntityClass ec2 = new EntityClass();
-		ec2.setId(5L);
+		ec2.setId(l2 = getNextNumber());
 		ec2.persistNow();
 
 		List resultList = new ArrayList();
-		resultList.add(4);
-		resultList.add(5);
+		resultList.add(l);
+		resultList.add(l2);
 		long resultCount = ec.builder()
-		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .where(id, Operand.InList, resultList)
 		                     .getCount();
 		assertEquals(2L, resultCount);
 	}
@@ -143,7 +157,8 @@ public class TestEntities
 	public void testWhereEqualsReally()
 	{
 		configUp();
-		testEntities.testWhereEquals();
+		GuiceContext.get(TestEntities.class)
+		            .testWhereEquals();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -151,18 +166,20 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
-		ec.setId(6L);
+		long l;
+		ec.setId(l = getNextNumber());
 		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
-		ec2.setId(7L);
+		long l2;
+		ec2.setId(l2 = getNextNumber());
 		ec2.persistNow();
 
 		List resultList = new ArrayList();
-		resultList.add(6);
-		resultList.add(7);
+		resultList.add(l);
+		resultList.add(l2);
 		long resultCount = ec.builder()
-		                     .where(EntityClass_.id, Equals, 6L)
+		                     .where(id, Equals, l)
 		                     .getCount();
 		assertEquals(1L, resultCount);
 	}
@@ -171,7 +188,8 @@ public class TestEntities
 	public void testWhereGreaterThanEqualsReally()
 	{
 		configUp();
-		testEntities.testWhereGreaterThanEquals();
+		GuiceContext.get(TestEntities.class)
+		            .testWhereGreaterThanEquals();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -179,19 +197,22 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
-		ec.setId(8L);
+
+		long l;
+		ec.setId(l = getNextNumber());
 		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
-		ec2.setId(9L);
+		long l2;
+		ec2.setId(l2 = getNextNumber());
 		ec2.persistNow();
 
 		List resultList = new ArrayList();
-		resultList.add(8);
-		resultList.add(9);
+		resultList.add(l);
+		resultList.add(l2);
 		long resultCount = ec.builder()
-		                     .where(EntityClass_.id, Operand.GreaterThanEqualTo, 8L)
-		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .where(id, Operand.GreaterThanEqualTo, l)
+		                     .where(id, Operand.InList, resultList)
 		                     .getCount();
 		assertEquals(2L, resultCount);
 	}
@@ -200,7 +221,8 @@ public class TestEntities
 	public void testWhereGreaterReally()
 	{
 		configUp();
-		testEntities.testWhereGreater();
+		GuiceContext.get(TestEntities.class)
+		            .testWhereGreater();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -208,19 +230,22 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
-		ec.setId(10L);
+
+		long l;
+		ec.setId(l = getNextNumber());
 		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
-		ec2.setId(11L);
+		long l2;
+		ec2.setId(l2 = getNextNumber());
 		ec2.persistNow();
 
 		List resultList = new ArrayList();
-		resultList.add(10);
-		resultList.add(11);
+		resultList.add(l);
+		resultList.add(l2);
 		long resultCount = ec.builder()
-		                     .where(EntityClass_.id, Operand.GreaterThan, 10L)
-		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .where(id, Operand.GreaterThan, l)
+		                     .where(id, Operand.InList, resultList)
 		                     .getCount();
 		assertEquals(1L, resultCount);
 	}
@@ -229,7 +254,8 @@ public class TestEntities
 	public void testWhereLessThanEqualsReally()
 	{
 		configUp();
-		testEntities.testWhereLessThanEquals();
+		GuiceContext.get(TestEntities.class)
+		            .testWhereLessThanEquals();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -237,19 +263,21 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
-		ec.setId(12L);
+		long l;
+		ec.setId(l = getNextNumber());
 		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
-		ec2.setId(13L);
+		long l2;
+		ec2.setId(l2 = getNextNumber());
 		ec2.persistNow();
 
 		List resultList = new ArrayList();
-		resultList.add(12);
-		resultList.add(13);
+		resultList.add(l);
+		resultList.add(l2);
 		long resultCount = ec.builder()
-		                     .where(EntityClass_.id, Operand.LessThanEqualTo, 13L)
-		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .where(id, Operand.LessThanEqualTo, l2)
+		                     .where(id, Operand.InList, resultList)
 		                     .getCount();
 		assertEquals(2L, resultCount);
 	}
@@ -258,7 +286,8 @@ public class TestEntities
 	public void testWhereLessThanReally()
 	{
 		configUp();
-		testEntities.testWhereLessThan();
+		GuiceContext.get(TestEntities.class)
+		            .testWhereLessThan();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -266,19 +295,21 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
-		ec.setId(14L);
+		long l;
+		ec.setId(l = getNextNumber());
 		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
-		ec2.setId(15L);
+		long l2;
+		ec2.setId(l2 = getNextNumber());
 		ec2.persistNow();
 
 		List resultList = new ArrayList();
-		resultList.add(14);
-		resultList.add(15);
+		resultList.add(l);
+		resultList.add(l2);
 		long resultCount = ec.builder()
-		                     .where(EntityClass_.id, Operand.LessThan, 15L)
-		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .where(id, Operand.LessThan, l2)
+		                     .where(id, Operand.InList, resultList)
 		                     .getCount();
 		assertEquals(1L, resultCount);
 	}
@@ -287,7 +318,8 @@ public class TestEntities
 	public void testNotNullReally()
 	{
 		configUp();
-		testEntities.testNotNull();
+		GuiceContext.get(TestEntities.class)
+		            .testNotNull();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -295,19 +327,21 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
-		ec.setId(17L);
+		long l;
+		ec.setId(l = getNextNumber());
 		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
-		ec2.setId(18L);
+		long l2;
+		ec2.setId(l2 = getNextNumber());
 		ec2.persistNow();
 
 		List resultList = new ArrayList();
-		resultList.add(17);
-		resultList.add(18);
+		resultList.add(l);
+		resultList.add(l2);
 		long resultCount = ec.builder()
-		                     .where(EntityClass_.id, Operand.NotNull, (Long) null)
-		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .where(id, Operand.NotNull, (Long) null)
+		                     .where(id, Operand.InList, resultList)
 		                     .getCount();
 		assertTrue(resultCount == 2);
 	}
@@ -316,7 +350,8 @@ public class TestEntities
 	public void testNullReally()
 	{
 		configUp();
-		testEntities.testNull();
+		GuiceContext.get(TestEntities.class)
+		            .testNull();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -324,28 +359,23 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
-		ec.setId(19L);
+		long l;
+		ec.setId(l = getNextNumber());
 		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
-		ec2.setId(20L);
+		long l2;
+		ec2.setId(l2 = getNextNumber());
 		ec2.persistNow();
 
 		List resultList = new ArrayList();
-		resultList.add(20);
-		resultList.add(21);
+		resultList.add(l);
+		resultList.add(l2);
 		long resultCount = ec.builder()
-		                     .where(EntityClass_.id, Operand.Null, (Long) null)
-		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .where(id, Operand.Null, (Long) null)
+		                     .where(id, Operand.InList, resultList)
 		                     .getCount();
 		assertTrue(0 == resultCount);
-	}
-
-	@Test
-	public void testGetAllReally()
-	{
-		configUp();
-		testEntities.testGetAll();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -400,10 +430,19 @@ public class TestEntities
 	}
 
 	@Test
+	public void testGetAllReally()
+	{
+		configUp();
+		GuiceContext.get(TestEntities.class)
+		            .testGetAll();
+	}
+
+	@Test
 	public void testDeleteReally()
 	{
 		configUp();
-		testEntities.testDelete();
+		GuiceContext.get(TestEntities.class)
+		            .testDelete();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -411,74 +450,82 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
-		ec.setId(21L);
+		long l;
+		ec.setId(l = getNextNumber());
 		ec.persistNow();
 
 		EntityClass ec2 = new EntityClass();
-		ec2.setId(22L);
+		long l2;
+		ec2.setId(l2 = getNextNumber());
 		ec2.persistNow();
 
 		List resultList = new ArrayList();
-		resultList.add(21L);
-		resultList.add(22L);
+		resultList.add(l);
+		resultList.add(l2);
 		long resultCount = ec.builder()
-		                     .where(EntityClass_.id, Operand.Null, (Long) null)
-		                     .where(EntityClass_.id, Operand.InList, resultList)
+		                     .where(id, Operand.Null, (Long) null)
+		                     .where(id, Operand.InList, resultList)
 		                     .getCount();
 		assertTrue(0 == resultCount);
 
-		EntityClassGeneratedID generatedID = new EntityClassGeneratedID();
-		generatedID.builder()
-		           .setRunDetached(true)
-		           .persist(generatedID);
-		generatedID.delete();
+		ec.delete();
+		ec2.delete();
 
 
-		//Test delete from builder
-		EntityClassGeneratedID generatedID2 = new EntityClassGeneratedID();
-		generatedID2.builder()
-		            .setRunDetached(true)
-		            .persist(generatedID2);
-
-		generatedID2.builder()
-		            .where(EntityClassGeneratedID_.id, Equals, generatedID2.getId())
-		            .delete();
 	}
 
 	@Test
 	public void testOrCollectionReally()
 	{
 		configUp();
-		testEntities.testOrCollection();
+		GuiceContext.get(TestEntities.class)
+		            .testOrCollection();
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testOrCollection()
 	{
-
 		EntityClassGeneratedID generatedID = new EntityClassGeneratedID();
 		generatedID.builder()
 		           .setRunDetached(true)
-		           .persist(generatedID);
+		           .persistNow(generatedID);
 
 		//Test delete from builder
 		EntityClassGeneratedID generatedID2 = new EntityClassGeneratedID();
 		generatedID2.builder()
-		            .setRunDetached(true)
-		            .persist(generatedID2);
+		            .persistNow(generatedID2);
 
 		EntityClassGeneratedID generatedID3 = new EntityClassGeneratedID();
 		generatedID3.builder()
 		            .setRunDetached(true)
-		            .persist(generatedID3);
+		            .persistNow(generatedID3);
 
 		long resultCount = generatedID.builder()
-		                              .where(EntityClass_.id, Operand.Equals, generatedID.getId())
-		                              .or(EntityClass_.id, Operand.Equals, generatedID2.getId(), true)
-		                              .or(EntityClass_.id, Operand.Equals, generatedID3.getId())
-		                              .where(EntityClass_.id, NotNull, (Long) null)
+		                              .where(id, Operand.Equals, generatedID.getId())
+		                              .or(id, Operand.Equals, generatedID2.getId(), true)
+		                              .or(id, Operand.Equals, generatedID3.getId())
+		                              .where(id, NotNull, (Long) null)
 		                              .getCount();
 
 		assertTrue(3 == resultCount);
+	}
+
+	@Test
+	public void testBulkUpdateReally()
+	{
+		GuiceContext.get(TestEntities.class)
+		            .testBulkUpdate();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+	public void testBulkUpdate()
+	{
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		System.out.println("EM Open : " + em.isOpen());
+		EntityClass updates = new EntityClass(true);
+		updates.setActiveFlag(ActiveFlag.Archived);
+		new EntityClass().builder()
+		                 .where(EntityClass_.activeFlag, Equals, ActiveFlag.Invisible)
+		                 .bulkUpdate(updates, true);
 	}
 }

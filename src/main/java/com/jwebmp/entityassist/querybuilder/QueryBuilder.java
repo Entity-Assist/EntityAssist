@@ -1,11 +1,15 @@
 package com.jwebmp.entityassist.querybuilder;
 
 import com.google.common.base.Strings;
+import com.google.inject.Key;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.enumerations.OrderByType;
 import com.jwebmp.entityassist.querybuilder.builders.DefaultQueryBuilder;
 import com.jwebmp.entityassist.querybuilder.builders.JoinExpression;
+import com.jwebmp.guicedinjection.GuiceContext;
+import com.jwebmp.guicedpersistence.services.ITransactionHandler;
 import com.jwebmp.logger.LogFactory;
+import com.oracle.jaxb21.PersistenceUnit;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
@@ -21,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.jwebmp.entityassist.querybuilder.builders.IFilterExpression.*;
+import static com.jwebmp.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
 
 @SuppressWarnings("unchecked")
 public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
@@ -75,12 +80,13 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return This
 	 */
-	@SuppressWarnings("UnusedReturnValue")
+	@SuppressWarnings({"UnusedReturnValue", "Duplicates"})
 	@NotNull
 	private J select()
 	{
 		if (!selected)
 		{
+
 			getJoins().forEach(this::processJoins);
 			if (!isDelete() && !isUpdate())
 			{
@@ -235,7 +241,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return number of rows updated
 	 */
-	@SuppressWarnings("UnusedReturnValue")
+	@SuppressWarnings({"UnusedReturnValue", "Duplicates"})
 	public int bulkUpdate(E updateFields, boolean allowEmpty)
 	{
 		if (!allowEmpty && getFilters().isEmpty())
@@ -256,8 +262,36 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			update.set(attributeName.getName(), value);
 		}
 		select();
-		return getEntityManager().createQuery(update)
+
+		boolean transactionAlreadyStarted = false;
+		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (handler.transactionExists(getEntityManager(), unit))
+			{
+				transactionAlreadyStarted = true;
+				break;
+			}
+		}
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (!transactionAlreadyStarted && handler.active(unit))
+			{
+				handler.beginTransacation(false, getEntityManager(), unit);
+			}
+		}
+
+		int results = getEntityManager().createQuery(update)
 		                         .executeUpdate();
+
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (!transactionAlreadyStarted && handler.active(unit))
+			{
+				handler.commitTransacation(false, getEntityManager(), unit);
+			}
+		}
+		return results;
 	}
 
 	/**
@@ -270,8 +304,19 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	{
 		Attribute value = executor.getAttribute();
 		JoinType jt = executor.getJoinType();
+		List<Predicate> onClause = new ArrayList<>();
+		if (executor.getOnBuilder() != null)
+		{
+			executor.getOnBuilder()
+			        .select();
+			onClause.addAll(executor.getOnBuilder()
+			                        .getFilters());
+		}
 		Join join = getRoot().join((SingularAttribute) value, jt);
-
+		if (!onClause.isEmpty())
+		{
+			join = join.on(onClause.toArray(new Predicate[]{}));
+		}
 		QueryBuilder key = executor.getExecutor();
 		if (key != null)
 		{
@@ -314,6 +359,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return Optional of the given class type (which should be a select column)
 	 */
+	@SuppressWarnings("Duplicates")
 	@NotNull
 	public <T> Optional<T> get(@NotNull Class<T> asType)
 	{
@@ -403,7 +449,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return J
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "unused"})
 	@NotNull
 	public J setReturnFirst(boolean returnFirst)
 	{
@@ -419,6 +465,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return A map of SingularAttribute and its object type
 	 */
+	@SuppressWarnings("WeakerAccess")
 	@NotNull
 	public Map<SingularAttribute, Object> getUpdateFieldMap(E updateFields)
 	{
@@ -475,6 +522,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return The type of the column returned
 	 */
+	@SuppressWarnings("Duplicates")
 	@NotNull
 	public <T> List<T> getAll(Class<T> returnClassType)
 	{
@@ -552,9 +600,36 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return This
 	 */
+	@SuppressWarnings("Duplicates")
 	public E delete(E entity)
 	{
+
+		boolean transactionAlreadyStarted = false;
+		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (handler.transactionExists(getEntityManager(), unit))
+			{
+				transactionAlreadyStarted = true;
+				break;
+			}
+		}
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (!transactionAlreadyStarted && handler.active(unit))
+			{
+				handler.beginTransacation(false, getEntityManager(), unit);
+			}
+		}
 		getEntityManager().remove(entity);
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (!transactionAlreadyStarted && handler.active(unit))
+			{
+				handler.commitTransacation(false, getEntityManager(), unit);
+			}
+		}
+
 		return entity;
 	}
 
@@ -564,7 +639,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return The number of records deleted
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings({"unused", "Duplicates"})
 	public int truncate()
 	{
 		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
@@ -572,8 +647,34 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		reset(deletion.from(getEntityClass()));
 		getFilters().clear();
 		select();
-		return getEntityManager().createQuery(deletion)
+		boolean transactionAlreadyStarted = false;
+		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (handler.transactionExists(getEntityManager(), unit))
+			{
+				transactionAlreadyStarted = true;
+				break;
+			}
+		}
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (!transactionAlreadyStarted && handler.active(unit))
+			{
+				handler.beginTransacation(false, getEntityManager(), unit);
+			}
+		}
+
+		int results = getEntityManager().createQuery(deletion)
 		                         .executeUpdate();
+		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		{
+			if (!transactionAlreadyStarted && handler.active(unit))
+			{
+				handler.commitTransacation(false, getEntityManager(), unit);
+			}
+		}
+		return results;
 	}
 
 	/**
