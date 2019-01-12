@@ -160,7 +160,31 @@
                             <enableExtendedEnhancement>true</enableExtendedEnhancement>
                         </configuration>
                     </plugin>
+
+                    <plugin>
+                        <groupId>org.moditect</groupId>
+                        <artifactId>moditect-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>add-module-infos</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>add-module-info</goal>
+                                </goals>
+                                <configuration>
+                                    <overwriteExistingFiles>true</overwriteExistingFiles>
+                                    <module>
+                                        <moduleInfoFile>
+                                            src/jre11/java/module-info.java
+                                        </moduleInfoFile>
+                                    </module>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
                 </plugins>
+
             </build>
             <dependencies>
                 <dependency>
@@ -305,7 +329,6 @@
                     <type>jar</type>
                 </dependency>
             </dependencies>
-
         </profile>
 
     </profiles>
