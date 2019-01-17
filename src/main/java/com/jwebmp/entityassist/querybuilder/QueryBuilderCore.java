@@ -17,7 +17,7 @@ import static com.jwebmp.entityassist.enumerations.Operand.*;
  * @param <E>
  * 		Entity Class
  *
- * @author Marc Magon
+ * @author GedMarc
  */
 public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E extends CoreEntity<E, J, I>, I extends Serializable>
 		extends QueryBuilder<J, E, I>
