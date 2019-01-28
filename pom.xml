@@ -16,10 +16,6 @@
     </description>
     <url>https://github.com/GedMarc/EntityAssist</url>
 
-    <build>
-
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>com.jwebmp</groupId>
