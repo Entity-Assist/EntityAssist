@@ -3,14 +3,12 @@ package com.jwebmp.entityassist;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jwebmp.entityassist.converters.LocalDateTimeAttributeConverter;
 import com.jwebmp.entityassist.enumerations.ActiveFlag;
 import com.jwebmp.entityassist.querybuilder.QueryBuilderCore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -35,12 +33,8 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 		setterVisibility = NONE)
 @JsonInclude(NON_NULL)
 public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryBuilderCore<Q, J, I>, I extends Serializable>
-		extends BaseEntity<J, Q, I>
+		extends SCDEntity<J, Q, I>
 {
-	/**
-	 * A timestamp designating the end of time or not applied
-	 */
-	public static final LocalDateTime EndOfTime = LocalDateTime.of(2999, 12, 31, 23, 59, 59, 999);
 	/**
 	 * Returns the date time formatter
 	 */
@@ -51,42 +45,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	@JsonProperty(value = "$jwid")
 	@Transient
 	private String referenceId;
-	/**
-	 * A date to designate when this record is effective from
-	 */
-	@Basic(optional = false,
-			fetch = FetchType.LAZY)
-	@Column(nullable = false,
-			name = "EffectiveFromDate")
-	@Convert(converter = LocalDateTimeAttributeConverter.class)
-	private LocalDateTime effectiveFromDate;
-	/**
-	 * A date to designate when this record is effective to
-	 */
-	@Basic(optional = false,
-			fetch = FetchType.LAZY)
-	@Column(nullable = false,
-			name = "EffectiveToDate")
-	@Convert(converter = LocalDateTimeAttributeConverter.class)
-	private LocalDateTime effectiveToDate;
-	/**
-	 * A date to mark when a warehouse can fetch the given record
-	 */
-	@Basic(optional = false,
-			fetch = FetchType.LAZY)
-	@Column(nullable = false,
-			name = "WarehouseCreatedTimestamp")
-	@Convert(converter = LocalDateTimeAttributeConverter.class)
-	private LocalDateTime warehouseCreatedTimestamp;
-	/**
-	 * A marker for the warehouse to identify when last this field was updated
-	 */
-	@Basic(optional = false,
-			fetch = FetchType.LAZY)
-	@Column(nullable = false,
-			name = "WarehouseLastUpdatedTimestamp")
-	@Convert(converter = LocalDateTimeAttributeConverter.class)
-	private LocalDateTime warehouseLastUpdatedTimestamp;
+
 	/**
 	 * A Row status identifier for a warehouse or OLAP system
 	 */
@@ -102,10 +61,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 */
 	public CoreEntity()
 	{
-		effectiveToDate = EndOfTime;
-		effectiveFromDate = LocalDateTime.now();
-		warehouseCreatedTimestamp = LocalDateTime.now();
-		warehouseLastUpdatedTimestamp = LocalDateTime.now();
 		activeFlag = ActiveFlag.Active;
 	}
 
@@ -118,58 +73,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	public CoreEntity(@SuppressWarnings("unused") boolean blank)
 	{
 		//No Config
-	}
-
-	/**
-	 * Returns the effective from date for the given setting
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("all")
-	public LocalDateTime getEffectiveFromDate()
-	{
-		return effectiveFromDate;
-	}
-
-	/**
-	 * Sets the effective from date value for default value
-	 *
-	 * @param effectiveFromDate
-	 *
-	 * @return
-	 */
-	@NotNull
-	@SuppressWarnings("all")
-	public J setEffectiveFromDate(@NotNull LocalDateTime effectiveFromDate)
-	{
-		this.effectiveFromDate = effectiveFromDate;
-		return (J) this;
-	}
-
-	/**
-	 * Returns the effice to date setting for active flag calculation
-	 *
-	 * @return
-	 */
-	@SuppressWarnings("all")
-	public LocalDateTime getEffectiveToDate()
-	{
-		return effectiveToDate;
-	}
-
-	/**
-	 * Sets the effective to date column value for active flag determination
-	 *
-	 * @param effectiveToDate
-	 *
-	 * @return This
-	 */
-	@NotNull
-	@SuppressWarnings("all")
-	public J setEffectiveToDate(@NotNull LocalDateTime effectiveToDate)
-	{
-		this.effectiveToDate = effectiveToDate;
-		return (J) this;
 	}
 
 	/**
@@ -223,32 +126,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	}
 
 	/**
-	 * Returns the warehouse created timestamp column value
-	 *
-	 * @return The current time
-	 */
-	public LocalDateTime getWarehouseCreatedTimestamp()
-	{
-		return warehouseCreatedTimestamp;
-	}
-
-	/**
-	 * Sets the warehouse created timestamp
-	 *
-	 * @param warehouseCreatedTimestamp
-	 * 		The time to apply
-	 *
-	 * @return This
-	 */
-	@NotNull
-	@SuppressWarnings("all")
-	public J setWarehouseCreatedTimestamp(@NotNull LocalDateTime warehouseCreatedTimestamp)
-	{
-		this.warehouseCreatedTimestamp = warehouseCreatedTimestamp;
-		return (J) this;
-	}
-
-	/**
 	 * Deletes this entity with the entity mananger. This will remove the row.
 	 *
 	 * @return This
@@ -260,32 +137,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	{
 		((QueryBuilderCore) builder())
 				.delete(this);
-		return (J) this;
-	}
-
-	/**
-	 * Returns the last time the warehouse timestamp column was updated
-	 *
-	 * @return The time
-	 */
-	@SuppressWarnings("all")
-	public LocalDateTime getWarehouseLastUpdatedTimestamp()
-	{
-		return warehouseLastUpdatedTimestamp;
-	}
-
-	/**
-	 * Sets the last time the warehouse timestamp column was updated
-	 *
-	 * @param warehouseLastUpdatedTimestamp
-	 *
-	 * @return This
-	 */
-	@NotNull
-	@SuppressWarnings("all")
-	public J setWarehouseLastUpdatedTimestamp(@NotNull LocalDateTime warehouseLastUpdatedTimestamp)
-	{
-		this.warehouseLastUpdatedTimestamp = warehouseLastUpdatedTimestamp;
 		return (J) this;
 	}
 
