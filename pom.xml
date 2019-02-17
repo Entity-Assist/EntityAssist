@@ -49,6 +49,7 @@
             <version>${project.version}</version>
             <classifier>${jwebmp.runtime.classifier}</classifier>
             <type>jar</type>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -157,6 +158,39 @@
                         </configuration>
                     </plugin>
 
+
+                    <!--   <plugin>
+                           <groupId>org.apache.maven.plugins</groupId>
+                           <artifactId>maven-compiler-plugin</artifactId>
+                           <version>${maven.compiler.version}</version>
+                           <goals>
+                               <goal>compile</goal>
+                           </goals>
+                           <inherited>true</inherited>
+                           <configuration>
+                               <annotationProcessorPaths>
+                                   <annotationProcessorPath>
+                                       <groupId>org.hibernate</groupId>
+                                       <artifactId>hibernate-jpamodelgen</artifactId>
+                                       <version>${maven.hibernate.version}</version>
+                                   </annotationProcessorPath>
+                                   <annotationProcessorPath>
+                                       <groupId>javax.xml.bind</groupId>
+                                       <artifactId>jaxb-api</artifactId>
+                                       <version>${jaxb.version}</version>
+                                   </annotationProcessorPath>
+                               </annotationProcessorPaths>
+                               <annotationProcessors>
+                                   <annotationProcessor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</annotationProcessor>
+                               </annotationProcessors>
+                               <compilerArguments>
+                                   <AaddGeneratedAnnotation>false</AaddGeneratedAnnotation>
+                                   <Adebug>true</Adebug>
+                               </compilerArguments>
+                               <failOnError>true</failOnError>
+                           </configuration>
+                       </plugin>-->
+
                     <plugin>
                         <groupId>org.moditect</groupId>
                         <artifactId>moditect-maven-plugin</artifactId>
@@ -223,7 +257,6 @@
                             <goal>compile</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/generated-sources/annotations</outputDirectory>
                             <annotationProcessorPaths>
                                 <annotationProcessorPath>
                                     <groupId>org.hibernate</groupId>
@@ -286,7 +319,6 @@
                         </goals>
                         <inherited>true</inherited>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/generated-sources/annotations</outputDirectory>
                             <annotationProcessorPaths>
                                 <annotationProcessorPath>
                                     <groupId>org.hibernate</groupId>

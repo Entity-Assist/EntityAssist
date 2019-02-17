@@ -114,14 +114,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	}
 
 	/**
-	 * Returns the assigned entity manager
-	 *
-	 * @return The entity manager to use for this run
-	 */
-	@Override
-	public abstract EntityManager getEntityManager();
-
-	/**
 	 * Physically applies the cache attributes to the query
 	 * <p>
 	 * Adds cacheable, cache region, and sets persistence cache retrieve mode as use, and store mode as use
@@ -282,7 +274,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 
 		int results = getEntityManager().createQuery(update)
-		                         .executeUpdate();
+		                                .executeUpdate();
 
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
@@ -634,6 +626,14 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	}
 
 	/**
+	 * Returns the assigned entity manager
+	 *
+	 * @return The entity manager to use for this run
+	 */
+	@Override
+	public abstract EntityManager getEntityManager();
+
+	/**
 	 * Returns the number of rows affected by the delete.
 	 * WARNING : Be very careful if you haven't added a filter this will truncate the table or throw a unsupported exception if no filters.
 	 *
@@ -666,7 +666,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 
 		int results = getEntityManager().createQuery(deletion)
-		                         .executeUpdate();
+		                                .executeUpdate();
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))

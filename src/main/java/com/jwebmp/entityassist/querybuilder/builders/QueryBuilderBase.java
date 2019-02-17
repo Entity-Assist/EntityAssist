@@ -214,15 +214,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	}
 
 	/**
-	 * Returns the assigned entity manager
-	 *
-	 * @return The entity manager to use for this run
-	 */
-	@NotNull
-	@Transient
-	protected abstract EntityManager getEntityManager();
-
-	/**
 	 * Returns the annotation associated with the entity manager
 	 *
 	 * @return The annotations associated with this builder
@@ -234,6 +225,15 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		return (Class<? extends Annotation>) em.getProperties()
 		                                       .get("annotation");
 	}
+
+	/**
+	 * Returns the assigned entity manager
+	 *
+	 * @return The entity manager to use for this run
+	 */
+	@NotNull
+	@Transient
+	protected abstract EntityManager getEntityManager();
 
 	/**
 	 * Persists this entity. Uses the get instance entity manager to operate.
@@ -248,6 +248,24 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		{
 			if (onCreate(entity))
 			{
+				boolean transactionAlreadyStarted = false;
+				com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+				{
+					if (handler.transactionExists(getEntityManager(), unit))
+					{
+						transactionAlreadyStarted = true;
+						break;
+					}
+				}
+				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+				{
+					if (!transactionAlreadyStarted && handler.active(unit))
+					{
+						handler.beginTransacation(false, getEntityManager(), unit);
+					}
+				}
+
 				if (isRunDetached())
 				{
 					String insertString = InsertStatement.buildInsertString(entity);
@@ -264,6 +282,13 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 					getEntityManager().persist(entity);
 				}
 				entity.setFake(false);
+				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+				{
+					if (!transactionAlreadyStarted && handler.active(unit))
+					{
+						handler.commitTransacation(false, getEntityManager(), unit);
+					}
+				}
 			}
 		}
 		catch (IllegalStateException ise)

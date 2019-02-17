@@ -1,6 +1,6 @@
 package com.jwebmp.entityassist.querybuilder.statements;
 
-import com.jwebmp.entityassist.CoreEntity;
+import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.EntityAssistStrings;
 import com.jwebmp.logger.LogFactory;
 
@@ -215,9 +215,9 @@ public class InsertStatement
 				            .append(getInsertStatement().dateTimeFormat.format(date))
 				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 			}
-			else if (columnValue instanceof CoreEntity)
+			else if (columnValue instanceof BaseEntity)
 			{
-				CoreEntity wct = (CoreEntity) columnValue;
+				BaseEntity wct = (BaseEntity) columnValue;
 				insertString.append(wct.getId())
 				            .append(STRING_COMMNA_SPACE);
 			}
