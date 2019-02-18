@@ -3,7 +3,6 @@ package com.jwebmp.entityassist;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.jwebmp.entityassist.querybuilder.EntityAssistStrings;
 import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 import com.jwebmp.guicedinjection.GuiceContext;
 
@@ -19,6 +18,7 @@ import java.util.logging.Logger;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
+import static com.jwebmp.entityassist.querybuilder.EntityAssistStrings.*;
 
 @MappedSuperclass()
 @JsonAutoDetect(fieldVisibility = ANY,
@@ -26,22 +26,9 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 		setterVisibility = NONE)
 @JsonInclude(NON_NULL)
 public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryBuilder<Q, J, I>, I extends Serializable>
-		implements EntityAssistStrings
 {
 	private static final Logger log = Logger.getLogger(BaseEntity.class.getName());
 
-	@Transient
-	@JsonIgnore
-	@SuppressWarnings("all")
-	private transient Class<J> myClass;
-	@Transient
-	@JsonIgnore
-	@SuppressWarnings("all")
-	private transient Class<Q> queryBuilderClass;
-	@Transient
-	@JsonIgnore
-	@SuppressWarnings("all")
-	private transient Class<I> idTypeClass;
 	@Transient
 	@JsonIgnore
 	private Map<Serializable, Object> properties;
@@ -122,23 +109,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	@SuppressWarnings("unchecked")
 	protected Class<Q> getClassQueryBuilderClass()
 	{
-		if (queryBuilderClass == null)
-		{
-			try
-			{
-				queryBuilderClass = (Class<Q>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
-			}
-			catch (Exception e)
-			{
-				queryBuilderClass = null;
-				log.log(Level.SEVERE,
-				        "Cannot return the my query builder class - config seems wrong. Check that a builder is attached to this entity as the second generic field type e.g. \n" +
-				        "public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>\n\n" +
-				        "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/za/co/mmagon/entityassist/entities",
-				        e);
-			}
-		}
-		return queryBuilderClass;
+		return (Class<Q>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
 	}
 
 	/**
@@ -271,22 +242,6 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	@SuppressWarnings("unchecked")
 	public Class<I> getClassIDType()
 	{
-		if (idTypeClass == null)
-		{
-			try
-			{
-				idTypeClass = (Class<I>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[2];
-			}
-			catch (Exception e)
-			{
-				log.log(Level.SEVERE,
-				        "Cannot return the class for uncheckeds. Embeddables are allowed. Config seems wrong. Check that a builder is attached to this entity as the second generic field type e.g. \n" +
-				        "public class EntityClass extends CoreEntity<EntityClass, EntityClassBuilder, Long>\n\n" +
-				        "You can view the test class in the sources or at https://github.com/GedMarc/EntityAssist/tree/master/test/com/jwebmp/entityassist/entities",
-				        e);
-				idTypeClass = null;
-			}
-		}
-		return idTypeClass;
+		return (Class<I>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[2];
 	}
 }
