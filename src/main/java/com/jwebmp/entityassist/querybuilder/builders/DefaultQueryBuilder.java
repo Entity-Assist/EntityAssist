@@ -136,394 +136,16 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	}
 
 	/**
-	 * Rebuilds the expressions for the select options
-	 *
-	 * @param selectExpression
-	 * 		The column to reapply
-	 */
-	private void redoSelectExpression(SelectExpression selectExpression)
-	{
-		switch (selectExpression.getAggregrate())
-		{
-			case None:
-			{
-				selectColumn(selectExpression.getAttribute());
-				break;
-			}
-			case Avg:
-			{
-				selectAverage(selectExpression.getAttribute());
-				break;
-			}
-			case Count:
-			{
-				selectCount(selectExpression.getAttribute());
-				break;
-			}
-			case CountDistinct:
-			{
-				selectCountDistinct(selectExpression.getAttribute());
-				break;
-			}
-			case Max:
-			{
-				selectMax(selectExpression.getAttribute());
-				break;
-			}
-			case Min:
-			{
-				selectMin(selectExpression.getAttribute());
-				break;
-			}
-			case Sum:
-			{
-				selectSum(selectExpression.getAttribute());
-				break;
-			}
-			case SumDouble:
-			{
-				selectSumAsDouble(selectExpression.getAttribute());
-				break;
-			}
-			case SumLong:
-			{
-				selectSumAsLong(selectExpression.getAttribute());
-				break;
-			}
-			default:
-			{
-				log.warning("Unknown expression type? " + selectExpression.getAttribute());
-			}
-		}
-	}
-
-	/**
-	 * Selects a given column
-	 *
-	 * @param selectColumn
-	 * 		The given column from the static metadata
+	 * Selects the minimum count distinct of the root object (select distinct count(*))
 	 *
 	 * @return This
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J selectColumn(Attribute selectColumn)
+	public J selectCountDistinct()
 	{
-		SelectExpression selectExpression = new SelectExpression(selectColumn, None);
-		selectExpressions.add(selectExpression);
-		processSelectExpressionNone(selectExpression);
+		getSelections().add(getCriteriaBuilder().countDistinct(getRoot()));
 		return (J) this;
-	}
-
-	/**
-	 * Selects the minimum min() of a column
-	 *
-	 * @param attribute
-	 * 		A given column from static metadata
-	 *
-	 * @return This
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J selectAverage(Attribute attribute)
-	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
-		selectExpressions.add(selectExpression);
-		processSelectAverage(selectExpression);
-		return (J) this;
-	}
-
-	/**
-	 * Selects the minimum min() of a column
-	 *
-	 * @param attribute
-	 * 		A given column from static metadata
-	 *
-	 * @return This
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J selectCount(Attribute attribute)
-	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
-		selectExpressions.add(selectExpression);
-		processSelectCount(selectExpression);
-		return (J) this;
-	}
-
-	/**
-	 * Selects the minimum min() of a column
-	 *
-	 * @param attribute
-	 * 		A given column from static metadata
-	 *
-	 * @return this
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J selectCountDistinct(Attribute attribute)
-	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
-		selectExpressions.add(selectExpression);
-		processSelectCountDistinct(selectExpression);
-		return (J) this;
-	}
-
-	/**
-	 * Selects the minimum min() of a column
-	 *
-	 * @param attribute
-	 * 		A given column from static metadata
-	 *
-	 * @return This
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J selectMax(Attribute attribute)
-	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
-		selectExpressions.add(selectExpression);
-		processSelectExpressionMax(selectExpression);
-		return (J) this;
-	}
-
-	/**
-	 * Selects the minimum min() of a column
-	 *
-	 * @param attribute
-	 * 		A given column from static metadata
-	 *
-	 * @return This
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J selectMin(Attribute attribute)
-	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
-		selectExpressions.add(selectExpression);
-		processSelectExpressionMin(selectExpression);
-		return (J) this;
-	}
-
-	/**
-	 * Selects the minimum min() of a column
-	 *
-	 * @param attribute
-	 * 		A given column from static metadata
-	 *
-	 * @return This
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J selectSum(Attribute attribute)
-	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
-		selectExpressions.add(selectExpression);
-		processSelectSum(selectExpression);
-		return (J) this;
-	}
-
-	/**
-	 * Selects the minimum min() of a column
-	 *
-	 * @param attribute
-	 * 		A given column from static metadata
-	 *
-	 * @return This
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J selectSumAsDouble(Attribute attribute)
-	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
-		selectExpressions.add(selectExpression);
-		processSelectSumAsDouble(selectExpression);
-		return (J) this;
-	}
-
-	/**
-	 * Selects the minimum min() of a column
-	 *
-	 * @param attribute
-	 * 		A given column from static metadata
-	 *
-	 * @return This
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J selectSumAsLong(Attribute attribute)
-	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
-		selectExpressions.add(selectExpression);
-		processSelectSumAsLong(selectExpression);
-		return (J) this;
-	}
-
-	/**
-	 * Processes the select expression
-	 *
-	 * @param selectExpression
-	 * 		A given column from static metadata
-	 *
-	 * @return true or false
-	 */
-	@SuppressWarnings("unchecked")
-	private boolean processSelectExpressionNone(SelectExpression selectExpression)
-	{
-		Attribute selectColumn = selectExpression.getAttribute();
-		if (isSingularAttribute(selectColumn))
-		{
-			getSelections().add(getRoot().get((SingularAttribute) selectColumn));
-		}
-		else if (isPluralOrMapAttribute(selectColumn))
-		{
-			getSelections().add(getRoot().get((PluralAttribute) selectColumn));
-		}
-		return true;
-	}
-
-	/**
-	 * processes the select average
-	 *
-	 * @param selectExpression
-	 * 		A given column from static metadata
-	 *
-	 * @return boolean
-	 */
-	@SuppressWarnings("unchecked")
-	private boolean processSelectAverage(SelectExpression selectExpression)
-	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().avg(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().avg(getRoot().get((PluralAttribute) attribute)));
-		}
-		return true;
-	}
-
-	/**
-	 * Adds a select count to the criteria builder
-	 *
-	 * @param selectExpression
-	 * 		A given column from static metadata
-	 *
-	 * @return boolean
-	 */
-	@SuppressWarnings("unchecked")
-	private boolean processSelectCount(SelectExpression selectExpression)
-	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().count(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().count(getRoot().get((PluralAttribute) attribute)));
-		}
-		return true;
-	}
-
-	/**
-	 * Processes to return the select count
-	 *
-	 * @param selectExpression
-	 * 		A given column from static metadata
-	 *
-	 * @return true or false for this
-	 */
-	@SuppressWarnings("unchecked")
-	private boolean processSelectCountDistinct(SelectExpression selectExpression)
-	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().countDistinct(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().countDistinct(getRoot().get((PluralAttribute) attribute)));
-		}
-		return true;
-	}
-
-	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
-	private boolean processSelectExpressionMax(SelectExpression selectExpression)
-	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().max(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().max(getRoot().get((PluralAttribute) attribute)));
-		}
-		return true;
-	}
-
-	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
-	private boolean processSelectExpressionMin(SelectExpression selectExpression)
-	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().min(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().min(getRoot().get((PluralAttribute) attribute)));
-		}
-		return true;
-	}
-
-	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
-	private boolean processSelectSum(SelectExpression selectExpression)
-	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sum(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sum(getRoot().get((PluralAttribute) attribute)));
-		}
-		return true;
-	}
-
-	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
-	private boolean processSelectSumAsDouble(SelectExpression selectExpression)
-	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sumAsDouble(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sumAsDouble(getRoot().get((PluralAttribute) attribute)));
-		}
-		return true;
-	}
-
-	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
-	private boolean processSelectSumAsLong(SelectExpression selectExpression)
-	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sumAsLong(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sumAsLong(getRoot().get((PluralAttribute) attribute)));
-		}
-		return true;
 	}
 
 	/**
@@ -537,16 +159,6 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	}
 
 	/**
-	 * Gets my given root
-	 *
-	 * @return The From object that is being used
-	 */
-	protected From getRoot()
-	{
-		return root;
-	}
-
-	/**
 	 * Gets the criteria builder
 	 *
 	 * @return The criteria builder
@@ -554,6 +166,16 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	protected CriteriaBuilder getCriteriaBuilder()
 	{
 		return criteriaBuilder;
+	}
+
+	/**
+	 * Gets my given root
+	 *
+	 * @return The From object that is being used
+	 */
+	public From getRoot()
+	{
+		return root;
 	}
 
 	/**
@@ -569,19 +191,6 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	public J setRoot(From root)
 	{
 		this.root = root;
-		return (J) this;
-	}
-
-	/**
-	 * Selects the minimum count distinct of the root object (select distinct count(*))
-	 *
-	 * @return This
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J selectCountDistinct()
-	{
-		getSelections().add(getCriteriaBuilder().countDistinct(getRoot()));
 		return (J) this;
 	}
 
@@ -688,6 +297,26 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilder builder, JoinType joinType)
 	{
 		JoinExpression joinExpression = new JoinExpression(builder, joinType, attribute);
+		joins.add(joinExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Joins the given builder with the given builder and build type
+	 *
+	 * @param attribute
+	 * 		The given attribute to join on
+	 * @param builder
+	 * 		A Query Builder object that contains the construct of the query
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilder builder, JoinType joinType, QueryBuilder onClauses)
+	{
+		JoinExpression joinExpression = new JoinExpression(builder, joinType, attribute);
+		joinExpression.setOnBuilder(onClauses);
 		joins.add(joinExpression);
 		return (J) this;
 	}
@@ -1191,6 +820,397 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	Set<SelectExpression> getSelectExpressions()
 	{
 		return selectExpressions;
+	}
+
+	/**
+	 * Rebuilds the expressions for the select options
+	 *
+	 * @param selectExpression
+	 * 		The column to reapply
+	 */
+	private void redoSelectExpression(SelectExpression selectExpression)
+	{
+		switch (selectExpression.getAggregrate())
+		{
+			case None:
+			{
+				selectColumn(selectExpression.getAttribute());
+				break;
+			}
+			case Avg:
+			{
+				selectAverage(selectExpression.getAttribute());
+				break;
+			}
+			case Count:
+			{
+				selectCount(selectExpression.getAttribute());
+				break;
+			}
+			case CountDistinct:
+			{
+				selectCountDistinct(selectExpression.getAttribute());
+				break;
+			}
+			case Max:
+			{
+				selectMax(selectExpression.getAttribute());
+				break;
+			}
+			case Min:
+			{
+				selectMin(selectExpression.getAttribute());
+				break;
+			}
+			case Sum:
+			{
+				selectSum(selectExpression.getAttribute());
+				break;
+			}
+			case SumDouble:
+			{
+				selectSumAsDouble(selectExpression.getAttribute());
+				break;
+			}
+			case SumLong:
+			{
+				selectSumAsLong(selectExpression.getAttribute());
+				break;
+			}
+			default:
+			{
+				log.warning("Unknown expression type? " + selectExpression.getAttribute());
+			}
+		}
+	}
+
+	/**
+	 * Selects a given column
+	 *
+	 * @param selectColumn
+	 * 		The given column from the static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectColumn(Attribute selectColumn)
+	{
+		SelectExpression selectExpression = new SelectExpression(selectColumn, None);
+		selectExpressions.add(selectExpression);
+		processSelectExpressionNone(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectAverage(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		selectExpressions.add(selectExpression);
+		processSelectAverage(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCount(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		selectExpressions.add(selectExpression);
+		processSelectCount(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return this
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCountDistinct(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		selectExpressions.add(selectExpression);
+		processSelectCountDistinct(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectMax(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		selectExpressions.add(selectExpression);
+		processSelectExpressionMax(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectMin(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		selectExpressions.add(selectExpression);
+		processSelectExpressionMin(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSum(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		selectExpressions.add(selectExpression);
+		processSelectSum(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSumAsDouble(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		selectExpressions.add(selectExpression);
+		processSelectSumAsDouble(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSumAsLong(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		selectExpressions.add(selectExpression);
+		processSelectSumAsLong(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Processes the select expression
+	 *
+	 * @param selectExpression
+	 * 		A given column from static metadata
+	 *
+	 * @return true or false
+	 */
+	@SuppressWarnings("unchecked")
+	private boolean processSelectExpressionNone(SelectExpression selectExpression)
+	{
+		Attribute selectColumn = selectExpression.getAttribute();
+		if (isSingularAttribute(selectColumn))
+		{
+			getSelections().add(getRoot().get((SingularAttribute) selectColumn));
+		}
+		else if (isPluralOrMapAttribute(selectColumn))
+		{
+			getSelections().add(getRoot().get((PluralAttribute) selectColumn));
+		}
+		return true;
+	}
+
+	/**
+	 * processes the select average
+	 *
+	 * @param selectExpression
+	 * 		A given column from static metadata
+	 *
+	 * @return boolean
+	 */
+	@SuppressWarnings("unchecked")
+	private boolean processSelectAverage(SelectExpression selectExpression)
+	{
+		Attribute attribute = selectExpression.getAttribute();
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().avg(getRoot().get((SingularAttribute) attribute)));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().avg(getRoot().get((PluralAttribute) attribute)));
+		}
+		return true;
+	}
+
+	/**
+	 * Adds a select count to the criteria builder
+	 *
+	 * @param selectExpression
+	 * 		A given column from static metadata
+	 *
+	 * @return boolean
+	 */
+	@SuppressWarnings("unchecked")
+	private boolean processSelectCount(SelectExpression selectExpression)
+	{
+		Attribute attribute = selectExpression.getAttribute();
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().count(getRoot().get((SingularAttribute) attribute)));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().count(getRoot().get((PluralAttribute) attribute)));
+		}
+		return true;
+	}
+
+	/**
+	 * Processes to return the select count
+	 *
+	 * @param selectExpression
+	 * 		A given column from static metadata
+	 *
+	 * @return true or false for this
+	 */
+	@SuppressWarnings("unchecked")
+	private boolean processSelectCountDistinct(SelectExpression selectExpression)
+	{
+		Attribute attribute = selectExpression.getAttribute();
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().countDistinct(getRoot().get((SingularAttribute) attribute)));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().countDistinct(getRoot().get((PluralAttribute) attribute)));
+		}
+		return true;
+	}
+
+	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
+	private boolean processSelectExpressionMax(SelectExpression selectExpression)
+	{
+		Attribute attribute = selectExpression.getAttribute();
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().max(getRoot().get((SingularAttribute) attribute)));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().max(getRoot().get((PluralAttribute) attribute)));
+		}
+		return true;
+	}
+
+	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
+	private boolean processSelectExpressionMin(SelectExpression selectExpression)
+	{
+		Attribute attribute = selectExpression.getAttribute();
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().min(getRoot().get((SingularAttribute) attribute)));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().min(getRoot().get((PluralAttribute) attribute)));
+		}
+		return true;
+	}
+
+	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
+	private boolean processSelectSum(SelectExpression selectExpression)
+	{
+		Attribute attribute = selectExpression.getAttribute();
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sum(getRoot().get((SingularAttribute) attribute)));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sum(getRoot().get((PluralAttribute) attribute)));
+		}
+		return true;
+	}
+
+	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
+	private boolean processSelectSumAsDouble(SelectExpression selectExpression)
+	{
+		Attribute attribute = selectExpression.getAttribute();
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sumAsDouble(getRoot().get((SingularAttribute) attribute)));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sumAsDouble(getRoot().get((PluralAttribute) attribute)));
+		}
+		return true;
+	}
+
+	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
+	private boolean processSelectSumAsLong(SelectExpression selectExpression)
+	{
+		Attribute attribute = selectExpression.getAttribute();
+		if (isSingularAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sumAsLong(getRoot().get((SingularAttribute) attribute)));
+		}
+		else if (isPluralOrMapAttribute(attribute))
+		{
+			getSelections().add(getCriteriaBuilder().sumAsLong(getRoot().get((PluralAttribute) attribute)));
+		}
+		return true;
 	}
 
 	/**

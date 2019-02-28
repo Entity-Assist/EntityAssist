@@ -60,11 +60,6 @@ public class TestEntities
 		System.out.println("Override for server builds?");
 	}
 
-
-	private void configUp()
-	{
-	}
-
 	@Test
 	public void testEntity()
 	{
@@ -127,6 +122,10 @@ public class TestEntities
 		configUp();
 		GuiceContext.get(TestEntities.class)
 		            .testWhereInList();
+	}
+
+	private void configUp()
+	{
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -378,15 +377,6 @@ public class TestEntities
 		assertTrue(0 == resultCount);
 	}
 
-	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
-	public void testGetAll()
-	{
-		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
-		System.out.println("EM Open : " + em.isOpen());
-		List<EntityClass> list = new EntityClass().builder()
-		                                          .getAll();
-	}
-
 	@Test
 	public void testJoin()
 	{
@@ -414,6 +404,14 @@ public class TestEntities
 	}
 
 	@Test
+	public void testJoinLeftWithOnClauses()
+	{
+		configUp();
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		System.out.println("EM Open : " + em.isOpen());
+	}
+
+	@Test
 	public void testInRangeSpecified()
 	{
 		configUp();
@@ -435,6 +433,15 @@ public class TestEntities
 		configUp();
 		GuiceContext.get(TestEntities.class)
 		            .testGetAll();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+	public void testGetAll()
+	{
+		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		System.out.println("EM Open : " + em.isOpen());
+		List<EntityClass> list = new EntityClass().builder()
+		                                          .getAll();
 	}
 
 	@Test

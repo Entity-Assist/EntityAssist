@@ -304,7 +304,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			onClause.addAll(executor.getOnBuilder()
 			                        .getFilters());
 		}
-		Join join = getRoot().join((SingularAttribute) value, jt);
+		Join join = getRoot().join(value.getName(), jt);
 		if (!onClause.isEmpty())
 		{
 			join = join.on(onClause.toArray(new Predicate[]{}));
