@@ -406,7 +406,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		try(Statement st = connection.createStatement())
 		{
 			ResultSet rs = st.executeQuery(selectIdentityString);
-			if(rs.first())
+			if(rs.next())
 			{
 				Object o = rs.getObject(1);
 				processId(o);
