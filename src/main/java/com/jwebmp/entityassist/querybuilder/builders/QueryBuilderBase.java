@@ -282,7 +282,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
 						try(Connection c = ds.getConnection();Statement st = c.createStatement())
 						{
-							st.executeQuery(insertString);
+							st.executeUpdate(insertString);
 						}
 					}catch(Throwable T)
 					{
