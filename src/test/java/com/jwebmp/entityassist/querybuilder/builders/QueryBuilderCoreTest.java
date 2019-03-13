@@ -52,7 +52,7 @@ public class QueryBuilderCoreTest
 	@Test
 	public void testVisibleRange()
 	{
-		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
 		                                          .join(EntityClassTwo_.entityClass, new EntityClassTwo().builder()
@@ -68,7 +68,7 @@ public class QueryBuilderCoreTest
 	@Test
 	public void testDateRange()
 	{
-		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
 		                                          .inDateRange()
@@ -83,7 +83,7 @@ public class QueryBuilderCoreTest
 	@Test
 	public void testDateAndVisibleRange()
 	{
-		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
 		                                          .inDateRange()
@@ -99,7 +99,7 @@ public class QueryBuilderCoreTest
 	@Test
 	public void testDateAndVisibleRange1()
 	{
-		EntityManager em = GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
 		                                          .inDateRange()

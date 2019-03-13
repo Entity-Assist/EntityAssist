@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.Transient;
 import javax.persistence.metamodel.Attribute;
+import javax.sql.DataSource;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -23,6 +24,8 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -74,6 +77,10 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	@Transient
 	private boolean runDetached;
+	/**
+	 * If the inserted ID should be request override
+	 */
+	private boolean requestId = true;
 
 	/**
 	 * Constructor QueryBuilderBase creates a new QueryBuilderBase instance.
@@ -270,9 +277,19 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				{
 					String insertString = InsertStatement.buildInsertString(entity);
 					log.fine(insertString);
-					Query query = getEntityManager().createNativeQuery(insertString);
-					query.executeUpdate();
-					if (isIdGenerated())
+					try
+					{
+						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
+						try(Connection c = ds.getConnection();Statement st = c.createStatement())
+						{
+							st.executeQuery(insertString);
+						}
+					}catch(Throwable T)
+					{
+						Query query = getEntityManager().createNativeQuery(insertString);
+						query.executeUpdate();
+					}
+					if (isIdGenerated() && isRequestId())
 					{
 						iterateThroughResultSetForGeneratedIDs();
 					}
@@ -355,6 +372,16 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	protected abstract boolean isIdGenerated();
 
 	/**
+	 * Getter for property 'requestId'.
+	 *
+	 * @return Value for property 'requestId'.
+	 */
+	public boolean isRequestId()
+	{
+		return requestId;
+	}
+
+	/**
 	 * Method iterateThroughResultSetForGeneratedIDs ...
 	 */
 	private void iterateThroughResultSetForGeneratedIDs()
@@ -375,6 +402,17 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	{
 		EntityAssistIDMapping mapping = EntityAssistBinder.lookup(o.getClass(), entity.getClassIDType());
 		entity.setId((I) mapping.toObject(o));
+	}
+
+	/**
+	 * Setter for property 'requestId'.
+	 *
+	 * @param requestId
+	 * 		Value to set for property 'requestId'.
+	 */
+	public void setRequestId(boolean requestId)
+	{
+		this.requestId = requestId;
 	}
 
 	/**

@@ -14,7 +14,7 @@ public class EntityClassTwoBuilder
 	@Override
 	public EntityManager getEntityManager()
 	{
-		return GuiceContext.getInstance(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		return GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 	}
 
 	@Override

@@ -145,6 +145,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @return any associated reference id
 	 */
+	@Transient
 	public String getReferenceId()
 	{
 		return referenceId;
@@ -157,6 +158,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * 		a transient identifier
 	 */
 	@NotNull
+	@Transient
 	@SuppressWarnings("all")
 	public J setReferenceId(@NotNull String referenceId)
 	{
