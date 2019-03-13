@@ -25,6 +25,8 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -283,15 +285,19 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 						try(Connection c = ds.getConnection();Statement st = c.createStatement())
 						{
 							st.executeUpdate(insertString);
+							if (isIdGenerated() && isRequestId())
+							{
+								iterateThroughResultSetForGeneratedIDs(c);
+							}
 						}
 					}catch(Throwable T)
 					{
 						Query query = getEntityManager().createNativeQuery(insertString);
 						query.executeUpdate();
-					}
-					if (isIdGenerated() && isRequestId())
-					{
-						iterateThroughResultSetForGeneratedIDs();
+						if (isIdGenerated() && isRequestId())
+						{
+							iterateThroughResultSetForGeneratedIDs();
+						}
 					}
 				}
 				else
@@ -389,6 +395,27 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		Query statmentSelectId = getEntityManager().createNativeQuery(selectIdentityString);
 		Object o = statmentSelectId.getSingleResult();
 		processId(o);
+	}
+
+	/**
+	 * Method iterateThroughResultSetForGeneratedIDs ...
+	 */
+	private void iterateThroughResultSetForGeneratedIDs(Connection connection)
+	{
+		DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
+		try(Statement st = connection.createStatement())
+		{
+			ResultSet rs = st.executeQuery(selectIdentityString);
+			if(rs.first())
+			{
+				Object o = rs.getObject(1);
+				processId(o);
+			}
+		}
+		catch (SQLException e)
+		{
+			log.log(Level.WARNING, "Unable to get generatedID", e);
+		}
 	}
 
 	/**
