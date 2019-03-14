@@ -310,6 +310,7 @@
             <id>jdk11</id>
             <build>
                 <plugins>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
@@ -341,6 +342,35 @@
                             <failOnError>true</failOnError>
                         </configuration>
                     </plugin>
+
+                    <plugin>
+                        <groupId>org.hibernate.orm.tooling</groupId>
+                        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+                        <version>${maven.hibernate.version}</version>
+                        <executions>
+                            <execution>
+                                <configuration>
+                                    <failOnError>false</failOnError>
+                                    <enableLazyInitialization>true</enableLazyInitialization>
+                                    <enableDirtyTracking>false</enableDirtyTracking>
+                                    <enableAssociationManagement>true</enableAssociationManagement>
+                                    <enableExtendedEnhancement>true</enableExtendedEnhancement>
+                                </configuration>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>enhance</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <failOnError>false</failOnError>
+                            <enableLazyInitialization>true</enableLazyInitialization>
+                            <enableDirtyTracking>false</enableDirtyTracking>
+                            <enableAssociationManagement>true</enableAssociationManagement>
+                            <enableExtendedEnhancement>true</enableExtendedEnhancement>
+                        </configuration>
+                    </plugin>
+
                 </plugins>
             </build>
             <dependencies>

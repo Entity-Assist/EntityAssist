@@ -23,6 +23,7 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static com.jwebmp.entityassist.querybuilder.builders.IFilterExpression.*;
 import static com.jwebmp.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
@@ -321,6 +322,36 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	}
 
 	/**
+	 * Returns the result set as a stream
+	 *
+	 * @param resultType
+	 * 		The result type
+	 * @param <T>
+	 * 		The Class for the type to gerenify
+	 *
+	 * @return A stream of the type
+	 */
+	@SuppressWarnings({"Duplicates", "unused"})
+	public <T> Stream<T> getResultStream(Class<T> resultType)
+	{
+		if (!selected)
+		{
+			select();
+		}
+		TypedQuery<T> query = getEntityManager().createQuery(getCriteriaQuery());
+		applyCache(query);
+		if (getMaxResults() != null)
+		{
+			query.setMaxResults(getMaxResults());
+		}
+		if (getFirstResults() != null)
+		{
+			query.setFirstResult(getFirstResults());
+		}
+		return query.getResultStream();
+	}
+
+	/**
 	 * Returns a non-distinct list and returns an empty optional if a non-unique-result exception is thrown
 	 *
 	 * @return An optional of the result
@@ -351,7 +382,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return Optional of the given class type (which should be a select column)
 	 */
-	@SuppressWarnings("Duplicates")
+	@SuppressWarnings({"Duplicates", "unused"})
 	@NotNull
 	public <T> Optional<T> get(@NotNull Class<T> asType)
 	{
@@ -514,7 +545,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return The type of the column returned
 	 */
-	@SuppressWarnings("Duplicates")
+	@SuppressWarnings({"Duplicates", "unused"})
 	@NotNull
 	public <T> List<T> getAll(Class<T> returnClassType)
 	{
