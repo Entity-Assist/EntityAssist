@@ -1,6 +1,7 @@
 package com.jwebmp.entityassist.querybuilder;
 
 import com.jwebmp.entityassist.SCDEntity;
+import com.jwebmp.entityassist.enumerations.ActiveFlag;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -106,6 +107,23 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), LessThanEqualTo, toDate);
 
 		return (J) this;
+	}
+
+	/**
+	 * Updates the current record with the given active flag type
+	 *
+	 * @param entity
+	 * 		The entity to delete
+	 *
+	 * @return the entity
+	 */
+	@Override
+	public E delete(E entity)
+	{
+		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		entity.setEffectiveToDate(LocalDateTime.now());
+		getEntityManager().merge(entity);
+		return entity;
 	}
 
 	@Override

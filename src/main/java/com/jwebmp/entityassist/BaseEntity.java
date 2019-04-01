@@ -39,6 +39,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	public BaseEntity()
 	{
 		//No configuration needed
+		setFake(true);
 	}
 
 	/**

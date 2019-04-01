@@ -1,8 +1,10 @@
 package com.jwebmp.entityassist.querybuilder.statements;
 
+import com.google.common.base.Strings;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.EntityAssistStrings;
 import com.jwebmp.logger.LogFactory;
+
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -117,7 +119,16 @@ public class InsertStatement
 				JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
 				Column col = field.getAnnotation(Column.class);
 				Id idCol = field.getAnnotation(Id.class);
-				if (col == joinCol && joinCol == idCol) //fuzzy logic, if everything is null go to next field, easier than is null
+				OneToOne oneToOne = field.getAnnotation(OneToOne.class);
+				OneToMany oneToMany = field.getAnnotation(OneToMany.class);
+				ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
+				ManyToOne manyToOne = field.getAnnotation(ManyToOne.class);
+				if (col == joinCol && joinCol == idCol
+						&& joinCol == oneToOne
+						&& joinCol == oneToMany
+						&& joinCol == manyToMany
+						&& joinCol == manyToOne
+				) //fuzzy logic, if everything is null go to next field, easier than is null
 				{
 					continue;
 				}

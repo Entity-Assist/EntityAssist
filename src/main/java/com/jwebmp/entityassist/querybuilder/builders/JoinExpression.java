@@ -4,6 +4,7 @@ import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
 
 /**
@@ -28,6 +29,10 @@ public final class JoinExpression<X extends BaseEntity<X, ?, ?>, Y>
 	 * The builder to use for the on clause
 	 */
 	private QueryBuilder<?, X, ?> onBuilder;
+	/**
+	 * The generated root from the join
+	 */
+	private Root<X> generatedRoot;
 
 	/**
 	 * The join expression to build
@@ -158,5 +163,25 @@ public final class JoinExpression<X extends BaseEntity<X, ?, ?>, Y>
 	public void setOnBuilder(QueryBuilder<?, X, ?> onBuilder)
 	{
 		this.onBuilder = onBuilder;
+	}
+
+	/**
+	 * The generated root if any
+	 * @return
+	 */
+	public Root<X> getGeneratedRoot()
+	{
+		return generatedRoot;
+	}
+
+	/**
+	 * The generated root
+	 * @param generatedRoot
+	 * @return
+	 */
+	public JoinExpression<X, Y> setGeneratedRoot(Root<X> generatedRoot)
+	{
+		this.generatedRoot = generatedRoot;
+		return this;
 	}
 }

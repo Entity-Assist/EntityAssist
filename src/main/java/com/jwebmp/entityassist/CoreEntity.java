@@ -9,6 +9,7 @@ import com.jwebmp.entityassist.querybuilder.QueryBuilderCore;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	 * A Row status identifier for a warehouse or OLAP system
 	 */
 	@Basic(optional = false,
-			fetch = FetchType.EAGER)
+			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "ActiveFlag")
 	@Enumerated(value = EnumType.STRING)
@@ -176,4 +177,5 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
 	{
 		return dateTimeOffsetFormatter;
 	}
+
 }

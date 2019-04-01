@@ -3,6 +3,7 @@ package com.jwebmp.entityassist;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jwebmp.entityassist.converters.LocalDateTimeAttributeConverter;
+import com.jwebmp.entityassist.querybuilder.QueryBuilderCore;
 import com.jwebmp.entityassist.querybuilder.QueryBuilderSCD;
 
 import javax.persistence.*;
@@ -176,6 +177,18 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 		this.warehouseLastUpdatedTimestamp = warehouseLastUpdatedTimestamp;
 		return (J) this;
 	}
-
-
+	/**
+	 * Deletes this entity with the entity mananger. This will remove the row.
+	 *
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J delete()
+	{
+		((QueryBuilderSCD) builder())
+				.delete(this);
+		return (J) this;
+	}
 }

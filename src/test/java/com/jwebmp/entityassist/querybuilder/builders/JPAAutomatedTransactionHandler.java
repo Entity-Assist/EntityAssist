@@ -41,6 +41,12 @@ public class JPAAutomatedTransactionHandler
 	}
 
 	@Override
+	public void setTransactionTimeout(int timeout, EntityManager entityManager, PersistenceUnit persistenceUnit)
+	{
+
+	}
+
+	@Override
 	public void rollbackTransacation(boolean createNew, EntityManager entityManager, PersistenceUnit persistenceUnit)
 	{
 		entityManager.getTransaction()

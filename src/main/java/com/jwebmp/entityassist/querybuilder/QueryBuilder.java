@@ -358,7 +358,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 */
 	public Optional<E> get()
 	{
-		return get(false);
+		return get(this.returnFirst);
 	}
 
 	/**
@@ -426,7 +426,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 		catch (NonUniqueResultException nure)
 		{
-			log.log(Level.FINER, "Non Unique Result. Couldn't find object for class : " + getEntityClass().getName() + "}", nure);
 			if (isReturnFirst())
 			{
 				query.setMaxResults(1);
@@ -448,6 +447,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			}
 			else
 			{
+				log.log(Level.FINE, "Non Unique Result. Found too many for a get() for class : " + getEntityClass().getName() + "}. Get First Result disabled. Returning empty", nure);
 				return Optional.empty();
 			}
 		}
@@ -626,7 +626,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	@SuppressWarnings("Duplicates")
 	public E delete(E entity)
 	{
-
 		boolean transactionAlreadyStarted = false;
 		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))

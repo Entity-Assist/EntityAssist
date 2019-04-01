@@ -294,10 +294,33 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
+	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilder builder, JoinType joinType,JoinExpression joinExpression)
+	{
+		joinExpression.setAttribute(attribute);
+		joinExpression.setExecutor(builder);
+		joinExpression.setJoinType(joinType);
+		joinExpression.setGeneratedRoot(getCriteriaQuery().from(builder.getEntityClass()));
+		joins.add(joinExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Joins the given builder with the given builder and build type
+	 *
+	 * @param attribute
+	 * 		The given attribute to join on
+	 * @param builder
+	 * 		A Query Builder object that contains the construct of the query
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
 	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilder builder, JoinType joinType)
 	{
 		JoinExpression joinExpression = new JoinExpression(builder, joinType, attribute);
 		joins.add(joinExpression);
+		joinExpression.setGeneratedRoot(getCriteriaQuery().from(builder.getEntityClass()));
 		return (J) this;
 	}
 
@@ -317,6 +340,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	{
 		JoinExpression joinExpression = new JoinExpression(builder, joinType, attribute);
 		joinExpression.setOnBuilder(onClauses);
+		joinExpression.setGeneratedRoot(getCriteriaQuery().from(builder.getEntityClass()));
 		joins.add(joinExpression);
 		return (J) this;
 	}

@@ -7,6 +7,7 @@ import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
 import com.jwebmp.entityassist.services.EntityAssistIDMapping;
 import com.jwebmp.guicedinjection.GuiceContext;
+import com.jwebmp.guicedpersistence.db.DbStartup;
 import com.jwebmp.guicedpersistence.services.ITransactionHandler;
 import com.jwebmp.logger.LogFactory;
 import com.oracle.jaxb21.PersistenceUnit;
@@ -279,7 +280,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				{
 					String insertString = InsertStatement.buildInsertString(entity);
 					log.fine(insertString);
-					try
+					if(DbStartup.getAvailableDataSources().contains(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
 						try(Connection c = ds.getConnection();Statement st = c.createStatement())
@@ -290,8 +291,8 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 								iterateThroughResultSetForGeneratedIDs(c);
 							}
 						}
-					}catch(Throwable T)
-					{
+					}
+					else {
 						Query query = getEntityManager().createNativeQuery(insertString);
 						query.executeUpdate();
 						if (isIdGenerated() && isRequestId())
