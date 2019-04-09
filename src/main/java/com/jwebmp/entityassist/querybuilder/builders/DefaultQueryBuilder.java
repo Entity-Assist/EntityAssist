@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.Logger;
 
+import static com.jwebmp.entityassist.enumerations.Operand.*;
 import static com.jwebmp.entityassist.enumerations.SelectAggregrate.*;
 import static com.jwebmp.entityassist.querybuilder.builders.IFilterExpression.*;
 
@@ -232,14 +233,63 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 
 		if (idField.isPresent())
 		{
-			getFilters().add(getRoot().get(idField.get()
-			                                      .getName())
-			                          .in(id));
+			where((Attribute<Object, I>) getAttribute(idField.get()
+			                                                 .getName()), Equals, id);
 		}
 		else
 		{
-			getFilters().add(getRoot().get("id")
-			                          .in(id));
+			where((Attribute<Object, I>) getAttribute("id"), Equals, id);
+		}
+		return (J) this;
+	}
+
+
+	/**
+	 * Where the "id" field is in
+	 *
+	 * @param id
+	 * 		Finds by ID
+	 *
+	 * @return This (Use get to return results)
+	 */
+	@SuppressWarnings("unchecked")
+	public J find(Collection<I> id)
+	{
+		List<I> idList = new ArrayList(Arrays.asList(id));
+
+		Field found = null;
+		Field[] allFields = id.getClass()
+		                      .getFields();
+		for (Field allField : allFields)
+		{
+			if (allField.isAnnotationPresent(Id.class))
+			{
+				found = allField;
+				break;
+			}
+		}
+
+		Optional<Field> idField = Optional.ofNullable(found);
+		if (!idField.isPresent())
+		{
+			Field[] fields = getEntityClass().getDeclaredFields();
+			for (Field field : fields)
+			{
+				if (field.isAnnotationPresent(Id.class))
+				{
+					idField = Optional.of(field);
+				}
+			}
+		}
+
+		if (idField.isPresent())
+		{
+			where((Attribute<Object, I>) getAttribute(idField.get()
+			                                                 .getName()), InList, idList);
+		}
+		else
+		{
+			where((Attribute<Object, I>) getAttribute("id"), InList, idList);
 		}
 		return (J) this;
 	}
@@ -249,7 +299,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 *
 	 * @return A set of predicates
 	 */
-	protected Set<Predicate> getFilters()
+	public Set<Predicate> getFilters()
 	{
 		return filters;
 	}
@@ -294,12 +344,12 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilder builder, JoinType joinType,JoinExpression joinExpression)
+	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilder builder, JoinType joinType, JoinExpression joinExpression)
 	{
 		joinExpression.setAttribute(attribute);
 		joinExpression.setExecutor(builder);
 		joinExpression.setJoinType(joinType);
-		joinExpression.setGeneratedRoot(getCriteriaQuery().from(builder.getEntityClass()));
+		joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
 		joins.add(joinExpression);
 		return (J) this;
 	}
@@ -316,11 +366,35 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilder builder, JoinType joinType)
+	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilder<?, ?, ?> builder, JoinType joinType)
 	{
 		JoinExpression joinExpression = new JoinExpression(builder, joinType, attribute);
 		joins.add(joinExpression);
-		joinExpression.setGeneratedRoot(getCriteriaQuery().from(builder.getEntityClass()));
+		joinExpression.setExecutor(builder);
+		joinExpression.setJoinType(joinType);
+		joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
+		return (J) this;
+	}
+
+	/**
+	 * Joins the given builder with the given builder and build type
+	 *
+	 * @param attribute
+	 * 		The given attribute to join on
+	 * @param builder
+	 * 		A Query Builder object that contains the construct of the query
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public <X, Y> J join(Attribute<X, Y> attribute, QueryBuilder builder, JoinType joinType, QueryBuilder onClauses,JoinExpression joinExpression)
+	{
+		joinExpression.setExecutor(builder);
+		joinExpression.setJoinType(joinType);
+		joinExpression.setOnBuilder(onClauses);
+		joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
+		joins.add(joinExpression);
 		return (J) this;
 	}
 
@@ -340,7 +414,9 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	{
 		JoinExpression joinExpression = new JoinExpression(builder, joinType, attribute);
 		joinExpression.setOnBuilder(onClauses);
-		joinExpression.setGeneratedRoot(getCriteriaQuery().from(builder.getEntityClass()));
+		joinExpression.setExecutor(builder);
+		joinExpression.setJoinType(joinType);
+		joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
 		joins.add(joinExpression);
 		return (J) this;
 	}
@@ -376,6 +452,23 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	{
 		return join(attribute, null, joinType);
 	}
+
+
+	/**
+	 * Joins the given builder With the given join type and no associated builder
+	 *
+	 * @param attribute
+	 * 		The given attribute to join on
+	 *
+	 * @return The join type to use
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public <X, Y> J join(Attribute<X, Y> attribute, JoinType joinType, JoinExpression joinExpression)
+	{
+		return join(attribute, null, joinType, joinExpression);
+	}
+
 
 	/**
 	 * Where the field name is equal to the value
@@ -452,7 +545,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	public <X, Y> J in(Attribute<X, Y> fieldName, Y value)
 	{
-		where(fieldName, Operand.InList, value);
+		where(fieldName, InList, value);
 		return (J) this;
 	}
 
@@ -469,7 +562,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	public <X, Y> J in(Attribute<X, Y> fieldName, Collection<Y> value)
 	{
-		where(fieldName, Operand.InList, value);
+		where(fieldName, InList, value);
 		return (J) this;
 	}
 
@@ -513,7 +606,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public <X, Y> J in(Attribute<X, Y> fieldName, Y[] value)
 	{
-		where(fieldName, Operand.InList, value);
+		where(fieldName, InList, value);
 		return (J) this;
 	}
 

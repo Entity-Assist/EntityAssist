@@ -124,14 +124,20 @@ public class InsertStatement
 				ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
 				ManyToOne manyToOne = field.getAnnotation(ManyToOne.class);
 				if (col == joinCol && joinCol == idCol
-						&& joinCol == oneToOne
+					/*	&& joinCol == oneToOne
 						&& joinCol == oneToMany
 						&& joinCol == manyToMany
-						&& joinCol == manyToOne
+						&& joinCol == manyToOne*/
 				) //fuzzy logic, if everything is null go to next field, easier than is null
 				{
 					continue;
 				}
+
+				if(col == null && joinCol == null)
+				{
+					//TODO Nested inserts
+				}
+
 				String columnName = col == null ? joinCol.name() : col.name();
 				if (columnName.isEmpty())
 				{

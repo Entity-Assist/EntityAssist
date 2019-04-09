@@ -122,10 +122,59 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	{
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveToDate(LocalDateTime.now());
-		getEntityManager().merge(entity);
+		return super.update(entity);
+	}
+
+	@Override
+	public @javax.validation.constraints.NotNull E update(E entity)
+	{
+		E originalEntity = entity.builder()
+		                         .find(entity.getId())
+		                         .get()
+		                         .orElseThrow();
+
+		originalEntity.setEffectiveToDate(LocalDateTime.now());
+		originalEntity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		onDeleteUpdate(originalEntity, entity);
+
+		originalEntity = delete(originalEntity);
+		getEntityManager().detach(originalEntity);
+		getEntityManager().detach(entity);
+
+		entity.setId(null);
+		entity.setEffectiveFromDate(LocalDateTime.now());
+		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
+		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		entity.setEffectiveToDate(EndOfTime);
+
+		entity.persist();
+
 		return entity;
 	}
 
+	/**
+	 * Performs any required logic between the original and new entities during an update operation
+	 * which is a delete and marking of the record as historical, and the insert of a new record which is updated
+	 *
+	 * The old and new entities may have the same id, the new entity id is emptied after this call for persistence.
+	 *
+	 * @param originalEntity The entity that is going to be deleted
+	 * @param newEntity The entity that is going to be created
+	 * @return
+	 */
+	public boolean onDeleteUpdate(E originalEntity, E newEntity)
+	{
+		return true;
+	}
+
+	/**
+	 * Sets the SCD values to new ones if not present
+	 *
+	 * @param entity
+	 * 		The entity
+	 *
+	 * @return
+	 */
 	@Override
 	protected boolean onCreate(E entity)
 	{

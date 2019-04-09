@@ -3,6 +3,8 @@ package com.jwebmp.entityassist.querybuilder.builders;
 import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
@@ -11,7 +13,7 @@ import javax.persistence.metamodel.Attribute;
  * Public join expression
  */
 @SuppressWarnings("unused")
-public final class JoinExpression<X extends BaseEntity<X, ?, ?>, Y>
+public final class JoinExpression<X extends BaseEntity<X, ?, ?>, Y,Z>
 {
 	/**
 	 * The query build that will run the execution for the join
@@ -32,7 +34,7 @@ public final class JoinExpression<X extends BaseEntity<X, ?, ?>, Y>
 	/**
 	 * The generated root from the join
 	 */
-	private Root<X> generatedRoot;
+	private Join<X,Y> generatedRoot;
 
 	/**
 	 * The join expression to build
@@ -169,7 +171,7 @@ public final class JoinExpression<X extends BaseEntity<X, ?, ?>, Y>
 	 * The generated root if any
 	 * @return
 	 */
-	public Root<X> getGeneratedRoot()
+	public Join<X,Y> getGeneratedRoot()
 	{
 		return generatedRoot;
 	}
@@ -179,7 +181,7 @@ public final class JoinExpression<X extends BaseEntity<X, ?, ?>, Y>
 	 * @param generatedRoot
 	 * @return
 	 */
-	public JoinExpression<X, Y> setGeneratedRoot(Root<X> generatedRoot)
+	public JoinExpression<X, Y,Z> setGeneratedRoot(Join<X,Y> generatedRoot)
 	{
 		this.generatedRoot = generatedRoot;
 		return this;

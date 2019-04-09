@@ -305,7 +305,17 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			onClause.addAll(executor.getOnBuilder()
 			                        .getFilters());
 		}
-		Join join = getRoot().join(value.getName(), jt);
+
+		Join join;
+		if (executor.getGeneratedRoot() == null)
+		{
+			join = getRoot().join(value.getName(), jt);
+		}
+		else
+		{
+			//join = getRoot().join(value.getName(), jt);
+			join = executor.getGeneratedRoot();
+		}
 		if (!onClause.isEmpty())
 		{
 			join = join.on(onClause.toArray(new Predicate[]{}));
@@ -447,7 +457,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			}
 			else
 			{
-				log.log(Level.FINE, "Non Unique Result. Found too many for a get() for class : " + getEntityClass().getName() + "}. Get First Result disabled. Returning empty", nure);
+				log.log(Level.FINE, "Non Unique Result. Found too many for a get() for class : " + getEntityClass().getName() + "}. Get First Result disabled. Returning empty",
+				        nure);
 				return Optional.empty();
 			}
 		}

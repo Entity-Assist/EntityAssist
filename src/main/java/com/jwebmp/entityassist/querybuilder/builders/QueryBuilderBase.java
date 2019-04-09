@@ -260,26 +260,11 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			{
 				boolean transactionAlreadyStarted = false;
 				com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
-				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
-				{
-					if (handler.transactionExists(getEntityManager(), unit))
-					{
-						transactionAlreadyStarted = true;
-						break;
-					}
-				}
-				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
-				{
-					if (!transactionAlreadyStarted && handler.active(unit))
-					{
-						handler.beginTransacation(false, getEntityManager(), unit);
-					}
-				}
-
 				if (isRunDetached())
 				{
 					String insertString = InsertStatement.buildInsertString(entity);
 					log.fine(insertString);
+					//if(false)
 					if(DbStartup.getAvailableDataSources().contains(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
@@ -306,13 +291,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 					getEntityManager().persist(entity);
 				}
 				entity.setFake(false);
-				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
-				{
-					if (!transactionAlreadyStarted && handler.active(unit))
-					{
-						handler.commitTransacation(false, getEntityManager(), unit);
-					}
-				}
 			}
 		}
 		catch (IllegalStateException ise)
@@ -489,7 +467,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	@NotNull
 	@SuppressWarnings("unchecked")
-	public J update(E entity)
+	public E update(E entity)
 	{
 		try
 		{
@@ -513,7 +491,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		{
 			log.log(Level.SEVERE, "Cannot update this entity  unknown exception the state of this object is not ready : \n", e);
 		}
-		return (J) this;
+		return entity;
 	}
 
 	/**
