@@ -16,10 +16,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -241,6 +238,13 @@ public class InsertStatement
 			else if (columnValue instanceof Enum)
 			{
 				Enum wct = (Enum) columnValue;
+				insertString.append(STRING_SINGLE_QUOTES)
+				            .append(wct.toString())
+				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+			}
+			else if (columnValue instanceof UUID)
+			{
+				UUID wct = (UUID) columnValue;
 				insertString.append(STRING_SINGLE_QUOTES)
 				            .append(wct.toString())
 				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
