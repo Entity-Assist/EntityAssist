@@ -3,11 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.jwebmp</groupId>
-        <artifactId>jwebmp-builder</artifactId>
+        <groupId>com.jwebmp.guicedee.persistence</groupId>
+        <artifactId>persistence-parent</artifactId>
         <version>0.0.0_0-SNAPSHOT</version>
     </parent>
-
     <artifactId>entity-assist</artifactId>
     <packaging>jar</packaging>
     <name>Entity Assist</name>
@@ -18,44 +17,25 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.jwebmp</groupId>
+            <groupId>com.jwebmp.guicedee.persistence</groupId>
             <artifactId>guiced-persistence</artifactId>
-            <version>${project.version}</version>
-            <classifier>${jwebmp.runtime.classifier}</classifier>
-            <type>jar</type>
         </dependency>
 
         <dependency>
-            <groupId>com.jwebmp</groupId>
+            <groupId>com.jwebmp.guicedee.persistence</groupId>
             <artifactId>guiced-persistence-btm</artifactId>
-            <version>${project.version}</version>
-            <classifier>${jwebmp.runtime.classifier}</classifier>
-            <type>jar</type>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.jwebmp</groupId>
+            <groupId>com.jwebmp.guicedee.persistence</groupId>
             <artifactId>guiced-persistence-jpa</artifactId>
-            <version>${project.version}</version>
-            <classifier>${jwebmp.runtime.classifier}</classifier>
-            <type>jar</type>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.jwebmp</groupId>
-            <artifactId>jwebmp-testlib</artifactId>
-            <version>${project.version}</version>
-            <classifier>${jwebmp.runtime.classifier}</classifier>
-            <type>jar</type>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jwebmp</groupId>
+            <groupId>com.jwebmp.jpms.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -69,9 +49,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jwebmp</groupId>
+            <groupId>com.jwebmp.jpms.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -388,8 +367,6 @@
                 </dependency>
             </dependencies>
         </profile>
-
-
 
         <profile>
             <id>jdk12</id>

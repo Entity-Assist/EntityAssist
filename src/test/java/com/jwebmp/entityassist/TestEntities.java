@@ -9,8 +9,6 @@ import com.jwebmp.entityassist.enumerations.ActiveFlag;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.db.annotations.Transactional;
-import com.jwebmp.testing.BaseTest;
-import com.jwebmp.testing.IBaseTest;
 import org.junit.jupiter.api.*;
 
 import javax.persistence.EntityManager;
@@ -26,34 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestEntities
-		extends BaseTest
 {
-	@AfterAll
-	public static void tearDownAll()
-	{
-		IBaseTest.tearDownAll();
-	}
-
-	@BeforeAll
-	public static void initAll()
-	{
-		IBaseTest.initAll();
-	}
-
-	@Override
-	@AfterEach
-	public void tearDown()
-	{
-		super.tearDown();
-	}
-
-	@Override
-	@BeforeEach
-	public void init()
-	{
-		super.init();
-	}
-
 	@Test
 	public void testMe()
 	{
