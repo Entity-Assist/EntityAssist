@@ -131,7 +131,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		E originalEntity = entity.builder()
 		                         .find(entity.getId())
 		                         .get()
-		                         .orElseThrow();
+		                         .get();
 
 		originalEntity.setEffectiveToDate(LocalDateTime.now());
 		originalEntity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
