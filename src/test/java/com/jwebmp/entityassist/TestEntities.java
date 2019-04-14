@@ -495,6 +495,7 @@ public class TestEntities
 		            .testBulkUpdate();
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testBulkUpdate()
 	{

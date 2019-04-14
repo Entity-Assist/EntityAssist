@@ -252,7 +252,10 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		{
 			SingularAttribute<?, ?> attributeName = entries.getKey();
 			Object value = entries.getValue();
-			update.set(attributeName.getName(), value);
+			if (attributeName != null)
+			{
+				update.set(attributeName.getName(), value);
+			}
 		}
 		select();
 

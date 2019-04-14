@@ -3,7 +3,6 @@ package com.jwebmp.entityassist;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jwebmp.entityassist.converters.LocalDateTimeAttributeConverter;
-import com.jwebmp.entityassist.querybuilder.QueryBuilderCore;
 import com.jwebmp.entityassist.querybuilder.QueryBuilderSCD;
 
 import javax.persistence.*;
@@ -157,7 +156,6 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	 *
 	 * @return The time
 	 */
-	@SuppressWarnings("all")
 	public LocalDateTime getWarehouseLastUpdatedTimestamp()
 	{
 		return warehouseLastUpdatedTimestamp;
