@@ -19,43 +19,51 @@
         <dependency>
             <groupId>com.jwebmp.guicedee.persistence</groupId>
             <artifactId>guiced-persistence</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>com.jwebmp.guicedee.persistence</groupId>
             <artifactId>guiced-persistence-btm</artifactId>
             <scope>test</scope>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>com.jwebmp.guicedee.persistence</groupId>
             <artifactId>guiced-persistence-jpa</artifactId>
             <scope>test</scope>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>com.jwebmp.jpms.commons</groupId>
             <artifactId>commons-text</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>com.jwebmp.jpms.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <type>jar</type>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -63,6 +71,7 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
+            <type>jar</type>
         </dependency>
 
         <dependency>
@@ -88,6 +97,7 @@
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>jsr250-api</artifactId>
+            <type>jar</type>
         </dependency>
     </dependencies>
     <scm>
