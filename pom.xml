@@ -93,12 +93,6 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>jsr250-api</artifactId>
-            <type>jar</type>
-        </dependency>
     </dependencies>
     <scm>
         <url>https://github.com/GedMarc/EntityAssist.git</url>
