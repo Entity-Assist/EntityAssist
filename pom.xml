@@ -211,13 +211,8 @@
                     <type>jar</type>
                 </dependency>
                 <dependency>
-                    <groupId>javax.transaction</groupId>
-                    <artifactId>javax.transaction-api</artifactId>
-                    <type>jar</type>
-                </dependency>
-                <dependency>
-                    <groupId>javax.transaction</groupId>
-                    <artifactId>jta</artifactId>
+                    <groupId>com.jwebmp.thirdparty</groupId>
+                    <artifactId>javax.transaction</artifactId>
                     <type>jar</type>
                 </dependency>
                 <dependency>
