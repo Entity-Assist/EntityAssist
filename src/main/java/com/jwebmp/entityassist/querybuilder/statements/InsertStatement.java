@@ -30,8 +30,6 @@ public class InsertStatement
 
 	private static final String HEXES = "0123456789ABCDEF";
 
-	private static InsertStatement insertStatement = new InsertStatement();
-
 	/**
 	 * The standard sdf format
 	 */
@@ -44,10 +42,11 @@ public class InsertStatement
 	 * Returns the date time formmatter
 	 */
 	private final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	private final Object obj;
 
-	private InsertStatement()
+	public InsertStatement(Object obj)
 	{
-		//Nothing needed
+		this.obj = obj;
 	}
 
 	/**
@@ -56,10 +55,10 @@ public class InsertStatement
 	 * @return
 	 */
 	@NotNull
-	public static String buildInsertString(Object o)
+	public String buildInsertString()
 	{
 		StringBuilder insertString = new StringBuilder("INSERT INTO ");
-		Class<?> c = o.getClass();
+		Class<?> c = obj.getClass();
 		Table t = c.getAnnotation(Table.class);
 		String tableName = "";
 		if (t != null)
@@ -76,8 +75,8 @@ public class InsertStatement
 		}
 		if (tableName.isEmpty())
 		{
-			tableName = o.getClass()
-			             .getSimpleName();
+			tableName = obj.getClass()
+			               .getSimpleName();
 		}
 		insertString.append(tableName)
 		            .append(" (");
@@ -101,7 +100,7 @@ public class InsertStatement
 			field.setAccessible(true);
 			try
 			{
-				Object fieldObject = field.get(o);
+				Object fieldObject = field.get(obj);
 				if (fieldObject == null)
 				{
 					continue;
@@ -130,7 +129,7 @@ public class InsertStatement
 					continue;
 				}
 
-				if(col == null && joinCol == null)
+				if (col == null && joinCol == null)
 				{
 					//TODO Nested inserts
 				}
@@ -212,21 +211,21 @@ public class InsertStatement
 			{
 				Date date = (Date) columnValue;
 				insertString.append(STRING_SINGLE_QUOTES)
-				            .append(getInsertStatement().sdf.format(date))
+				            .append(sdf.format(date))
 				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof LocalDate)
 			{
 				LocalDate date = (LocalDate) columnValue;
 				insertString.append(STRING_SINGLE_QUOTES)
-				            .append(getInsertStatement().dateFormat.format(date))
+				            .append(dateFormat.format(date))
 				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof LocalDateTime)
 			{
 				LocalDateTime date = (LocalDateTime) columnValue;
 				insertString.append(STRING_SINGLE_QUOTES)
-				            .append(getInsertStatement().dateTimeFormat.format(date))
+				            .append(dateTimeFormat.format(date))
 				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 			}
 			else if (columnValue instanceof BaseEntity)
@@ -264,9 +263,9 @@ public class InsertStatement
 		return insertString.toString();
 	}
 
-	public static InsertStatement getInsertStatement()
+	public String toString()
 	{
-		return insertStatement;
+		return buildInsertString();
 	}
 
 	static String getHex(byte[] raw)

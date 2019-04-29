@@ -262,9 +262,8 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
 				if (isRunDetached())
 				{
-					String insertString = InsertStatement.buildInsertString(entity);
+					String insertString = new InsertStatement(entity).toString();
 					log.fine(insertString);
-					//if(false)
 					if(DbStartup.getAvailableDataSources().contains(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
