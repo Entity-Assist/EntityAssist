@@ -164,7 +164,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 *
 	 * @return The criteria builder
 	 */
-	protected CriteriaBuilder getCriteriaBuilder()
+	public CriteriaBuilder getCriteriaBuilder()
 	{
 		return criteriaBuilder;
 	}
@@ -1335,7 +1335,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 *
 	 * @return A Criteria Query
 	 */
-	protected CriteriaQuery getCriteriaQuery()
+	public CriteriaQuery getCriteriaQuery()
 	{
 		return criteriaQuery;
 	}
