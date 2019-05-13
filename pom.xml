@@ -95,10 +95,11 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <type>jar</type>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${glassfish.jaxb.version}</version>
         </dependency>
+
     </dependencies>
     <scm>
         <url>https://github.com/GedMarc/EntityAssist.git</url>
@@ -250,9 +251,9 @@
                                     <version>${maven.hibernate.version}</version>
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
-                                    <groupId>javax.xml.bind</groupId>
-                                    <artifactId>jaxb-api</artifactId>
-                                    <version>${jaxb.version}</version>
+                                    <groupId>jakarta.xml.bind</groupId>
+                                    <artifactId>jakarta.xml.bind-api</artifactId>
+                                    <version>${glassfish.jaxb.version}</version>
                                 </annotationProcessorPath>
                             </annotationProcessorPaths>
                             <annotationProcessors>
@@ -294,9 +295,9 @@
                         </configuration>
                         <dependencies>
                             <dependency>
-                                <groupId>javax.xml.bind</groupId>
-                                <artifactId>jaxb-api</artifactId>
-                                <type>jar</type>
+                                <groupId>jakarta.xml.bind</groupId>
+                                <artifactId>jakarta.xml.bind-api</artifactId>
+                                <version>${glassfish.jaxb.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
@@ -311,9 +312,9 @@
                     <!--<optional>true</optional>-->
                 </dependency>
                 <dependency>
-                    <groupId>javax.xml.bind</groupId>
-                    <artifactId>jaxb-api</artifactId>
-                    <version>${jaxb.version}</version>
+                    <groupId>jakarta.xml.bind</groupId>
+                    <artifactId>jakarta.xml.bind-api</artifactId>
+                    <version>${glassfish.jaxb.version}</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
@@ -340,9 +341,9 @@
                                     <version>${maven.hibernate.version}</version>
                                 </annotationProcessorPath>
                                 <annotationProcessorPath>
-                                    <groupId>javax.xml.bind</groupId>
-                                    <artifactId>jaxb-api</artifactId>
-                                    <version>${jaxb.version}</version>
+                                    <groupId>jakarta.xml.bind</groupId>
+                                    <artifactId>jakarta.xml.bind-api</artifactId>
+                                    <version>${glassfish.jaxb.version}</version>
                                 </annotationProcessorPath>
                             </annotationProcessorPaths>
                             <annotationProcessors>
@@ -394,9 +395,9 @@
                     <!--<optional>true</optional>-->
                 </dependency>
                 <dependency>
-                    <groupId>javax.xml.bind</groupId>
-                    <artifactId>jaxb-api</artifactId>
-                    <version>${jaxb.version}</version>
+                    <groupId>jakarta.xml.bind</groupId>
+                    <artifactId>jakarta.xml.bind-api</artifactId>
+                    <version>${glassfish.jaxb.version}</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
