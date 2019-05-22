@@ -142,7 +142,7 @@
                         <configuration>
                             <failOnError>false</failOnError>
                             <enableLazyInitialization>true</enableLazyInitialization>
-                            <enableDirtyTracking>false</enableDirtyTracking>
+                            <enableDirtyTracking>true</enableDirtyTracking>
                             <enableAssociationManagement>true</enableAssociationManagement>
                             <enableExtendedEnhancement>true</enableExtendedEnhancement>
                         </configuration>
@@ -276,7 +276,7 @@
                                 <configuration>
                                     <failOnError>false</failOnError>
                                     <enableLazyInitialization>true</enableLazyInitialization>
-                                    <enableDirtyTracking>false</enableDirtyTracking>
+                                    <enableDirtyTracking>true</enableDirtyTracking>
                                     <enableAssociationManagement>true</enableAssociationManagement>
                                     <enableExtendedEnhancement>true</enableExtendedEnhancement>
                                 </configuration>
@@ -289,7 +289,7 @@
                         <configuration>
                             <failOnError>false</failOnError>
                             <enableLazyInitialization>true</enableLazyInitialization>
-                            <enableDirtyTracking>false</enableDirtyTracking>
+                            <enableDirtyTracking>true</enableDirtyTracking>
                             <enableAssociationManagement>true</enableAssociationManagement>
                             <enableExtendedEnhancement>true</enableExtendedEnhancement>
                         </configuration>
@@ -301,7 +301,6 @@
                             </dependency>
                         </dependencies>
                     </plugin>
-
                 </plugins>
             </build>
             <dependencies>
@@ -366,7 +365,7 @@
                                 <configuration>
                                     <failOnError>false</failOnError>
                                     <enableLazyInitialization>true</enableLazyInitialization>
-                                    <enableDirtyTracking>false</enableDirtyTracking>
+                                    <enableDirtyTracking>true</enableDirtyTracking>
                                     <enableAssociationManagement>true</enableAssociationManagement>
                                     <enableExtendedEnhancement>true</enableExtendedEnhancement>
                                 </configuration>
@@ -379,7 +378,7 @@
                         <configuration>
                             <failOnError>false</failOnError>
                             <enableLazyInitialization>true</enableLazyInitialization>
-                            <enableDirtyTracking>false</enableDirtyTracking>
+                            <enableDirtyTracking>true</enableDirtyTracking>
                             <enableAssociationManagement>true</enableAssociationManagement>
                             <enableExtendedEnhancement>true</enableExtendedEnhancement>
                         </configuration>
