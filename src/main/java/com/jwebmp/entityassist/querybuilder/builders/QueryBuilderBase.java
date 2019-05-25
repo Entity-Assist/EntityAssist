@@ -508,8 +508,34 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		{
 			if (onUpdate(entity))
 			{
+				boolean transactionAlreadyStarted = false;
+				PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+				{
+					if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
+					{
+						transactionAlreadyStarted = true;
+						break;
+					}
+				}
+
+				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+				{
+					if (!transactionAlreadyStarted && handler.active(unit))
+					{
+						handler.beginTransacation(false, getEntityManager(), unit);
+					}
+				}
+
 				getEntityManager().merge(entity);
 				getEntityManager().flush();
+				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+				{
+					if (!transactionAlreadyStarted && handler.active(unit))
+					{
+						handler.commitTransacation(false, getEntityManager(), unit);
+					}
+				}
 			}
 		}
 		catch (IllegalStateException ise)
