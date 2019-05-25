@@ -1,7 +1,6 @@
 package com.jwebmp.entityassist.querybuilder;
 
 import com.jwebmp.entityassist.SCDEntity;
-import com.jwebmp.entityassist.enumerations.ActiveFlag;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -109,22 +108,6 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		return (J) this;
 	}
 
-	/**
-	 * Updates the current record with the given active flag type
-	 *
-	 * @param entity
-	 * 		The entity to delete
-	 *
-	 * @return the entity
-	 */
-	@Override
-	public E delete(E entity)
-	{
-		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
-		entity.setEffectiveToDate(LocalDateTime.now());
-		return super.update(entity);
-	}
-
 	@Override
 	public @javax.validation.constraints.NotNull E update(E entity)
 	{
@@ -132,24 +115,9 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		                         .find(entity.getId())
 		                         .get()
 		                         .get();
-
 		originalEntity.setEffectiveToDate(LocalDateTime.now());
 		originalEntity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
-		onDeleteUpdate(originalEntity, entity);
-
-		originalEntity = delete(originalEntity);
-		getEntityManager().detach(originalEntity);
-		getEntityManager().detach(entity);
-
-		entity.setId(null);
-		entity.setEffectiveFromDate(LocalDateTime.now());
-		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
-		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
-		entity.setEffectiveToDate(EndOfTime);
-
-		entity.persist();
-
-		return entity;
+		return super.update(entity);
 	}
 
 	/**
