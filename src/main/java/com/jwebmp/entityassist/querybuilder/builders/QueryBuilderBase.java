@@ -264,10 +264,11 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				{
 					String insertString = new InsertStatement(entity).toString();
 					log.fine(insertString);
-					if(DbStartup.getAvailableDataSources().contains(getEntityManagerAnnotation()))
+					if (DbStartup.getAvailableDataSources()
+					             .contains(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-						try(Connection c = ds.getConnection();Statement st = c.createStatement())
+						try (Connection c = ds.getConnection(); Statement st = c.createStatement())
 						{
 							st.executeUpdate(insertString);
 							if (isIdGenerated() && isRequestId())
@@ -276,7 +277,8 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 							}
 						}
 					}
-					else {
+					else
+					{
 						Query query = getEntityManager().createNativeQuery(insertString);
 						query.executeUpdate();
 						if (isIdGenerated() && isRequestId())
@@ -381,10 +383,10 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	private void iterateThroughResultSetForGeneratedIDs(Connection connection)
 	{
 		DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-		try(Statement st = connection.createStatement())
+		try (Statement st = connection.createStatement())
 		{
 			ResultSet rs = st.executeQuery(selectIdentityString);
-			if(rs.next())
+			if (rs.next())
 			{
 				Object o = rs.getObject(1);
 				processId(o);
@@ -492,6 +494,35 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 		return entity;
 	}
+
+	/**
+	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
+	 *
+	 * @return This
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public E updateNow(E entity)
+	{
+		try
+		{
+			if (onUpdate(entity))
+			{
+				getEntityManager().merge(entity);
+				getEntityManager().flush();
+			}
+		}
+		catch (IllegalStateException ise)
+		{
+			log.log(Level.SEVERE, "Cannot update this entity the state of this object is not ready : \n", ise);
+		}
+		catch (Exception e)
+		{
+			log.log(Level.SEVERE, "Cannot update this entity  unknown exception the state of this object is not ready : \n", e);
+		}
+		return entity;
+	}
+
 
 	/**
 	 * Performed on update/persist
