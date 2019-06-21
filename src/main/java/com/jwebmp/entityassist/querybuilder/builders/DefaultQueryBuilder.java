@@ -349,7 +349,10 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		joinExpression.setAttribute(attribute);
 		joinExpression.setExecutor(builder);
 		joinExpression.setJoinType(joinType);
-		joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
+		if(joinExpression.getGeneratedRoot() == null)
+			joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
+		else
+			joinExpression.setGeneratedRoot(joinExpression.getGeneratedRoot().join(attribute.getName(),joinType));
 		joins.add(joinExpression);
 		return (J) this;
 	}
@@ -372,7 +375,13 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		joins.add(joinExpression);
 		joinExpression.setExecutor(builder);
 		joinExpression.setJoinType(joinType);
-		joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
+		if(joinExpression.getGeneratedRoot() == null)
+			joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
+		else
+			joinExpression.setGeneratedRoot(joinExpression.getGeneratedRoot().join(attribute.getName(),joinType));
+
+
+
 		return (J) this;
 	}
 
@@ -393,7 +402,10 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		joinExpression.setExecutor(builder);
 		joinExpression.setJoinType(joinType);
 		joinExpression.setOnBuilder(onClauses);
-		joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
+		if(joinExpression.getGeneratedRoot() == null)
+			joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
+		else
+			joinExpression.setGeneratedRoot(joinExpression.getGeneratedRoot().join(attribute.getName(),joinType));
 		joins.add(joinExpression);
 		return (J) this;
 	}
@@ -416,7 +428,10 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		joinExpression.setOnBuilder(onClauses);
 		joinExpression.setExecutor(builder);
 		joinExpression.setJoinType(joinType);
-		joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
+		if(joinExpression.getGeneratedRoot() == null)
+			joinExpression.setGeneratedRoot(getRoot().join(attribute.getName(),joinType));
+		else
+			joinExpression.setGeneratedRoot(joinExpression.getGeneratedRoot().join(attribute.getName(),joinType));
 		joins.add(joinExpression);
 		return (J) this;
 	}
@@ -488,28 +503,6 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	}
 
 	/**
-	 * Performs a filter on the database with the where clauses
-	 *
-	 * @param attribute
-	 * 		The attribute to be used
-	 * @param operator
-	 * 		The operand to use
-	 * @param value
-	 * 		The value to apply (Usually serializable)
-	 *
-	 * @return This object
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Y value)
-	{
-		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
-		whereExpressions.add(whereExpression);
-		doWhere(whereExpression);
-		return (J) this;
-	}
-
-	/**
 	 * Processes the where expressions into filters
 	 *
 	 * @param whereExpression
@@ -521,7 +514,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	private <X, Y> void doWhere(WhereExpression<X, Y> whereExpression)
 	{
-		Optional<Predicate> predicate = whereExpression.toPredicate(getRoot(), getCriteriaBuilder());
+		Optional<Predicate> predicate = whereExpression.toPredicate(getCriteriaBuilder());
 		if (predicate.isPresent())
 		{
 			getFilters().add(predicate.get());
@@ -566,31 +559,6 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		return (J) this;
 	}
 
-	/**
-	 * Where the operand is the type of collection or list
-	 *
-	 * @param attribute
-	 * 		The column to where on
-	 * @param operator
-	 * 		The operand to use
-	 * @param value
-	 * 		The value to apply
-	 * @param <X>
-	 * 		The attribute type
-	 * @param <Y>
-	 * 		The attribute value type
-	 *
-	 * @return This
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Collection<Y> value)
-	{
-		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
-		whereExpressions.add(whereExpression);
-		doWhere(whereExpression);
-		return (J) this;
-	}
 
 	/**
 	 * Where the field name is equal to the value
@@ -609,6 +577,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		where(fieldName, InList, value);
 		return (J) this;
 	}
+
 
 	/**
 	 * Where the operand is the type of collection or list
@@ -630,11 +599,125 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Y[] value)
 	{
+		return (J) where(getRoot().get(attribute.getName()), operator, value);
+	}
+
+	/**
+	 * Where the operand is the type of collection or list
+	 *
+	 * @param attribute
+	 * 		Select column
+	 * @param operator
+	 * 		The operand to use
+	 * @param value
+	 * 		The value to use
+	 * @param <X>
+	 * 		The the attribute column type
+	 * @param <Y>
+	 * 		The field value type
+	 *
+	 * @return This
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public <X, Y> J where(Expression<X> attribute, Operand operator, Y[] value)
+	{
 		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
 		whereExpressions.add(whereExpression);
 		doWhere(whereExpression);
 		return (J) this;
 	}
+
+	/**
+	 * Where the operand is the type of collection or list
+	 *
+	 * @param attribute
+	 * 		The column to where on
+	 * @param operator
+	 * 		The operand to use
+	 * @param value
+	 * 		The value to apply
+	 * @param <X>
+	 * 		The attribute type
+	 * @param <Y>
+	 * 		The attribute value type
+	 *
+	 * @return This
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Collection<Y> value)
+	{
+		return (J) where(getRoot().get(attribute.getName()), operator, value);
+	}
+
+	/**
+	 * Where the operand is the type of collection or list
+	 *
+	 * @param attribute
+	 * 		The column to where on
+	 * @param operator
+	 * 		The operand to use
+	 * @param value
+	 * 		The value to apply
+	 * @param <X>
+	 * 		The attribute type
+	 * @param <Y>
+	 * 		The attribute value type
+	 *
+	 * @return This
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public <X, Y> J where(Expression<X> attribute, Operand operator, Collection<Y> value)
+	{
+		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
+		whereExpressions.add(whereExpression);
+		doWhere(whereExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Performs a filter on the database with the where clauses
+	 *
+	 * @param attribute
+	 * 		The attribute to be used
+	 * @param operator
+	 * 		The operand to use
+	 * @param value
+	 * 		The value to apply (Usually serializable)
+	 *
+	 * @return This object
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Y value)
+	{
+		return (J) where(getRoot().get(attribute.getName()), operator, value);
+	}
+
+	/**
+	 * Performs a filter on the database with the where clauses
+	 *
+	 * @param attribute
+	 * 		The attribute to be used
+	 * @param operator
+	 * 		The operand to use
+	 * @param value
+	 * 		The value to apply (Usually serializable)
+	 *
+	 * @return This object
+	 */
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public <X, Y> J where(Expression<X> attribute, Operand operator, Y value)
+	{
+		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
+		whereExpressions.add(whereExpression);
+		doWhere(whereExpression);
+		return (J) this;
+	}
+
 
 	/**
 	 * Gets the cache region for this query
@@ -903,7 +986,9 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		{
 			if (WhereExpression.class.isAssignableFrom(whereExpression.getClass()))
 			{
-				doWhere((WhereExpression) whereExpression);
+				WhereExpression we = (WhereExpression) whereExpression;
+				we.switchRoot(newRoot);
+				doWhere(we);
 			}
 		}
 		getSelectExpressions().forEach(this::redoSelectExpression);
@@ -1011,7 +1096,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J selectColumn(Attribute selectColumn)
+	public J selectColumn(Expression selectColumn)
 	{
 		SelectExpression selectExpression = new SelectExpression(selectColumn, None);
 		selectExpressions.add(selectExpression);
@@ -1029,7 +1114,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J selectAverage(Attribute attribute)
+	public J selectAverage(Expression attribute)
 	{
 		SelectExpression selectExpression = new SelectExpression(attribute, None);
 		selectExpressions.add(selectExpression);
@@ -1047,7 +1132,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J selectCount(Attribute attribute)
+	public J selectCount(Expression attribute)
 	{
 		SelectExpression selectExpression = new SelectExpression(attribute, None);
 		selectExpressions.add(selectExpression);
@@ -1065,7 +1150,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J selectCountDistinct(Attribute attribute)
+	public J selectCountDistinct(Expression attribute)
 	{
 		SelectExpression selectExpression = new SelectExpression(attribute, None);
 		selectExpressions.add(selectExpression);
@@ -1083,7 +1168,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J selectMax(Attribute attribute)
+	public J selectMax(Expression attribute)
 	{
 		SelectExpression selectExpression = new SelectExpression(attribute, None);
 		selectExpressions.add(selectExpression);
@@ -1101,7 +1186,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J selectMin(Attribute attribute)
+	public J selectMin(Expression attribute)
 	{
 		SelectExpression selectExpression = new SelectExpression(attribute, None);
 		selectExpressions.add(selectExpression);
@@ -1119,7 +1204,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J selectSum(Attribute attribute)
+	public J selectSum(Expression attribute)
 	{
 		SelectExpression selectExpression = new SelectExpression(attribute, None);
 		selectExpressions.add(selectExpression);
@@ -1137,7 +1222,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J selectSumAsDouble(Attribute attribute)
+	public J selectSumAsDouble(Expression attribute)
 	{
 		SelectExpression selectExpression = new SelectExpression(attribute, None);
 		selectExpressions.add(selectExpression);
@@ -1155,9 +1240,171 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J selectSumAsLong(Attribute attribute)
+	public J selectSumAsLong(Expression attribute)
 	{
 		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		selectExpressions.add(selectExpression);
+		processSelectSumAsLong(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects a given column
+	 *
+	 * @param selectColumn
+	 * 		The given column from the static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectColumn(Attribute selectColumn)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(selectColumn.getName()), None);
+		selectExpressions.add(selectExpression);
+		processSelectExpressionNone(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectAverage(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		selectExpressions.add(selectExpression);
+		processSelectAverage(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCount(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		selectExpressions.add(selectExpression);
+		processSelectCount(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return this
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCountDistinct(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		selectExpressions.add(selectExpression);
+		processSelectCountDistinct(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectMax(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		selectExpressions.add(selectExpression);
+		processSelectExpressionMax(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectMin(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		selectExpressions.add(selectExpression);
+		processSelectExpressionMin(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSum(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		selectExpressions.add(selectExpression);
+		processSelectSum(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSumAsDouble(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		selectExpressions.add(selectExpression);
+		processSelectSumAsDouble(selectExpression);
+		return (J) this;
+	}
+
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute
+	 * 		A given column from static metadata
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSumAsLong(Attribute attribute)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
 		selectExpressions.add(selectExpression);
 		processSelectSumAsLong(selectExpression);
 		return (J) this;
@@ -1174,15 +1421,8 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	private boolean processSelectExpressionNone(SelectExpression selectExpression)
 	{
-		Attribute selectColumn = selectExpression.getAttribute();
-		if (isSingularAttribute(selectColumn))
-		{
-			getSelections().add(getRoot().get((SingularAttribute) selectColumn));
-		}
-		else if (isPluralOrMapAttribute(selectColumn))
-		{
-			getSelections().add(getRoot().get((PluralAttribute) selectColumn));
-		}
+		Expression selectColumn = selectExpression.getAttribute();
+		getSelections().add(selectColumn);
 		return true;
 	}
 
@@ -1197,15 +1437,8 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	private boolean processSelectAverage(SelectExpression selectExpression)
 	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().avg(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().avg(getRoot().get((PluralAttribute) attribute)));
-		}
+		Expression selectColumn = selectExpression.getAttribute();
+		getSelections().add(getCriteriaBuilder().avg(selectColumn));
 		return true;
 	}
 
@@ -1220,15 +1453,8 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	private boolean processSelectCount(SelectExpression selectExpression)
 	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().count(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().count(getRoot().get((PluralAttribute) attribute)));
-		}
+		Expression selectColumn = selectExpression.getAttribute();
+		getSelections().add(getCriteriaBuilder().count(selectColumn));
 		return true;
 	}
 
@@ -1243,90 +1469,48 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	private boolean processSelectCountDistinct(SelectExpression selectExpression)
 	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().countDistinct(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().countDistinct(getRoot().get((PluralAttribute) attribute)));
-		}
+		Expression selectColumn = selectExpression.getAttribute();
+		getSelections().add(getCriteriaBuilder().countDistinct(selectColumn));
 		return true;
 	}
 
 	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
 	private boolean processSelectExpressionMax(SelectExpression selectExpression)
 	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().max(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().max(getRoot().get((PluralAttribute) attribute)));
-		}
+		Expression selectColumn = selectExpression.getAttribute();
+		getSelections().add(getCriteriaBuilder().max(selectColumn));
 		return true;
 	}
 
 	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
 	private boolean processSelectExpressionMin(SelectExpression selectExpression)
 	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().min(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().min(getRoot().get((PluralAttribute) attribute)));
-		}
+		Expression selectColumn = selectExpression.getAttribute();
+		getSelections().add(getCriteriaBuilder().min(selectColumn));
 		return true;
 	}
 
 	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
 	private boolean processSelectSum(SelectExpression selectExpression)
 	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sum(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sum(getRoot().get((PluralAttribute) attribute)));
-		}
+		Expression selectColumn = selectExpression.getAttribute();
+		getSelections().add(getCriteriaBuilder().sum(selectColumn));
 		return true;
 	}
 
 	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
 	private boolean processSelectSumAsDouble(SelectExpression selectExpression)
 	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sumAsDouble(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sumAsDouble(getRoot().get((PluralAttribute) attribute)));
-		}
+		Expression selectColumn = selectExpression.getAttribute();
+		getSelections().add(getCriteriaBuilder().sumAsDouble(selectColumn));
 		return true;
 	}
 
 	@SuppressWarnings({"unchecked", "MissingMethodJavaDoc"})
 	private boolean processSelectSumAsLong(SelectExpression selectExpression)
 	{
-		Attribute attribute = selectExpression.getAttribute();
-		if (isSingularAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sumAsLong(getRoot().get((SingularAttribute) attribute)));
-		}
-		else if (isPluralOrMapAttribute(attribute))
-		{
-			getSelections().add(getCriteriaBuilder().sumAsLong(getRoot().get((PluralAttribute) attribute)));
-		}
+		Expression selectColumn = selectExpression.getAttribute();
+		getSelections().add(getCriteriaBuilder().sumAsLong(selectColumn));
 		return true;
 	}
 
@@ -1497,6 +1681,29 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public <X, Y> J or(Attribute<X, Y> attribute, Operand operator, Collection<Y> value, boolean nest)
 	{
+		return (J) or(getRoot().get(attribute.getName()), operator, value, nest);
+	}
+
+	/**
+	 * Adds an OR group to the filter expressions with the previous where statement
+	 *
+	 * @param attribute
+	 * 		The attribute to apply
+	 * @param operator
+	 * 		The operator to apply
+	 * @param value
+	 * 		The value to use
+	 * @param <X>
+	 * 		The attribute type
+	 * @param <Y>
+	 * 		The attribute field type
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings({"Duplicates", "unchecked"})
+	@NotNull
+	public <X, Y> J or(Expression<X> attribute, Operand operator, Collection<Y> value, boolean nest)
+	{
 		GroupedExpression groupedExpression = new GroupedExpression();
 		groupedExpression.setGroupedFilterType(GroupedFilterType.Or);
 		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
@@ -1552,7 +1759,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		                 .add(whereExpression);
 
 		getWhereExpressions().add(groupedExpression);
-		Optional<Predicate> predicate = groupedExpression.toPredicate(getRoot(), getCriteriaBuilder());
+		Optional<Predicate> predicate = groupedExpression.toPredicate(getCriteriaBuilder());
 		predicate.ifPresent(predicate1 -> getFilters().add(predicate1));
 	}
 
@@ -1598,6 +1805,30 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings({"Duplicates", "unchecked"})
 	@NotNull
 	public <X, Y> J or(Attribute<X, Y> attribute, Operand operator, Y value, boolean nest)
+	{
+		return (J) or(getRoot().get(attribute.getName()), operator, value, nest);
+	}
+	/**
+	 * Adds an OR group to the filter expressions with the previous where statement
+	 *
+	 * @param attribute
+	 * 		The attribute to apply
+	 * @param operator
+	 * 		The operator to apply
+	 * @param value
+	 * 		The value to use
+	 * @param <X>
+	 * 		The attribute type
+	 * @param <Y>
+	 * 		The attribute field type
+	 * @param nest
+	 * 		If must nest a new group or not
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings({"Duplicates", "unchecked"})
+	@NotNull
+	public <X, Y> J or(Expression<X> attribute, Operand operator, Y value, boolean nest)
 	{
 		GroupedExpression groupedExpression = new GroupedExpression();
 		groupedExpression.setGroupedFilterType(GroupedFilterType.Or);
@@ -1650,6 +1881,31 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings({"Duplicates", "unchecked"})
 	@NotNull
 	public <X, Y> J or(Attribute<X, Y> attribute, Operand operator, Y[] value, boolean nest)
+	{
+		return (J) or(getRoot().get(attribute.getName()), operator, value, nest);
+	}
+
+	/**
+	 * Adds an OR group to the filter expressions with the previous where statement
+	 *
+	 * @param attribute
+	 * 		The attribute to apply
+	 * @param operator
+	 * 		The operator to apply
+	 * @param value
+	 * 		The value to use
+	 * @param <X>
+	 * 		The attribute type
+	 * @param <Y>
+	 * 		The attribute field type
+	 * @param nest
+	 * 		To start a new group or not
+	 *
+	 * @return This
+	 */
+	@SuppressWarnings({"Duplicates", "unchecked"})
+	@NotNull
+	public <X, Y> J or(Expression<X> attribute, Operand operator, Y[] value, boolean nest)
 	{
 		GroupedExpression groupedExpression = new GroupedExpression();
 		groupedExpression.setGroupedFilterType(GroupedFilterType.Or);

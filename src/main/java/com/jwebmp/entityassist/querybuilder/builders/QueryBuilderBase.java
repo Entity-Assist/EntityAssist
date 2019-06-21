@@ -268,6 +268,17 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 					             .contains(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
+						if(ds == null)
+						{
+							Query query = getEntityManager().createNativeQuery(insertString);
+							query.executeUpdate();
+							if (isIdGenerated() && isRequestId())
+							{
+								iterateThroughResultSetForGeneratedIDs();
+							}
+						}
+						else
+
 						try (Connection c = ds.getConnection(); Statement st = c.createStatement())
 						{
 							st.executeUpdate(insertString);

@@ -2,7 +2,7 @@ package com.jwebmp.entityassist.querybuilder.builders;
 
 import com.jwebmp.entityassist.enumerations.SelectAggregrate;
 
-import javax.persistence.metamodel.Attribute;
+import javax.persistence.criteria.Expression;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -14,7 +14,7 @@ final class SelectExpression
 	/**
 	 * The attribute to select
 	 */
-	private Attribute attribute;
+	private Expression attribute;
 
 	/**
 	 * The select aggregate - none for default
@@ -37,7 +37,7 @@ final class SelectExpression
 	 * @param aggregrate
 	 * 		The aggregate to use - none for default
 	 */
-	SelectExpression(Attribute attribute, SelectAggregrate aggregrate)
+	SelectExpression(Expression attribute, SelectAggregrate aggregrate)
 	{
 		this.attribute = attribute;
 		this.aggregrate = aggregrate;
@@ -75,7 +75,7 @@ final class SelectExpression
 	 *
 	 * @return the attribute (type Attribute) of this SelectExpression object.
 	 */
-	public Attribute getAttribute()
+	public Expression getAttribute()
 	{
 		return attribute;
 	}
@@ -91,7 +91,7 @@ final class SelectExpression
 	 * @return SelectExpression
 	 */
 	@NotNull
-	public SelectExpression setAttribute(Attribute attribute)
+	public SelectExpression setAttribute(Expression attribute)
 	{
 		this.attribute = attribute;
 		return this;

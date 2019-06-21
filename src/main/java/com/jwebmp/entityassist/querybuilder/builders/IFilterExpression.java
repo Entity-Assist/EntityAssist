@@ -1,7 +1,6 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.metamodel.*;
 import javax.validation.constraints.NotNull;
@@ -123,11 +122,8 @@ public interface IFilterExpression
 	/**
 	 * Produces a predicate for the given filter expression
 	 *
-	 * @param entityRoot
-	 * 		The root (from) to use
-	 *
 	 * @return The predicate to apply
 	 */
-	Optional<Predicate> toPredicate(From entityRoot, CriteriaBuilder builder);
+	Optional<Predicate> toPredicate(CriteriaBuilder builder);
 
 }

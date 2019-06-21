@@ -1,16 +1,14 @@
 package com.jwebmp.entityassist.querybuilder.builders;
 
+import com.jwebmp.entityassist.EntityAssistException;
 import com.jwebmp.entityassist.enumerations.Operand;
 import com.jwebmp.logger.LogFactory;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SingularAttribute;
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -19,12 +17,10 @@ final class WhereExpression<X, Y>
 {
 	private static final Logger log = LogFactory.getLog("WhereExpression");
 
-	private Attribute<X, Y> expressionAttribute;
+	private Expression<X> expressionAttribute;
 
 	private Operand operand;
 	private Object expressionValue;
-
-	private From root;
 
 	private CriteriaBuilder criteriaBuilder;
 
@@ -32,11 +28,29 @@ final class WhereExpression<X, Y>
 	{
 	}
 
-	WhereExpression(Attribute<X, Y> expressionAttribute, Operand operand, Object expressionValue)
+	WhereExpression(Expression<X> expressionAttribute, Operand operand, Object expressionValue)
 	{
 		this.expressionAttribute = expressionAttribute;
 		this.operand = operand;
 		this.expressionValue = expressionValue;
+	}
+
+	public WhereExpression switchRoot(From root)
+	{
+		Path attr = (Path) expressionAttribute;
+		try
+		{
+			Field f = attr.getClass()
+			              .getDeclaredField("attribute");
+			f.setAccessible(true);
+			Attribute at = (Attribute) f.get(attr);
+			expressionAttribute = root.get(at.getName());
+		}
+		catch (NoSuchFieldException | IllegalAccessException e)
+		{
+			throw new EntityAssistException("Unable to get field to switch root in where expression - " + expressionAttribute);
+		}
+		return this;
 	}
 
 	@Override
@@ -52,9 +66,8 @@ final class WhereExpression<X, Y>
 	}
 
 	@Override
-	public Optional<Predicate> toPredicate(From entityRoot, CriteriaBuilder builder)
+	public Optional<Predicate> toPredicate(CriteriaBuilder builder)
 	{
-		root = entityRoot;
 		criteriaBuilder = builder;
 		return processWhereExpression(this);
 	}
@@ -89,30 +102,15 @@ final class WhereExpression<X, Y>
 	@SuppressWarnings("unchecked")
 	private Optional<Predicate> processWhereNulls(WhereExpression whereExpression)
 	{
-		Attribute attribute = whereExpression.getExpressionAttribute();
 		switch (whereExpression.getOperand())
 		{
 			case Null:
 			{
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().isNull(getRoot().get(SingularAttribute.class.cast(attribute))));
-				}
-				else if (IFilterExpression.isPluralOrMapAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().isNull(getRoot().get(PluralAttribute.class.cast(attribute))));
-				}
+				return Optional.of(getCriteriaBuilder().isNull(expressionAttribute));
 			}
 			case NotNull:
 			{
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().isNotNull(getRoot().get(SingularAttribute.class.cast(attribute))));
-				}
-				else if (IFilterExpression.isPluralOrMapAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().isNotNull(getRoot().get(PluralAttribute.class.cast(attribute))));
-				}
+				return Optional.of(getCriteriaBuilder().isNotNull(expressionAttribute));
 			}
 			default:
 			{
@@ -124,32 +122,17 @@ final class WhereExpression<X, Y>
 	@SuppressWarnings("unchecked")
 	private Optional<Predicate> processWhereEquals(WhereExpression whereExpression)
 	{
-		Attribute attribute = whereExpression.getExpressionAttribute();
 		Object value = whereExpression.getExpressionValue();
 		switch (whereExpression.getOperand())
 		{
 			case Equals:
 			{
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().equal(getRoot().get(SingularAttribute.class.cast(attribute)), value));
-				}
-				else if (IFilterExpression.isPluralOrMapAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().equal(getRoot().get(PluralAttribute.class.cast(attribute)), value));
-				}
+				return Optional.of(getCriteriaBuilder().equal(expressionAttribute, value));
 			}
 
 			case NotEquals:
 			{
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().notEqual(getRoot().get(SingularAttribute.class.cast(attribute)), value));
-				}
-				else if (IFilterExpression.isPluralOrMapAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().notEqual(getRoot().get(PluralAttribute.class.cast(attribute)), value));
-				}
+				return Optional.of(getCriteriaBuilder().notEqual(expressionAttribute, value));
 			}
 			default:
 			{
@@ -161,31 +144,16 @@ final class WhereExpression<X, Y>
 	@SuppressWarnings("unchecked")
 	private Optional<Predicate> processWhereLike(WhereExpression whereExpression)
 	{
-		Attribute attribute = whereExpression.getExpressionAttribute();
 		Object value = whereExpression.getExpressionValue();
 		switch (whereExpression.getOperand())
 		{
 			case Like:
 			{
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().like(getRoot().get(SingularAttribute.class.cast(attribute)), value.toString()));
-				}
-				else if (IFilterExpression.isPluralOrMapAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().like(getRoot().get(PluralAttribute.class.cast(attribute)), value.toString()));
-				}
+				return Optional.of(getCriteriaBuilder().like((Expression<String>) expressionAttribute, value.toString()));
 			}
 			case NotLike:
 			{
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().notLike(getRoot().get(SingularAttribute.class.cast(attribute)), value.toString()));
-				}
-				else if (IFilterExpression.isPluralOrMapAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().notLike(getRoot().get(PluralAttribute.class.cast(attribute)), value.toString()));
-				}
+				return Optional.of(getCriteriaBuilder().notLike((Expression<String>) expressionAttribute, value.toString()));
 			}
 			default:
 			{
@@ -197,21 +165,13 @@ final class WhereExpression<X, Y>
 	@SuppressWarnings("unchecked")
 	private Optional<Predicate> processWhereLists(WhereExpression whereExpression)
 	{
-		Attribute attribute = whereExpression.getExpressionAttribute();
 		Object value = whereExpression.getExpressionValue();
 		switch (whereExpression.getOperand())
 		{
 			case InList:
 			{
-				Expression<Object> path = null;
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					path = getRoot().get(SingularAttribute.class.cast(attribute));
-				}
-				else if (IFilterExpression.isPluralOrMapAttribute(attribute))
-				{
-					path = getRoot().get(PluralAttribute.class.cast(attribute));
-				}
+				Expression<Object> path;
+				path = (Expression<Object>) expressionAttribute;
 				CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
 				IFilterExpression.buildInObject(in, value);
 				return Optional.of(in);
@@ -219,14 +179,7 @@ final class WhereExpression<X, Y>
 			case NotInList:
 			{
 				Expression<Object> path = null;
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					path = getRoot().get(SingularAttribute.class.cast(attribute));
-				}
-				else if (IFilterExpression.isPluralOrMapAttribute(attribute))
-				{
-					path = getRoot().get(PluralAttribute.class.cast(attribute));
-				}
+				path = (Expression<Object>) expressionAttribute;
 				CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
 				IFilterExpression.buildInObject(in, value);
 				return Optional.of(getCriteriaBuilder().not(in));
@@ -242,37 +195,26 @@ final class WhereExpression<X, Y>
 	@NotNull
 	private <T extends Comparable<T>> Optional<Predicate> processWhereCompare(WhereExpression whereExpression)
 	{
-		Attribute attribute = whereExpression.getExpressionAttribute();
 		T value = (T) whereExpression.getExpressionValue();
 		switch (whereExpression.getOperand())
 		{
 			case LessThan:
 			{
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().lessThan(getRoot().get((SingularAttribute<X, T>) attribute), value));
-				}
+				return Optional.of(getCriteriaBuilder().lessThan((Expression) expressionAttribute, value));
 			}
 			case LessThanEqualTo:
 			{
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().lessThanOrEqualTo(getRoot().get((SingularAttribute<X, T>) attribute), value));
-				}
+				return Optional.of(getCriteriaBuilder().lessThanOrEqualTo((Expression) expressionAttribute, value));
 			}
 			case GreaterThan:
 			{
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().greaterThan(getRoot().get((SingularAttribute<X, T>) attribute), value));
-				}
+				return Optional.of(getCriteriaBuilder().greaterThan((Expression) expressionAttribute, value));
+
 			}
 			case GreaterThanEqualTo:
 			{
-				if (IFilterExpression.isSingularAttribute(attribute))
-				{
-					return Optional.of(getCriteriaBuilder().greaterThanOrEqualTo(getRoot().get((SingularAttribute<X, T>) attribute), value));
-				}
+
+				return Optional.of(getCriteriaBuilder().greaterThanOrEqualTo((Expression) expressionAttribute, value));
 			}
 			default:
 			{
@@ -286,7 +228,7 @@ final class WhereExpression<X, Y>
 	 *
 	 * @return The attribute
 	 */
-	public Attribute<X, Y> getExpressionAttribute()
+	public Expression<X> getExpressionAttribute()
 	{
 		return expressionAttribute;
 	}
@@ -299,7 +241,7 @@ final class WhereExpression<X, Y>
 	 *
 	 * @return This
 	 */
-	public WhereExpression setExpressionAttribute(Attribute<X, Y> expressionAttribute)
+	public WhereExpression setExpressionAttribute(Expression<X> expressionAttribute)
 	{
 		this.expressionAttribute = expressionAttribute;
 		return this;
@@ -340,16 +282,6 @@ final class WhereExpression<X, Y>
 	}
 
 	/**
-	 * Gets the assigned root - only set on toPredicate
-	 *
-	 * @return The root or null
-	 */
-	private From getRoot()
-	{
-		return root;
-	}
-
-	/**
 	 * Whatever the value object is
 	 *
 	 * @return The given value, nullable for isNull
@@ -367,7 +299,35 @@ final class WhereExpression<X, Y>
 	 *
 	 * @return This
 	 */
-	public WhereExpression setExpressionValue(Object expressionValue)
+	public WhereExpression setExpressionValue(Y expressionValue)
+	{
+		this.expressionValue = expressionValue;
+		return this;
+	}
+
+	/**
+	 * Whatever the value object is
+	 *
+	 * @param expressionValue
+	 * 		The value, null for not and is null
+	 *
+	 * @return This
+	 */
+	public WhereExpression setExpressionValue(Collection<Y> expressionValue)
+	{
+		this.expressionValue = expressionValue;
+		return this;
+	}
+
+	/**
+	 * Whatever the value object is
+	 *
+	 * @param expressionValue
+	 * 		The value, null for not and is null
+	 *
+	 * @return This
+	 */
+	public WhereExpression setExpressionValue(Y...expressionValue)
 	{
 		this.expressionValue = expressionValue;
 		return this;

@@ -3,7 +3,6 @@ package com.jwebmp.entityassist.querybuilder.builders;
 import com.jwebmp.entityassist.enumerations.GroupedFilterType;
 
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 import java.util.*;
 
@@ -55,18 +54,16 @@ public class GroupedExpression
 	/**
 	 * Produces a predicate for the given filter expression
 	 *
-	 * @param entityRoot
-	 * 		The root (from) to use
 	 *
 	 * @return The predicate to apply
 	 */
 	@Override
-	public Optional<Predicate> toPredicate(From entityRoot, CriteriaBuilder builder)
+	public Optional<Predicate> toPredicate(CriteriaBuilder builder)
 	{
 		List<Predicate> wheres = new ArrayList<>();
 		for (IFilterExpression filterExpression : getFilterExpressions())
 		{
-			Optional<Predicate> op = filterExpression.toPredicate(entityRoot, builder);
+			Optional<Predicate> op = filterExpression.toPredicate(builder);
 			op.ifPresent(wheres::add);
 		}
 		if (wheres.isEmpty())
