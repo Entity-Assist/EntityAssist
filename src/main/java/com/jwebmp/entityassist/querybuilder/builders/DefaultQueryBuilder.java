@@ -120,9 +120,9 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	public DefaultQueryBuilder()
 	{
-		filters = new HashSet<>();
-		selections = new HashSet<>();
-		groupBys = new HashSet<>();
+		filters = new LinkedHashSet<>();
+		selections = new LinkedHashSet<>();
+		groupBys = new LinkedHashSet<>();
 		orderBys = new LinkedHashMap<>();
 
 		criteriaBuilder = getEntityManager().getCriteriaBuilder();

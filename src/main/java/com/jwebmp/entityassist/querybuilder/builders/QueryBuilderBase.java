@@ -5,6 +5,7 @@ import com.jwebmp.entityassist.BaseEntity;
 import com.jwebmp.entityassist.injections.EntityAssistBinder;
 import com.jwebmp.entityassist.querybuilder.QueryBuilder;
 import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
+import com.jwebmp.entityassist.querybuilder.statements.UpdateStatement;
 import com.jwebmp.entityassist.services.EntityAssistIDMapping;
 import com.jwebmp.guicedinjection.GuiceContext;
 import com.jwebmp.guicedpersistence.db.DbStartup;
@@ -478,7 +479,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 * @return This
 	 */
 	@NotNull
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "Duplicates"})
 	public E update(E entity)
 	{
 		try
@@ -487,7 +488,29 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			{
 				if (isRunDetached())
 				{
-					getEntityManager().merge(entity);
+					String insertString = new UpdateStatement(entity).toString();
+					log.fine(insertString);
+					if (DbStartup.getAvailableDataSources()
+					             .contains(getEntityManagerAnnotation()))
+					{
+						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
+						if(ds == null)
+						{
+							Query query = getEntityManager().createNativeQuery(insertString);
+							query.executeUpdate();
+						}
+						else
+
+							try (Connection c = ds.getConnection(); Statement st = c.createStatement())
+							{
+								st.executeUpdate(insertString);
+							}
+					}
+					else
+					{
+						Query query = getEntityManager().createNativeQuery(insertString);
+						query.executeUpdate();
+					}
 				}
 				else
 				{
@@ -512,7 +535,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 * @return This
 	 */
 	@NotNull
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "Duplicates"})
 	public E updateNow(E entity)
 	{
 		try
@@ -537,9 +560,37 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 						handler.beginTransacation(false, getEntityManager(), unit);
 					}
 				}
+				if (isRunDetached())
+				{
+					String insertString = new UpdateStatement(entity).toString();
+					log.fine(insertString);
+					if (DbStartup.getAvailableDataSources()
+					             .contains(getEntityManagerAnnotation()))
+					{
+						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
+						if(ds == null)
+						{
+							Query query = getEntityManager().createNativeQuery(insertString);
+							query.executeUpdate();
+						}
+						else
 
-				getEntityManager().merge(entity);
-				getEntityManager().flush();
+							try (Connection c = ds.getConnection(); Statement st = c.createStatement())
+							{
+								st.executeUpdate(insertString);
+							}
+					}
+					else
+					{
+						Query query = getEntityManager().createNativeQuery(insertString);
+						query.executeUpdate();
+					}
+				}
+				else
+				{
+					getEntityManager().merge(entity);
+					getEntityManager().flush();
+				}
 				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 				{
 					if (!transactionAlreadyStarted && handler.active(unit))

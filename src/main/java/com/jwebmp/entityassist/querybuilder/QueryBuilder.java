@@ -511,8 +511,12 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 
 		for (Field field : fieldList)
 		{
-			if (Modifier.isAbstract(field.getModifiers()) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(
-					Id.class))
+			if (Modifier.isAbstract(field.getModifiers()) ||
+			    Modifier.isStatic(field.getModifiers()) ||
+			    Modifier.isFinal(field.getModifiers()) ||
+			    field.isAnnotationPresent(Id.class) ||
+			    !(field.isAnnotationPresent(Column.class))
+			)
 			{
 				continue;
 			}
@@ -524,7 +528,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				{
 					String fieldName = field.getName();
 					String classPathReferenceName = updateFields.getClass()
-					                                            .getName() + "_";
+					                                            .getName() + EntityAssistStrings.CHAR_UNDERSCORE;
 					Class clazz = Class.forName(classPathReferenceName);
 					Field f = clazz.getField(fieldName);
 					SingularAttribute at = (SingularAttribute) f.get(null);

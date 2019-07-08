@@ -507,4 +507,26 @@ public class TestEntities
 		                 .where(EntityClass_.activeFlag, Equals, ActiveFlag.Invisible)
 		                 .bulkUpdate(updates, true);
 	}
+
+
+	@Test
+	public void testUpdateStatementReally()
+	{
+		GuiceContext.get(TestEntities.class)
+		            .testUpdateStatement();
+	}
+
+	@SuppressWarnings("WeakerAccess")
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+	public void testUpdateStatement()
+	{
+		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		System.out.println("EM Open : " + em.isOpen());
+		EntityClass updates = new EntityClass(true);
+		updates.setActiveFlag(ActiveFlag.Archived);
+		new EntityClass().builder()
+		                 .setRunDetached(true)
+		                 .where(EntityClass_.activeFlag, Equals, ActiveFlag.Invisible)
+		                 .bulkUpdate(updates, true);
+	}
 }

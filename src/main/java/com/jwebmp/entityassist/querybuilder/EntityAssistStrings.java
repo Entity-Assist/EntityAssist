@@ -23,6 +23,7 @@ public interface EntityAssistStrings
 	String STRING_COMMNA = ",";
 	String STRING_COMMNA_SPACE = ", ";
 	String STRING_DOT = ".";
+	String STRING_EQUALS_SPACE_EQUALS = " = ";
 	String STRING_SEMICOLON = ";";
 	String STRING_BRACES_OPEN = "{";
 	String STRING_BRACES_CLOSE = "}";
