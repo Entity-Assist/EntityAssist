@@ -515,7 +515,12 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			    Modifier.isStatic(field.getModifiers()) ||
 			    Modifier.isFinal(field.getModifiers()) ||
 			    field.isAnnotationPresent(Id.class) ||
-			    !(field.isAnnotationPresent(Column.class))
+			    !(
+					    (field.isAnnotationPresent(Column.class)
+					  //  || field.isAnnotationPresent(JoinColumn.class)
+					     || field.isAnnotationPresent(ManyToOne.class))
+
+			    )
 			)
 			{
 				continue;
