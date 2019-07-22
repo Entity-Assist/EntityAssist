@@ -242,20 +242,17 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			throw new UnsupportedOperationException("Calling the bulk update method with no filters. This will update the entire table.");
 		}
 		CriteriaUpdate update = getCriteriaUpdate();
-		Map<SingularAttribute, Object> updateFieldMap = getUpdateFieldMap(updateFields);
+		Map<String, Object> updateFieldMap = getUpdateFieldMap(updateFields);
 		if (updateFieldMap.isEmpty())
 		{
 			log.warning("Nothing to update, ignore bulk update");
 			return 0;
 		}
-		for (Map.Entry<SingularAttribute, Object> entries : updateFieldMap.entrySet())
+		for (Map.Entry<String, Object> entries : updateFieldMap.entrySet())
 		{
-			SingularAttribute<?, ?> attributeName = entries.getKey();
+			String attributeName = entries.getKey();
 			Object value = entries.getValue();
-			if (attributeName != null)
-			{
-				update.set(attributeName.getName(), value);
-			}
+			update.set(attributeName, value);
 		}
 		select();
 
@@ -504,9 +501,9 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 */
 	@SuppressWarnings("WeakerAccess")
 	@NotNull
-	public Map<SingularAttribute, Object> getUpdateFieldMap(E updateFields)
+	public Map<String, Object> getUpdateFieldMap(E updateFields)
 	{
-		Map<SingularAttribute, Object> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<>();
 		List<Field> fieldList = allFields(updateFields.getClass(), new ArrayList<>());
 
 		for (Field field : fieldList)
@@ -531,21 +528,30 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				Object o = field.get(updateFields);
 				if (o != null)
 				{
-					String fieldName = field.getName();
-					String classPathReferenceName = updateFields.getClass()
-					                                            .getName() + EntityAssistStrings.CHAR_UNDERSCORE;
-					Class clazz = Class.forName(classPathReferenceName);
-					Field f = clazz.getField(fieldName);
-					SingularAttribute at = (SingularAttribute) f.get(null);
-					map.put(at, o);
+					String columnName = getColumnName(field);
+					if(columnName == null || columnName.isEmpty())
+						continue;
+					map.put(columnName, o);
 				}
 			}
-			catch (IllegalAccessException | ClassNotFoundException | NoSuchFieldException e)
+			catch (IllegalAccessException e)
 			{
 				log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
 			}
 		}
 		return map;
+	}
+
+	private String getColumnName(Field field)
+	{
+		JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
+		Column col = field.getAnnotation(Column.class);
+		String columnName = col == null ? joinCol.name() : col.name();
+		if (columnName.isEmpty())
+		{
+			columnName = field.getName();
+		}
+		return columnName;
 	}
 
 	/**

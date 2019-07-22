@@ -27,17 +27,14 @@ public class UpdateStatement
 		string.append(getTableName() + STRING_SPACE);
 		string.append("SET ");
 
-		Map<SingularAttribute,Object> updateMap = getObject().builder()
+		Map<String,Object> updateMap = getObject().builder()
 		                                                     .getUpdateFieldMap(getObject());
 
-		for (Map.Entry<SingularAttribute, Object> entry : updateMap.entrySet())
+		for (Map.Entry<String, Object> entry : updateMap.entrySet())
 		{
-			SingularAttribute key = entry.getKey();
-			if(key == null)
-				continue;
 			Object value = entry.getValue();
 			String valueString = getValue(value);
-			string.append(key.getName());
+			string.append(entry.getKey());
 			string.append(STRING_EQUALS_SPACE_EQUALS);
 			string.append(valueString);
 		}
