@@ -9,6 +9,30 @@
     <packaging>jar</packaging>
     <name>Entity Assist</name>
 
+    <description>A Domain Driven SQL Builder Generator for JPMS/JDK8</description>
+
+    <licenses>
+        <license>
+            <name>GPL 3</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Marc Magon</name>
+        <url>http://jwebmp.com</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>GedMarc</id>
+            <name>Marc Magon</name>
+            <email>marc.magon@gmail.com</email>
+            <url>https://github.com/GedMarc</url>
+        </developer>
+    </developers>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -28,8 +52,6 @@
         </dependencies>
     </dependencyManagement>
 
-    <description>Allows for instant query builders and constructs statements for nicer output to the console
-    </description>
     <url>https://github.com/GedMarc/EntityAssist</url>
 
     <dependencies>
@@ -324,39 +346,5 @@
     </profiles>
 
 
-    <licenses>
-        <license>
-            <name>GPL 3</name>
-            <url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
 
-    <organization>
-        <name>Marc Magon</name>
-        <url>http://jwebmp.com</url>
-    </organization>
-
-    <scm>
-        <url>https://github.com/GedMarc?tab=repositories</url>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>GedMarc</id>
-            <name>Marc Magon</name>
-            <email>marc.magon@gmail.com</email>
-            <url>https://github.com/GedMarc</url>
-        </developer>
-    </developers>
-
-    <issueManagement>
-        <system>Jira</system>
-        <url>https://www.jwebmp.com/jira</url>
-    </issueManagement>
-
-    <ciManagement>
-        <system>TeamCity</system>
-        <url>http://jwebmp.com/teamcity</url>
-    </ciManagement>
 </project>
