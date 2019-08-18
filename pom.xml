@@ -192,7 +192,7 @@
                                     <enableLazyInitialization>true</enableLazyInitialization>
                                     <enableDirtyTracking>true</enableDirtyTracking>
                                     <enableAssociationManagement>true</enableAssociationManagement>
-                                    <enableExtendedEnhancement>true</enableExtendedEnhancement>
+                                    <enableExtendedEnhancement>false</enableExtendedEnhancement>
                                 </configuration>
                                 <phase>compile</phase>
                                 <goals>
@@ -205,7 +205,7 @@
                             <enableLazyInitialization>true</enableLazyInitialization>
                             <enableDirtyTracking>true</enableDirtyTracking>
                             <enableAssociationManagement>true</enableAssociationManagement>
-                            <enableExtendedEnhancement>true</enableExtendedEnhancement>
+                            <enableExtendedEnhancement>false</enableExtendedEnhancement>
                         </configuration>
                     </plugin>
 
