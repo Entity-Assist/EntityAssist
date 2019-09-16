@@ -24,7 +24,7 @@ module com.jwebmp.entityassist {
 	requires com.google.common;
 	requires com.google.guice;
 
-	opens com.jwebmp.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind;
+	opens com.jwebmp.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind,com.google.guice;
 
 
 	opens com.jwebmp.entityassist.injections.bigdecimal to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
