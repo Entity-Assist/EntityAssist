@@ -10,6 +10,7 @@ module com.jwebmp.entityassist {
 
 	requires com.fasterxml.jackson.annotation;
 	requires java.validation;
+	requires jakarta.activation;
 
 	requires com.jwebmp.guicedpersistence;
 
