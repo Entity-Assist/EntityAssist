@@ -1,14 +1,14 @@
-package com.jwebmp.entityassist.injections;
+package com.guicedee.entityassist.injections;
 
 import com.google.inject.Key;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
-import com.jwebmp.entityassist.EntityAssistException;
-import com.jwebmp.entityassist.services.EntityAssistIDMapping;
-import com.jwebmp.guicedinjection.GuiceContext;
-import com.jwebmp.guicedinjection.abstractions.GuiceInjectorModule;
-import com.jwebmp.guicedinjection.interfaces.IGuiceDefaultBinder;
-import com.jwebmp.guicedinjection.pairing.Pair;
+import com.guicedee.entityassist.EntityAssistException;
+import com.guicedee.entityassist.services.EntityAssistIDMapping;
+import com.guicedee.guicedinjection.GuiceContext;
+import com.guicedee.guicedinjection.abstractions.GuiceInjectorModule;
+import com.guicedee.guicedinjection.interfaces.IGuiceDefaultBinder;
+import com.guicedee.guicedinjection.pairing.Pair;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;

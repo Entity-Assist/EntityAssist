@@ -1,4 +1,4 @@
-package com.jwebmp.entityassist;
+package com.guicedee.entityassist;
 
 import com.google.inject.BindingAnnotation;
 

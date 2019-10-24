@@ -1,10 +1,10 @@
-package com.jwebmp.entityassist.entities.builders;
+package com.guicedee.entityassist.entities.builders;
 
 import com.google.inject.Key;
-import com.jwebmp.entityassist.TestEntityAssistCustomPersistenceLoader;
-import com.jwebmp.entityassist.entities.EntityClassGeneratedID;
-import com.jwebmp.entityassist.querybuilder.QueryBuilderCore;
-import com.jwebmp.guicedinjection.GuiceContext;
+import com.guicedee.entityassist.querybuilder.QueryBuilderCore;
+import com.guicedee.entityassist.TestEntityAssistCustomPersistenceLoader;
+import com.guicedee.entityassist.entities.EntityClassGeneratedID;
+import com.guicedee.guicedinjection.GuiceContext;
 
 import javax.persistence.EntityManager;
 

@@ -1,4 +1,4 @@
-package com.jwebmp.entityassist.enumerations;
+package com.guicedee.entityassist.enumerations;
 
 /**
  * A select aggregate that can be applied to a given column

@@ -1,19 +1,19 @@
-package com.jwebmp.entityassist.querybuilder.builders;
+package com.guicedee.entityassist.querybuilder.builders;
 
 import com.google.inject.Key;
-import com.jwebmp.entityassist.TestEntityAssistCustomPersistenceLoader;
-import com.jwebmp.entityassist.entities.EntityClass;
-import com.jwebmp.entityassist.entities.EntityClassTwo;
-import com.jwebmp.entityassist.entities.EntityClassTwo_;
-import com.jwebmp.entityassist.enumerations.ActiveFlag;
-import com.jwebmp.guicedinjection.GuiceContext;
+import com.guicedee.entityassist.enumerations.ActiveFlag;
+import com.guicedee.entityassist.enumerations.Operand;
+import com.guicedee.entityassist.TestEntityAssistCustomPersistenceLoader;
+import com.guicedee.entityassist.entities.EntityClass;
+import com.guicedee.entityassist.entities.EntityClassTwo;
+import com.guicedee.jpms.entityassist.entities.EntityClassTwo_;
+import com.guicedee.guicedinjection.GuiceContext;
 import org.junit.jupiter.api.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;
 import java.util.List;
 
-import static com.jwebmp.entityassist.enumerations.Operand.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -26,7 +26,7 @@ public class QueryBuilderCoreTest
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
 		                                          .join(EntityClassTwo_.entityClass, new EntityClassTwo().builder()
-		                                                                                                 .where(EntityClassTwo_.activeFlag, Equals, ActiveFlag.Active))
+		                                                                                                 .where(EntityClassTwo_.activeFlag, Operand.Equals, ActiveFlag.Active))
 		                                          .inVisibleRange()
 		                                          .getAll();
 		if (!list.isEmpty())
@@ -75,7 +75,7 @@ public class QueryBuilderCoreTest
 		                                          .inDateRange()
 		                                          .inVisibleRange()
 		                                          .join(EntityClassTwo_.entityClass, new EntityClassTwo().builder()
-		                                                                                                 .where(EntityClassTwo_.activeFlag, Equals, ActiveFlag.Active)
+		                                                                                                 .where(EntityClassTwo_.activeFlag, Operand.Equals, ActiveFlag.Active)
 		                                                                                                 .inActiveRange(), JoinType.LEFT)
 		                                          .getAll();
 		if (!list.isEmpty())

@@ -1,6 +1,6 @@
-package com.jwebmp.entityassist.injections.strings;
+package com.guicedee.entityassist.injections.strings;
 
-import com.jwebmp.entityassist.services.EntityAssistIDMapping;
+import com.guicedee.entityassist.services.EntityAssistIDMapping;
 
 public class StringIntegerIDMapping
 		extends EntityAssistIDMapping<String, Integer>

@@ -1,16 +1,17 @@
-package com.jwebmp.entityassist.querybuilder.builders;
+package com.guicedee.entityassist.querybuilder.builders;
 
 import com.google.inject.Key;
-import com.jwebmp.entityassist.BaseEntity;
-import com.jwebmp.entityassist.injections.EntityAssistBinder;
-import com.jwebmp.entityassist.querybuilder.QueryBuilder;
-import com.jwebmp.entityassist.querybuilder.statements.InsertStatement;
-import com.jwebmp.entityassist.querybuilder.statements.UpdateStatement;
-import com.jwebmp.entityassist.services.EntityAssistIDMapping;
-import com.jwebmp.guicedinjection.GuiceContext;
-import com.jwebmp.guicedpersistence.db.DbStartup;
-import com.jwebmp.guicedpersistence.services.ITransactionHandler;
-import com.jwebmp.logger.LogFactory;
+import com.guicedee.entityassist.BaseEntity;
+import com.guicedee.entityassist.injections.EntityAssistBinder;
+import com.guicedee.entityassist.querybuilder.EntityAssistStrings;
+import com.guicedee.entityassist.querybuilder.QueryBuilder;
+import com.guicedee.entityassist.querybuilder.statements.InsertStatement;
+import com.guicedee.entityassist.querybuilder.statements.UpdateStatement;
+import com.guicedee.entityassist.services.EntityAssistIDMapping;
+import com.guicedee.guicedinjection.GuiceContext;
+import com.guicedee.guicedpersistence.db.DbStartup;
+import com.guicedee.guicedpersistence.services.ITransactionHandler;
+import com.guicedee.logger.LogFactory;
 import com.oracle.jaxb21.PersistenceUnit;
 
 import javax.persistence.EntityManager;
@@ -36,8 +37,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.jwebmp.entityassist.querybuilder.EntityAssistStrings.*;
-import static com.jwebmp.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
+import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.ITransactionHandlerReader;
 
 /**
  * Builds a Query Base
@@ -645,7 +645,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			{
 				ConstraintViolation contraints = (ConstraintViolation) constraintViolation;
 				String error = contraints.getRootBeanClass()
-				                         .getSimpleName() + STRING_DOT + contraints.getPropertyPath() + STRING_EMPTY + contraints.getMessage();
+				                         .getSimpleName() + EntityAssistStrings.STRING_DOT + contraints.getPropertyPath() + EntityAssistStrings.STRING_EMPTY + contraints.getMessage();
 				errors.add(error);
 			}
 		}

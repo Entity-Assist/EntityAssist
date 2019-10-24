@@ -1,10 +1,10 @@
-package com.jwebmp.entityassist;
+package com.guicedee.entityassist;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.jwebmp.entityassist.querybuilder.QueryBuilder;
-import com.jwebmp.guicedinjection.GuiceContext;
+import com.guicedee.entityassist.querybuilder.QueryBuilder;
+import com.guicedee.guicedinjection.GuiceContext;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
-import static com.jwebmp.entityassist.querybuilder.EntityAssistStrings.*;
+import static com.guicedee.entityassist.querybuilder.EntityAssistStrings.*;
 
 @MappedSuperclass()
 @JsonAutoDetect(fieldVisibility = ANY,

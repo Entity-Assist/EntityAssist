@@ -1,6 +1,6 @@
-package com.jwebmp.entityassist.injections.bigdecimal;
+package com.guicedee.entityassist.injections.bigdecimal;
 
-import com.jwebmp.entityassist.services.EntityAssistIDMapping;
+import com.guicedee.entityassist.services.EntityAssistIDMapping;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

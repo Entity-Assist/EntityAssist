@@ -1,6 +1,6 @@
-package com.jwebmp.entityassist.querybuilder.builders;
+package com.guicedee.entityassist.querybuilder.builders;
 
-import com.jwebmp.guicedpersistence.services.ITransactionHandler;
+import com.guicedee.guicedpersistence.services.ITransactionHandler;
 import com.oracle.jaxb21.PersistenceUnit;
 
 import javax.persistence.EntityManager;

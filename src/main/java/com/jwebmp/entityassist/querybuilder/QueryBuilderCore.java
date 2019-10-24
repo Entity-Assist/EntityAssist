@@ -1,15 +1,15 @@
-package com.jwebmp.entityassist.querybuilder;
+package com.guicedee.entityassist.querybuilder;
 
-import com.jwebmp.entityassist.CoreEntity;
-import com.jwebmp.entityassist.enumerations.ActiveFlag;
+import com.guicedee.entityassist.SCDEntity;
+import com.guicedee.entityassist.CoreEntity;
+import com.guicedee.entityassist.enumerations.ActiveFlag;
 
 import javax.persistence.metamodel.Attribute;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import static com.jwebmp.entityassist.CoreEntity.*;
-import static com.jwebmp.entityassist.enumerations.Operand.*;
+import static com.guicedee.entityassist.enumerations.Operand.*;
 
 /**
  * @param <J>
@@ -138,7 +138,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		entity.setEffectiveFromDate(LocalDateTime.now());
-		entity.setEffectiveToDate(EndOfTime);
+		entity.setEffectiveToDate(SCDEntity.EndOfTime);
 		entity.setActiveFlag(ActiveFlag.Active);
 
 		persistNow(entity, true);

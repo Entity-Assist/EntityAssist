@@ -1,4 +1,4 @@
-package com.jwebmp.entityassist.querybuilder;
+package com.guicedee.entityassist.querybuilder;
 
 public interface EntityAssistStrings
 {

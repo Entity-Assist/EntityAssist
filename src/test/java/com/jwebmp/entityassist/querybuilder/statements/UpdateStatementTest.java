@@ -1,16 +1,14 @@
-package com.jwebmp.entityassist.querybuilder.statements;
+package com.guicedee.entityassist.querybuilder.statements;
 
-import com.jwebmp.entityassist.TestEntityAssistCustomPersistenceLoader;
-import com.jwebmp.entityassist.entities.EntityClass;
-import com.jwebmp.entityassist.entities.EntityClassGeneratedID;
-import com.jwebmp.entityassist.enumerations.ActiveFlag;
-import com.jwebmp.guicedpersistence.db.annotations.Transactional;
-import com.jwebmp.logger.LogFactory;
+import com.guicedee.entityassist.enumerations.ActiveFlag;
+import com.guicedee.entityassist.TestEntityAssistCustomPersistenceLoader;
+import com.guicedee.entityassist.entities.EntityClass;
+import com.guicedee.entityassist.entities.EntityClassGeneratedID;
+import com.guicedee.guicedpersistence.db.annotations.Transactional;
+import com.guicedee.logger.LogFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.logging.Level;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class UpdateStatementTest
 {

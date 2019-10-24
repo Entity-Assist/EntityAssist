@@ -1,6 +1,6 @@
-package com.jwebmp.entityassist.querybuilder.builders;
+package com.guicedee.entityassist.querybuilder.builders;
 
-import com.jwebmp.entityassist.enumerations.SelectAggregrate;
+import com.guicedee.entityassist.enumerations.SelectAggregrate;
 
 import javax.persistence.criteria.Expression;
 import javax.validation.constraints.NotNull;

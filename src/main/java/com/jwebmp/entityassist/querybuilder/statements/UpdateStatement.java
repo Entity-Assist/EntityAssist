@@ -1,14 +1,12 @@
-package com.jwebmp.entityassist.querybuilder.statements;
+package com.guicedee.entityassist.querybuilder.statements;
 
-import com.jwebmp.entityassist.BaseEntity;
-import com.jwebmp.guicedinjection.pairing.Pair;
-import com.jwebmp.logger.LogFactory;
+import com.guicedee.entityassist.BaseEntity;
+import com.guicedee.entityassist.querybuilder.EntityAssistStrings;
+import com.guicedee.guicedinjection.pairing.Pair;
+import com.guicedee.logger.LogFactory;
 
-import javax.persistence.metamodel.SingularAttribute;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import static com.jwebmp.entityassist.querybuilder.EntityAssistStrings.*;
 
 public class UpdateStatement
 		extends RunnableStatement
@@ -24,7 +22,7 @@ public class UpdateStatement
 	{
 		StringBuilder string = new StringBuilder();
 		string.append("UPDATE ");
-		string.append(getTableName() + STRING_SPACE);
+		string.append(getTableName() + EntityAssistStrings.STRING_SPACE);
 		string.append("SET ");
 
 		Map<String,Object> updateMap = getObject().builder()
@@ -35,16 +33,16 @@ public class UpdateStatement
 			Object value = entry.getValue();
 			String valueString = getValue(value);
 			string.append(entry.getKey());
-			string.append(STRING_EQUALS_SPACE_EQUALS);
+			string.append(EntityAssistStrings.STRING_EQUALS_SPACE_EQUALS);
 			string.append(valueString);
 		}
 
-		string = string.deleteCharAt(string.lastIndexOf(STRING_COMMNA));
-		string.append(STRING_SPACE);
+		string = string.deleteCharAt(string.lastIndexOf(EntityAssistStrings.STRING_COMMNA));
+		string.append(EntityAssistStrings.STRING_SPACE);
 		string.append("WHERE ");
 		Pair<String, Object> idPair = getIdPair();
-		string.append(idPair.getKey() + STRING_EQUALS_SPACE_EQUALS + getValue(idPair.getValue()));
-		string = string.deleteCharAt(string.lastIndexOf(STRING_COMMNA));
+		string.append(idPair.getKey() + EntityAssistStrings.STRING_EQUALS_SPACE_EQUALS + getValue(idPair.getValue()));
+		string = string.deleteCharAt(string.lastIndexOf(EntityAssistStrings.STRING_COMMNA));
 
 		return string.toString();
 	}

@@ -1,6 +1,6 @@
-package com.jwebmp.entityassist.querybuilder.builders;
+package com.guicedee.entityassist.querybuilder.builders;
 
-import com.jwebmp.entityassist.enumerations.GroupedFilterType;
+import com.guicedee.entityassist.enumerations.GroupedFilterType;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;

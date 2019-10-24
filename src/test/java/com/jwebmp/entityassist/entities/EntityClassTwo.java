@@ -1,7 +1,7 @@
-package com.jwebmp.entityassist.entities;
+package com.guicedee.entityassist.entities;
 
-import com.jwebmp.entityassist.CoreEntity;
-import com.jwebmp.entityassist.entities.builders.EntityClassTwoBuilder;
+import com.guicedee.entityassist.entities.builders.EntityClassTwoBuilder;
+import com.guicedee.entityassist.CoreEntity;
 
 import javax.persistence.*;
 

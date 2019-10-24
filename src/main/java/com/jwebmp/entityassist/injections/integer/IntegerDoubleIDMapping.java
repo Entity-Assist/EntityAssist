@@ -1,6 +1,6 @@
-package com.jwebmp.entityassist.injections.integer;
+package com.guicedee.entityassist.injections.integer;
 
-import com.jwebmp.entityassist.services.EntityAssistIDMapping;
+import com.guicedee.entityassist.services.EntityAssistIDMapping;
 
 public class IntegerDoubleIDMapping
 		extends EntityAssistIDMapping<Integer, Double>

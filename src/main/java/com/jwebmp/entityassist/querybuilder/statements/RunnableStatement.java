@@ -1,8 +1,9 @@
-package com.jwebmp.entityassist.querybuilder.statements;
+package com.guicedee.entityassist.querybuilder.statements;
 
-import com.jwebmp.entityassist.BaseEntity;
-import com.jwebmp.guicedinjection.pairing.Pair;
-import com.jwebmp.logger.LogFactory;
+import com.guicedee.entityassist.BaseEntity;
+import com.guicedee.entityassist.querybuilder.EntityAssistStrings;
+import com.guicedee.guicedinjection.pairing.Pair;
+import com.guicedee.logger.LogFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -16,8 +17,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
-
-import static com.jwebmp.entityassist.querybuilder.EntityAssistStrings.*;
 
 abstract class RunnableStatement
 {
@@ -61,87 +60,87 @@ abstract class RunnableStatement
 		if (columnValue instanceof Boolean)
 		{
 			insertString.append((Boolean) columnValue ? "1" : "0")
-			            .append(STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Long)
 		{
 			insertString.append(columnValue)
-			            .append(STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Integer)
 		{
 			insertString.append(columnValue)
-			            .append(STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof BigInteger)
 		{
 			insertString.append(((BigInteger) columnValue).longValue())
-			            .append(STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof BigDecimal)
 		{
 			insertString.append(((BigDecimal) columnValue).doubleValue())
-			            .append(STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Short)
 		{
 			short columnVal = (short) columnValue;
 			insertString.append(columnVal)
-			            .append(STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof String)
 		{
-			insertString.append(STRING_SINGLE_QUOTES)
-			            .append(((String) columnValue).replaceAll(STRING_SINGLE_QUOTES, STRING_SINGLE_QUOTES + STRING_SINGLE_QUOTES))
-			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
+			            .append(((String) columnValue).replaceAll(EntityAssistStrings.STRING_SINGLE_QUOTES, EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_SINGLE_QUOTES))
+			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Date)
 		{
 			Date date = (Date) columnValue;
-			insertString.append(STRING_SINGLE_QUOTES)
+			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
 			            .append(getSdf().format(date))
-			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof LocalDate)
 		{
 			LocalDate date = (LocalDate) columnValue;
-			insertString.append(STRING_SINGLE_QUOTES)
+			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
 			            .append(getDateFormat().format(date))
-			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof LocalDateTime)
 		{
 			LocalDateTime date = (LocalDateTime) columnValue;
-			insertString.append(STRING_SINGLE_QUOTES)
+			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
 			            .append(getDateTimeFormat().format(date))
-			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof BaseEntity)
 		{
 			BaseEntity wct = (BaseEntity) columnValue;
 			insertString.append(wct.getId())
-			            .append(STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Enum)
 		{
 			Enum wct = (Enum) columnValue;
-			insertString.append(STRING_SINGLE_QUOTES)
+			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
 			            .append(wct.toString())
-			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof UUID)
 		{
 			UUID wct = (UUID) columnValue;
-			insertString.append(STRING_SINGLE_QUOTES)
+			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
 			            .append(wct.toString())
-			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof byte[])
 		{
 
 			String bitString = "0x" + getHex((byte[]) columnValue);
 			insertString.append(bitString)
-			            .append(STRING_COMMNA_SPACE);
+			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		return insertString.toString();
 	}

@@ -1,15 +1,14 @@
-package com.jwebmp.entityassist;
+package com.guicedee.entityassist;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jwebmp.entityassist.enumerations.ActiveFlag;
-import com.jwebmp.entityassist.querybuilder.QueryBuilderCore;
+import com.guicedee.entityassist.enumerations.ActiveFlag;
+import com.guicedee.entityassist.querybuilder.QueryBuilderCore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;

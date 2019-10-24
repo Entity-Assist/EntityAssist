@@ -1,6 +1,6 @@
-package com.jwebmp.entityassist.querybuilder.builders;
+package com.guicedee.entityassist.querybuilder.builders;
 
-import com.jwebmp.entityassist.enumerations.OrderByType;
+import com.guicedee.entityassist.enumerations.OrderByType;
 
 import javax.persistence.metamodel.Attribute;
 

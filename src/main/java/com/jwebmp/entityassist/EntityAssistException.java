@@ -1,4 +1,4 @@
-package com.jwebmp.entityassist;
+package com.guicedee.entityassist;
 
 @SuppressWarnings("unused")
 public class EntityAssistException

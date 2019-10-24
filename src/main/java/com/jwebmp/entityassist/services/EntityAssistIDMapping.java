@@ -1,7 +1,7 @@
-package com.jwebmp.entityassist.services;
+package com.guicedee.entityassist.services;
 
-import com.jwebmp.guicedinjection.interfaces.IDefaultService;
-import com.jwebmp.logger.LogFactory;
+import com.guicedee.guicedinjection.interfaces.IDefaultService;
+import com.guicedee.logger.LogFactory;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.logging.Level;

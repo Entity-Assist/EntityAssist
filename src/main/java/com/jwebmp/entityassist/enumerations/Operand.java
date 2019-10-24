@@ -1,4 +1,4 @@
-package com.jwebmp.entityassist.enumerations;
+package com.guicedee.entityassist.enumerations;
 
 public enum Operand
 {

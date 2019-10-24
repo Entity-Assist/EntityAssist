@@ -5,13 +5,13 @@
              version="2.1">
     <persistence-unit name="entityassist_generator">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <class>com.jwebmp.entityassist.converters.LocalDateAttributeConverter</class>
-        <class>com.jwebmp.entityassist.converters.LocalDateTimeAttributeConverter</class>
-        <class>com.jwebmp.entityassist.converters.LocalDateTimestampAttributeConverter</class>
+        <class>com.guicedee.entityassist.converters.LocalDateAttributeConverter</class>
+        <class>com.guicedee.entityassist.converters.LocalDateTimeAttributeConverter</class>
+        <class>com.guicedee.entityassist.converters.LocalDateTimestampAttributeConverter</class>
 
-        <class>com.jwebmp.entityassist.CoreEntity</class>
-        <class>com.jwebmp.entityassist.BaseEntity</class>
-        <class>com.jwebmp.entityassist.SCDEntity</class>
+        <class>com.guicedee.entityassist.CoreEntity</class>
+        <class>com.guicedee.entityassist.BaseEntity</class>
+        <class>com.guicedee.entityassist.SCDEntity</class>
 
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>

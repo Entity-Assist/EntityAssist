@@ -1,4 +1,4 @@
-package com.jwebmp.entityassist.enumerations;
+package com.guicedee.entityassist.enumerations;
 
 import javax.validation.constraints.NotNull;
 import java.util.EnumSet;

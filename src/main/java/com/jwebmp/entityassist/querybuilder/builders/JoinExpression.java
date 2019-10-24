@@ -1,12 +1,10 @@
-package com.jwebmp.entityassist.querybuilder.builders;
+package com.guicedee.entityassist.querybuilder.builders;
 
-import com.jwebmp.entityassist.BaseEntity;
-import com.jwebmp.entityassist.querybuilder.QueryBuilder;
+import com.guicedee.entityassist.BaseEntity;
+import com.guicedee.entityassist.querybuilder.QueryBuilder;
 
-import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
 
 /**

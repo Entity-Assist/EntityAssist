@@ -1,7 +1,7 @@
-package com.jwebmp.entityassist;
+package com.guicedee.entityassist;
 
-import com.jwebmp.guicedpersistence.db.ConnectionBaseInfo;
-import com.jwebmp.logger.LogFactory;
+import com.guicedee.guicedpersistence.db.ConnectionBaseInfo;
+import com.guicedee.logger.LogFactory;
 
 import javax.sql.DataSource;
 import java.util.logging.Logger;

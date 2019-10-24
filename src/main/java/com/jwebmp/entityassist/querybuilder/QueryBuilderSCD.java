@@ -1,14 +1,11 @@
-package com.jwebmp.entityassist.querybuilder;
+package com.guicedee.entityassist.querybuilder;
 
-import com.jwebmp.entityassist.SCDEntity;
+import com.guicedee.entityassist.SCDEntity;
+import com.guicedee.entityassist.enumerations.Operand;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
-import static com.jwebmp.entityassist.SCDEntity.*;
-import static com.jwebmp.entityassist.enumerations.Operand.*;
-
 
 public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E extends SCDEntity<E, J, I>, I extends Serializable>
 		extends QueryBuilder<J, E, I>
@@ -50,8 +47,8 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@SuppressWarnings("unchecked")
 	public J inDateRange(LocalDateTime effectiveFromDate)
 	{
-		where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), GreaterThanEqualTo, effectiveFromDate);
-		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), LessThanEqualTo, EndOfTime);
+		where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), Operand.GreaterThanEqualTo, effectiveFromDate);
+		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, SCDEntity.EndOfTime);
 
 		return (J) this;
 	}
@@ -68,7 +65,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@SuppressWarnings("unchecked")
 	public J inDateRange(LocalDateTime effectiveToDate, boolean toDate)
 	{
-		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), LessThanEqualTo, effectiveToDate);
+		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, effectiveToDate);
 		return (J) this;
 	}
 
@@ -102,8 +99,8 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@SuppressWarnings("unchecked")
 	public J inDateRange(LocalDateTime fromDate, LocalDateTime toDate)
 	{
-		where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), GreaterThanEqualTo, fromDate);
-		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), LessThanEqualTo, toDate);
+		where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), Operand.GreaterThanEqualTo, fromDate);
+		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, toDate);
 
 		return (J) this;
 	}
@@ -160,7 +157,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		}
 		if (entity.getEffectiveToDate() == null)
 		{
-			entity.setEffectiveToDate(EndOfTime);
+			entity.setEffectiveToDate(SCDEntity.EndOfTime);
 		}
 		return true;
 	}

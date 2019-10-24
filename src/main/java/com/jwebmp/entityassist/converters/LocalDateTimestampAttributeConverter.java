@@ -1,4 +1,4 @@
-package com.jwebmp.entityassist.converters;
+package com.guicedee.entityassist.converters;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

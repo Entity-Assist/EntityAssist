@@ -2,10 +2,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.guicedee.persistence</groupId>
+        <artifactId>persistence-parent</artifactId>
+        <version>0.0.0_0-SNAPSHOT</version>
+    </parent>
 
-    <groupId>com.jwebmp.jpms.guicedee.persistence</groupId>
+
     <artifactId>entity-assist</artifactId>
-    <version>0.0.0_0-SNAPSHOT</version>
+
     <packaging>jar</packaging>
     <name>Entity Assist</name>
 
@@ -50,8 +55,8 @@
                 <groupId>com.jwebmp</groupId>
                 <artifactId>jwebmp-parent</artifactId>
                 <type>pom</type>
-                <scope>import</scope>
                 <version>${project.version}</version>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -60,54 +65,47 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.jwebmp.jpms.guicedee.persistence</groupId>
+            <groupId>com.guicedee.persistence</groupId>
             <artifactId>guiced-persistence</artifactId>
             <type>jar</type>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.jpms.guicedee.persistence</groupId>
+            <groupId>com.guicedee.persistence</groupId>
             <artifactId>guiced-persistence-btm</artifactId>
             <scope>test</scope>
             <type>jar</type>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.jpms.guicedee.persistence</groupId>
+            <groupId>com.guicedee.persistence</groupId>
             <artifactId>guiced-persistence-jpa</artifactId>
             <scope>test</scope>
             <type>jar</type>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.jwebmp.jpms.thirdparty</groupId>
             <artifactId>commons-text</artifactId>
             <type>jar</type>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.jwebmp.jpms.thirdparty</groupId>
             <artifactId>hibernate-core</artifactId>
             <type>jar</type>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.jwebmp.jpms.thirdparty</groupId>
             <artifactId>commons-lang3</artifactId>
             <type>jar</type>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.jwebmp.jpms.thirdparty</groupId>
             <artifactId>guava</artifactId>
             <type>jar</type>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -159,7 +157,6 @@
         <dependency>
             <groupId>com.jwebmp.jpms.thirdparty</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
-            <version>${project.version}</version>
             <type>jar</type>
             <scope>provided</scope>
             <optional>true</optional>
@@ -168,7 +165,6 @@
             <groupId>com.jwebmp.jpms.thirdparty</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
             <type>jar</type>
-            <version>${project.version}</version>
         </dependency>
 
     </dependencies>

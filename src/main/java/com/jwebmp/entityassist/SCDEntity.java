@@ -1,9 +1,9 @@
-package com.jwebmp.entityassist;
+package com.guicedee.entityassist;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.jwebmp.entityassist.converters.LocalDateTimeAttributeConverter;
-import com.jwebmp.entityassist.querybuilder.QueryBuilderSCD;
+import com.guicedee.entityassist.converters.LocalDateTimeAttributeConverter;
+import com.guicedee.entityassist.querybuilder.QueryBuilderSCD;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

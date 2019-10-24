@@ -1,8 +1,8 @@
-package com.jwebmp.entityassist.querybuilder.builders;
+package com.guicedee.entityassist.querybuilder.builders;
 
-import com.jwebmp.entityassist.EntityAssistException;
-import com.jwebmp.entityassist.enumerations.Operand;
-import com.jwebmp.logger.LogFactory;
+import com.guicedee.entityassist.enumerations.Operand;
+import com.guicedee.entityassist.EntityAssistException;
+import com.guicedee.logger.LogFactory;
 
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
@@ -173,7 +173,7 @@ final class WhereExpression<X, Y>
 				Expression<Object> path;
 				path = (Expression<Object>) expressionAttribute;
 				CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
-				IFilterExpression.buildInObject(in, value);
+				buildInObject(in, value);
 				return Optional.of(in);
 			}
 			case NotInList:
@@ -181,7 +181,7 @@ final class WhereExpression<X, Y>
 				Expression<Object> path = null;
 				path = (Expression<Object>) expressionAttribute;
 				CriteriaBuilder.In<Object> in = getCriteriaBuilder().in(path);
-				IFilterExpression.buildInObject(in, value);
+				buildInObject(in, value);
 				return Optional.of(getCriteriaBuilder().not(in));
 			}
 			default:

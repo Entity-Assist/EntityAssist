@@ -1,14 +1,14 @@
-package com.jwebmp.entityassist.querybuilder;
+package com.guicedee.entityassist.querybuilder;
 
 import com.google.common.base.Strings;
 import com.google.inject.Key;
-import com.jwebmp.entityassist.BaseEntity;
-import com.jwebmp.entityassist.enumerations.OrderByType;
-import com.jwebmp.entityassist.querybuilder.builders.DefaultQueryBuilder;
-import com.jwebmp.entityassist.querybuilder.builders.JoinExpression;
-import com.jwebmp.guicedinjection.GuiceContext;
-import com.jwebmp.guicedpersistence.services.ITransactionHandler;
-import com.jwebmp.logger.LogFactory;
+import com.guicedee.entityassist.BaseEntity;
+import com.guicedee.entityassist.enumerations.OrderByType;
+import com.guicedee.entityassist.querybuilder.builders.DefaultQueryBuilder;
+import com.guicedee.entityassist.querybuilder.builders.JoinExpression;
+import com.guicedee.guicedinjection.GuiceContext;
+import com.guicedee.guicedpersistence.services.ITransactionHandler;
+import com.guicedee.logger.LogFactory;
 import com.oracle.jaxb21.PersistenceUnit;
 
 import javax.persistence.*;
@@ -25,8 +25,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static com.jwebmp.entityassist.querybuilder.builders.IFilterExpression.*;
-import static com.jwebmp.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
+import static com.guicedee.entityassist.querybuilder.builders.IFilterExpression.*;
+import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.ITransactionHandlerReader;
 
 @SuppressWarnings("unchecked")
 public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>

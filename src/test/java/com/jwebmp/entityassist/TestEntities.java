@@ -1,14 +1,14 @@
-package com.jwebmp.entityassist;
+package com.guicedee.entityassist;
 
 import com.google.inject.Key;
-import com.jwebmp.entityassist.entities.EntityClass;
-import com.jwebmp.entityassist.entities.EntityClassGeneratedID;
-import com.jwebmp.entityassist.entities.EntityClassTwo_;
-import com.jwebmp.entityassist.entities.EntityClass_;
-import com.jwebmp.entityassist.enumerations.ActiveFlag;
-import com.jwebmp.entityassist.enumerations.Operand;
-import com.jwebmp.guicedinjection.GuiceContext;
-import com.jwebmp.guicedpersistence.db.annotations.Transactional;
+import com.guicedee.entityassist.entities.EntityClass;
+import com.guicedee.entityassist.entities.EntityClassGeneratedID;
+import com.guicedee.entityassist.enumerations.ActiveFlag;
+import com.guicedee.entityassist.enumerations.Operand;
+import com.guicedee.jpms.entityassist.entities.EntityClassTwo_;
+import com.guicedee.jpms.entityassist.entities.EntityClass_;
+import com.guicedee.guicedinjection.GuiceContext;
+import com.guicedee.guicedpersistence.db.annotations.Transactional;
 import org.junit.jupiter.api.*;
 
 import javax.persistence.EntityManager;
@@ -18,8 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jwebmp.entityassist.entities.EntityClass_.*;
-import static com.jwebmp.entityassist.enumerations.Operand.*;
+import static com.guicedee.jpms.entityassist.entities.EntityClass_.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -149,7 +148,7 @@ public class TestEntities
 		resultList.add(l);
 		resultList.add(l2);
 		long resultCount = ec.builder()
-		                     .where(id, Equals, l)
+		                     .where(id, Operand.Equals, l)
 		                     .getCount();
 		assertEquals(1L, resultCount);
 	}
@@ -482,7 +481,7 @@ public class TestEntities
 		                              .where(id, Operand.Equals, generatedID.getId())
 		                              .or(id, Operand.Equals, generatedID2.getId(), true)
 		                              .or(id, Operand.Equals, generatedID3.getId())
-		                              .where(id, NotNull, (Long) null)
+		                              .where(id, Operand.NotNull, (Long) null)
 		                              .getCount();
 
 		assertTrue(3 == resultCount);
@@ -504,7 +503,7 @@ public class TestEntities
 		EntityClass updates = new EntityClass(true);
 		updates.setActiveFlag(ActiveFlag.Archived);
 		new EntityClass().builder()
-		                 .where(EntityClass_.activeFlag, Equals, ActiveFlag.Invisible)
+		                 .where(EntityClass_.activeFlag, Operand.Equals, ActiveFlag.Invisible)
 		                 .bulkUpdate(updates, true);
 	}
 
@@ -526,7 +525,7 @@ public class TestEntities
 		updates.setActiveFlag(ActiveFlag.Archived);
 		new EntityClass().builder()
 		                 .setRunDetached(true)
-		                 .where(EntityClass_.activeFlag, Equals, ActiveFlag.Invisible)
+		                 .where(EntityClass_.activeFlag, Operand.Equals, ActiveFlag.Invisible)
 		                 .bulkUpdate(updates, true);
 	}
 }

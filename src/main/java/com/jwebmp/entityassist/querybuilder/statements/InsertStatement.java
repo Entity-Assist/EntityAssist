@@ -1,8 +1,8 @@
-package com.jwebmp.entityassist.querybuilder.statements;
+package com.guicedee.entityassist.querybuilder.statements;
 
-import com.jwebmp.entityassist.BaseEntity;
-import com.jwebmp.entityassist.querybuilder.EntityAssistStrings;
-import com.jwebmp.logger.LogFactory;
+import com.guicedee.entityassist.BaseEntity;
+import com.guicedee.entityassist.querybuilder.EntityAssistStrings;
+import com.guicedee.logger.LogFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

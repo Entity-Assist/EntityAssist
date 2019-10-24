@@ -1,11 +1,12 @@
-package com.jwebmp.entityassist.querybuilder.builders;
+package com.guicedee.entityassist.querybuilder.builders;
 
-import com.jwebmp.entityassist.BaseEntity;
-import com.jwebmp.entityassist.enumerations.GroupedFilterType;
-import com.jwebmp.entityassist.enumerations.Operand;
-import com.jwebmp.entityassist.enumerations.OrderByType;
-import com.jwebmp.entityassist.querybuilder.QueryBuilder;
-import com.jwebmp.logger.LogFactory;
+import com.guicedee.entityassist.BaseEntity;
+import com.guicedee.entityassist.enumerations.GroupedFilterType;
+import com.guicedee.entityassist.enumerations.Operand;
+import com.guicedee.entityassist.enumerations.OrderByType;
+import com.guicedee.entityassist.enumerations.SelectAggregrate;
+import com.guicedee.entityassist.querybuilder.QueryBuilder;
+import com.guicedee.logger.LogFactory;
 
 import javax.persistence.Id;
 import javax.persistence.criteria.*;
@@ -19,9 +20,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static com.jwebmp.entityassist.enumerations.Operand.*;
-import static com.jwebmp.entityassist.enumerations.SelectAggregrate.*;
-import static com.jwebmp.entityassist.querybuilder.builders.IFilterExpression.*;
+import static com.guicedee.entityassist.querybuilder.builders.IFilterExpression.*;
 
 @SuppressWarnings({"UnusedReturnValue", "WeakerAccess"})
 public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilder, I>, I extends Serializable>
@@ -234,11 +233,11 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		if (idField.isPresent())
 		{
 			where((Attribute<Object, I>) getAttribute(idField.get()
-			                                                 .getName()), Equals, id);
+			                                                 .getName()), Operand.Equals, id);
 		}
 		else
 		{
-			where((Attribute<Object, I>) getAttribute("id"), Equals, id);
+			where((Attribute<Object, I>) getAttribute("id"), Operand.Equals, id);
 		}
 		return (J) this;
 	}
@@ -285,11 +284,11 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		if (idField.isPresent())
 		{
 			where((Attribute<Object, I>) getAttribute(idField.get()
-			                                                 .getName()), InList, idList);
+			                                                 .getName()), Operand.InList, idList);
 		}
 		else
 		{
-			where((Attribute<Object, I>) getAttribute("id"), InList, idList);
+			where((Attribute<Object, I>) getAttribute("id"), Operand.InList, idList);
 		}
 		return (J) this;
 	}
@@ -538,7 +537,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	public <X, Y> J in(Attribute<X, Y> fieldName, Y value)
 	{
-		where(fieldName, InList, value);
+		where(fieldName, Operand.InList, value);
 		return (J) this;
 	}
 
@@ -555,7 +554,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	public <X, Y> J in(Attribute<X, Y> fieldName, Collection<Y> value)
 	{
-		where(fieldName, InList, value);
+		where(fieldName, Operand.InList, value);
 		return (J) this;
 	}
 
@@ -574,7 +573,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public <X, Y> J in(Attribute<X, Y> fieldName, Y[] value)
 	{
-		where(fieldName, InList, value);
+		where(fieldName, Operand.InList, value);
 		return (J) this;
 	}
 
@@ -1098,7 +1097,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectColumn(Expression selectColumn)
 	{
-		SelectExpression selectExpression = new SelectExpression(selectColumn, None);
+		SelectExpression selectExpression = new SelectExpression(selectColumn, SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionNone(selectExpression);
 		return (J) this;
@@ -1116,7 +1115,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectAverage(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectAverage(selectExpression);
 		return (J) this;
@@ -1134,7 +1133,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectCount(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectCount(selectExpression);
 		return (J) this;
@@ -1152,7 +1151,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectCountDistinct(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectCountDistinct(selectExpression);
 		return (J) this;
@@ -1170,7 +1169,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectMax(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionMax(selectExpression);
 		return (J) this;
@@ -1188,7 +1187,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectMin(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionMin(selectExpression);
 		return (J) this;
@@ -1206,7 +1205,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSum(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectSum(selectExpression);
 		return (J) this;
@@ -1224,7 +1223,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSumAsDouble(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectSumAsDouble(selectExpression);
 		return (J) this;
@@ -1242,7 +1241,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSumAsLong(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, None);
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectSumAsLong(selectExpression);
 		return (J) this;
@@ -1260,7 +1259,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectColumn(Attribute selectColumn)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(selectColumn.getName()), None);
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(selectColumn.getName()), SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionNone(selectExpression);
 		return (J) this;
@@ -1278,7 +1277,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectAverage(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectAverage(selectExpression);
 		return (J) this;
@@ -1296,7 +1295,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectCount(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectCount(selectExpression);
 		return (J) this;
@@ -1314,7 +1313,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectCountDistinct(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectCountDistinct(selectExpression);
 		return (J) this;
@@ -1332,7 +1331,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectMax(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionMax(selectExpression);
 		return (J) this;
@@ -1350,7 +1349,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectMin(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionMin(selectExpression);
 		return (J) this;
@@ -1368,7 +1367,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSum(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectSum(selectExpression);
 		return (J) this;
@@ -1386,7 +1385,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSumAsDouble(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectSumAsDouble(selectExpression);
 		return (J) this;
@@ -1404,7 +1403,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSumAsLong(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), None);
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
 		selectExpressions.add(selectExpression);
 		processSelectSumAsLong(selectExpression);
 		return (J) this;

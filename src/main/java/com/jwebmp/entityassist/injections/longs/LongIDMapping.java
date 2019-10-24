@@ -1,6 +1,6 @@
-package com.jwebmp.entityassist.injections.longs;
+package com.guicedee.entityassist.injections.longs;
 
-import com.jwebmp.entityassist.services.EntityAssistIDMapping;
+import com.guicedee.entityassist.services.EntityAssistIDMapping;
 
 public class LongIDMapping
 		extends EntityAssistIDMapping<Long, Long>

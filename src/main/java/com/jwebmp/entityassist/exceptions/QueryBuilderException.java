@@ -1,4 +1,4 @@
-package com.jwebmp.entityassist.exceptions;
+package com.guicedee.entityassist.exceptions;
 
 /**
  * Occurs when a query builder exception happens

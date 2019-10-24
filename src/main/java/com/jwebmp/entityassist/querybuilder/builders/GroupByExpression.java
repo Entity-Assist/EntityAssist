@@ -1,4 +1,4 @@
-package com.jwebmp.entityassist.querybuilder.builders;
+package com.guicedee.entityassist.querybuilder.builders;
 
 import javax.persistence.metamodel.Attribute;
 
