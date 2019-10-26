@@ -1,22 +1,22 @@
-import com.guicedee.entityassist.injections.EntityAssistBinder;
-import com.guicedee.entityassist.injections.bigdecimal.*;
-import com.guicedee.entityassist.injections.biginteger.*;
-import com.guicedee.entityassist.injections.integer.*;
-import com.guicedee.entityassist.injections.longs.*;
-import com.guicedee.entityassist.injections.strings.*;
-import com.guicedee.entityassist.services.EntityAssistIDMapping;
+import com.entityassist.injections.EntityAssistBinder;
+import com.entityassist.injections.bigdecimal.*;
+import com.entityassist.injections.biginteger.*;
+import com.entityassist.injections.integer.*;
+import com.entityassist.injections.longs.*;
+import com.entityassist.injections.strings.*;
+import com.entityassist.services.EntityAssistIDMapping;
 import com.guicedee.guicedinjection.interfaces.IGuiceDefaultBinder;
 import com.guicedee.guicedpersistence.services.ITransactionHandler;
 
-module com.guicedee.entityassist {
+module com.entityassist {
 
-	exports com.guicedee.entityassist;
-	exports com.guicedee.entityassist.converters;
-	exports com.guicedee.entityassist.enumerations;
-	exports com.guicedee.entityassist.querybuilder;
-	exports com.guicedee.entityassist.exceptions;
-	exports com.guicedee.entityassist.querybuilder.builders;
-	exports com.guicedee.entityassist.querybuilder.statements;
+	exports com.entityassist;
+	exports com.entityassist.converters;
+	exports com.entityassist.enumerations;
+	exports com.entityassist.querybuilder;
+	exports com.entityassist.exceptions;
+	exports com.entityassist.querybuilder.builders;
+	exports com.entityassist.querybuilder.statements;
 
 	requires com.fasterxml.jackson.annotation;
 	requires java.validation;
@@ -36,14 +36,14 @@ module com.guicedee.entityassist {
 
 	requires org.hibernate.orm.core;
 
-	opens com.guicedee.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind;
+	opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind,com.google.guice;
 
 
-	opens com.guicedee.entityassist.injections.bigdecimal to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
-	opens com.guicedee.entityassist.injections.biginteger to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
-	opens com.guicedee.entityassist.injections.integer to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
-	opens com.guicedee.entityassist.injections.longs to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
-	opens com.guicedee.entityassist.injections.strings to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
+	opens com.entityassist.injections.bigdecimal to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
+	opens com.entityassist.injections.biginteger to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
+	opens com.entityassist.injections.integer to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
+	opens com.entityassist.injections.longs to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
+	opens com.entityassist.injections.strings to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
 
 	provides IGuiceDefaultBinder with EntityAssistBinder;
 	provides EntityAssistIDMapping with

@@ -3,22 +3,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.guicedee.persistence</groupId>
-        <artifactId>persistence-parent</artifactId>
+        <groupId>com.guicedee</groupId>
+        <artifactId>dev-kit</artifactId>
         <version>0.0.0_0-SNAPSHOT</version>
     </parent>
 
-
+    <groupId>com.entityassist</groupId>
     <artifactId>entity-assist</artifactId>
 
     <packaging>jar</packaging>
     <name>Entity Assist</name>
 
     <description>A Domain Driven SQL Builder Generator for JPMS/JDK8</description>
-
-    <properties>
-        <surefireArgLine></surefireArgLine>
-    </properties>
 
     <licenses>
         <license>
@@ -45,18 +41,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.jwebmp</groupId>
-                <artifactId>jwebmp-bom</artifactId>
+                <groupId>com.guicedee</groupId>
+                <artifactId>guicedee-bom</artifactId>
                 <type>pom</type>
                 <scope>import</scope>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jwebmp</groupId>
-                <artifactId>jwebmp-parent</artifactId>
-                <type>pom</type>
-                <version>${project.version}</version>
-                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -67,14 +56,12 @@
         <dependency>
             <groupId>com.guicedee.persistence</groupId>
             <artifactId>guiced-persistence</artifactId>
-            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>com.guicedee.persistence</groupId>
             <artifactId>guiced-persistence-btm</artifactId>
             <scope>test</scope>
-            <type>jar</type>
         </dependency>
 
         <dependency>
@@ -85,86 +72,36 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
+            <groupId>com.guicedee.services</groupId>
             <artifactId>commons-text</artifactId>
-            <type>jar</type>
         </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
+            <groupId>com.guicedee.services</groupId>
             <artifactId>hibernate-core</artifactId>
-            <type>jar</type>
         </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
+            <groupId>com.guicedee.services</groupId>
             <artifactId>commons-lang3</artifactId>
-            <type>jar</type>
         </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
+            <groupId>com.guicedee.services</groupId>
             <artifactId>guava</artifactId>
-            <type>jar</type>
         </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <scope>provided</scope>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
+            <groupId>com.guicedee.services</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
-            <type>jar</type>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
+
         <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
+            <groupId>com.guicedee.services</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <type>jar</type>
         </dependency>
 
     </dependencies>
@@ -184,29 +121,6 @@
 
     <build>
         <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M3</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.5.0</version>
-                        <type>jar</type>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <!--suppress MavenModelInspection -->
-                    <argLine>--add-opens
-                        java.base/java.lang=com.google.guice,javassist ${surefireArgLine}
-                    </argLine>
-                    <testFailureIgnore>true</testFailureIgnore>
-                    <!-- Sets the VM argument line used when unit tests are run. -->
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.hibernate.orm.tooling</groupId>
                 <artifactId>hibernate-enhance-maven-plugin</artifactId>
@@ -240,17 +154,17 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>12</source>
-                    <target>12</target>
-                    <release>12</release>
+                    <source>${jdk.release}</source>
+                    <target>${jdk.release}</target>
+                    <release>${jdk.release}</release>
                     <annotationProcessorPaths>
                         <annotationProcessorPath>
-                            <groupId>com.jwebmp.jpms.thirdparty</groupId>
+                            <groupId>com.guicedee.services</groupId>
                             <artifactId>hibernate-jpamodelgen</artifactId>
                             <version>${project.version}</version>
                         </annotationProcessorPath>
                         <path>
-                            <groupId>com.jwebmp.jpms.thirdparty</groupId>
+                            <groupId>com.guicedee.services</groupId>
                             <artifactId>jakarta.xml.bind-api</artifactId>
                             <version>${project.version}</version>
                         </path>
@@ -288,132 +202,4 @@
 
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>jwebmp-distribution</id>
-            <activation>
-            </activation>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>jwebmp-snapshot</id>
-                    <name>JWebMPArtifactory-snapshots</name>
-                    <url>https://jwebmp.com/artifactory/libs-snapshot-local</url>
-                </snapshotRepository>
-                <repository>
-                    <id>jwebmp-release</id>
-                    <name>JWebMPArtifactory-releases</name>
-                    <url>https://jwebmp.com/artifactory/libs-release-local</url>
-                </repository>
-            </distributionManagement>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <configuration>
-                                    <gpgArguments>
-                                        <arg>--pinentry-mode</arg>
-                                        <arg>loopback</arg>
-                                    </gpgArguments>
-                                    <passphrase>${gpg.passphrase}</passphrase>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-
-        </profile>
-
-        <profile>
-            <id>sonartype-distribution</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>sonar-snapshot</id>
-                    <name>SonarType-snapshots</name>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-                </snapshotRepository>
-                <repository>
-                    <id>sonar-release</id>
-                    <name>SonarType-releases</name>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <configuration>
-                                    <gpgArguments>
-                                        <arg>--pinentry-mode</arg>
-                                        <arg>loopback</arg>
-                                    </gpgArguments>
-                                    <passphrase>${gpg.passphrase}</passphrase>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <!-- This plugin doesn't work inside pluginManagement, for some reason -->
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.8</version>
-                        <extensions>true</extensions>
-                        <executions>
-                            <execution>
-                                <id>default-deploy</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>deploy</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <serverId>sonar-snapshot</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                            <stagingProgressTimeoutMinutes>300</stagingProgressTimeoutMinutes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <version>3.0.0-M1</version>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-
 </project>

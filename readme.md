@@ -9,19 +9,11 @@ Direct Link : https://jwebmp/artifactory/list/libs-snapshot-local/za/co/mmagon/e
 
 # Getting Started
 ```
-
-    <repositories>
-        <repository>
-            <id>jwebswing-snapshot</id>
-            <name>JWebMPArtifactory-snapshots</name>
-            <url>https://jwebmp/artifactory/libs-snapshot</url>
-        </repository>
-    </repositories>
-    
     <dependency>
-        <groupId>com.jwebmp</groupId>
+        <groupId>com.entityassist</groupId>
         <artifactId>entity-assist</artifactId>
-        <version>[0.32.0.1,)</version><type>jar</type>
+        <version>RELEASE</version>
+        <type>jar</type>
             </dependency>
 
 ```
