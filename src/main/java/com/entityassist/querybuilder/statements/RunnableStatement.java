@@ -118,8 +118,7 @@ abstract class RunnableStatement
 		else if (columnValue instanceof BaseEntity)
 		{
 			BaseEntity wct = (BaseEntity) columnValue;
-			insertString.append(wct.getId())
-			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
+			insertString.append(getValue(wct.getId()));
 		}
 		else if (columnValue instanceof Enum)
 		{
