@@ -16,13 +16,13 @@ import java.util.logging.Level;
  * @param <OBJECT>
  * 		The object to render
  */
-public abstract class EntityAssistIDMapping<DB, OBJECT>
-		implements IDefaultService<EntityAssistIDMapping<DB, OBJECT>>
+public interface EntityAssistIDMapping<DB, OBJECT>
+		extends IDefaultService<EntityAssistIDMapping<DB, OBJECT>>
 {
-	public abstract OBJECT toObject(DB dbReturned);
+	OBJECT toObject(DB dbReturned);
 
 	@SuppressWarnings("unchecked")
-	public Class<DB> getDBClassType()
+	default Class<DB> getDBClassType()
 	{
 		try
 		{
@@ -41,7 +41,7 @@ public abstract class EntityAssistIDMapping<DB, OBJECT>
 	}
 
 	@SuppressWarnings("unchecked")
-	public Class<OBJECT> getObjectClassType()
+	default Class<OBJECT> getObjectClassType()
 	{
 		try
 		{
