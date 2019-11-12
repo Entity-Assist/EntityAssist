@@ -3,7 +3,7 @@ package com.entityassist.injections.longs;
 import com.entityassist.services.EntityAssistIDMapping;
 
 public class LongIDMapping
-		extends EntityAssistIDMapping<Long, Long>
+		implements EntityAssistIDMapping<Long, Long>
 {
 
 	@Override

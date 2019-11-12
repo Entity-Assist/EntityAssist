@@ -5,7 +5,7 @@ import com.entityassist.services.EntityAssistIDMapping;
 import java.util.UUID;
 
 public class StringUUIDIDMapping
-		extends EntityAssistIDMapping<String, UUID>
+		implements EntityAssistIDMapping<String, UUID>
 {
 
 	@Override

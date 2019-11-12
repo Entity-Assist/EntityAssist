@@ -3,7 +3,7 @@ package com.entityassist.injections.integer;
 import com.entityassist.services.EntityAssistIDMapping;
 
 public class IntegerDoubleIDMapping
-		extends EntityAssistIDMapping<Integer, Double>
+		implements EntityAssistIDMapping<Integer, Double>
 {
 
 	@Override
