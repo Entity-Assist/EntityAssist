@@ -15,8 +15,6 @@ public class EntityAssistIDMappingTest
 		Class<?> type1 = new BigDecimalToLongIDMapping().getDBClassType();
 		Class<?> type2 = new BigDecimalToLongIDMapping().getObjectClassType();
 
-
-
 		assertEquals(type1, BigDecimal.class);
 	}
 }
