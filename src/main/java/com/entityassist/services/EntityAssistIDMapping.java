@@ -4,6 +4,7 @@ import com.guicedee.guicedinjection.interfaces.IDefaultService;
 import com.guicedee.logger.LogFactory;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.logging.Level;
 
 /**
@@ -26,8 +27,14 @@ public interface EntityAssistIDMapping<DB, OBJECT>
 	{
 		try
 		{
-			return (Class<DB>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-
+			for (Type genericInterface : getClass().getGenericInterfaces())
+			{
+				if(genericInterface.getTypeName().startsWith(EntityAssistIDMapping.class.getTypeName()))
+				{
+					ParameterizedType pp = (ParameterizedType) genericInterface;
+					return (Class<DB>) pp.getActualTypeArguments()[0];
+				}
+			}
 		}
 		catch (Exception e)
 		{
@@ -45,7 +52,14 @@ public interface EntityAssistIDMapping<DB, OBJECT>
 	{
 		try
 		{
-			return (Class<OBJECT>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+			for (Type genericInterface : getClass().getGenericInterfaces())
+			{
+				if(genericInterface.getTypeName().startsWith(EntityAssistIDMapping.class.getTypeName()))
+				{
+					ParameterizedType pp = (ParameterizedType) genericInterface;
+					return (Class<OBJECT>) pp.getActualTypeArguments()[1];
+				}
+			}
 		}
 		catch (Exception e)
 		{
