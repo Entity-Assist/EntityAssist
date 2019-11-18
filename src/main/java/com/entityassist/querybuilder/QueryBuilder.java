@@ -252,7 +252,15 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		{
 			String attributeName = entries.getKey();
 			Object value = entries.getValue();
-			update.set(attributeName, value);
+			try
+			{
+				update.set(attributeName, value);
+			}catch(IllegalArgumentException iae)
+			{
+				log.warning("Unable to find attribute name [" + attributeName + "] on type [" + updateFields.getClass().getCanonicalName() + "]");
+				log.log(Level.FINER, "Illegal Attribute", iae);
+				return -1;
+			}
 		}
 		select();
 

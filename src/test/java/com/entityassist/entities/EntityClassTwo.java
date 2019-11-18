@@ -1,7 +1,7 @@
 package com.entityassist.entities;
 
-import com.entityassist.entities.builders.EntityClassTwoBuilder;
 import com.entityassist.CoreEntity;
+import com.entityassist.entities.builders.EntityClassTwoBuilder;
 
 import javax.persistence.*;
 

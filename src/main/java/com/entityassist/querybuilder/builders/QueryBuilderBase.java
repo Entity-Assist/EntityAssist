@@ -213,7 +213,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			}
 		}
 		persist(entity);
-		getEntityManager().flush();
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))

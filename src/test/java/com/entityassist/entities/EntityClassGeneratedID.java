@@ -1,7 +1,8 @@
 package com.entityassist.entities;
 
-import com.entityassist.entities.builders.EntityClassGeneratedIDBuilder;
 import com.entityassist.CoreEntity;
+import com.entityassist.SCDEntity;
+import com.entityassist.entities.builders.EntityClassGeneratedIDBuilder;
 
 import javax.persistence.*;
 
@@ -26,11 +27,6 @@ public class EntityClassGeneratedID
 
 	public EntityClassGeneratedID()
 	{
-	}
-
-	public EntityClassGeneratedID(boolean blank)
-	{
-		super(blank);
 	}
 
 	public EntityClassTwo getEntityClass()

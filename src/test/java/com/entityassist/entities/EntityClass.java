@@ -1,7 +1,8 @@
 package com.entityassist.entities;
 
-import com.entityassist.entities.builders.EntityClassBuilder;
 import com.entityassist.CoreEntity;
+import com.entityassist.SCDEntity;
+import com.entityassist.entities.builders.EntityClassBuilder;
 
 import javax.persistence.*;
 
@@ -20,11 +21,6 @@ public class EntityClass
 
 	public EntityClass()
 	{
-	}
-
-	public EntityClass(boolean blank)
-	{
-		super(blank);
 	}
 
 	public EntityClassTwo getEntityClass()

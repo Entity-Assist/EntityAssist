@@ -500,7 +500,7 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
-		EntityClass updates = new EntityClass(true);
+		EntityClass updates = new EntityClass();
 		updates.setActiveFlag(ActiveFlag.Archived);
 		new EntityClass().builder()
 		                 .where(EntityClass_.activeFlag, Operand.Equals, ActiveFlag.Invisible)
@@ -521,7 +521,7 @@ public class TestEntities
 	{
 		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
-		EntityClass updates = new EntityClass(true);
+		EntityClass updates = new EntityClass();
 		updates.setActiveFlag(ActiveFlag.Archived);
 		new EntityClass().builder()
 		                 .setRunDetached(true)
