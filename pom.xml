@@ -154,8 +154,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>${jdk.release}</source>
-                    <target>${jdk.release}</target>
                     <release>${jdk.release}</release>
                     <annotationProcessorPaths>
                         <annotationProcessorPath>
