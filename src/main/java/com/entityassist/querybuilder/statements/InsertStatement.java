@@ -39,12 +39,10 @@ public class InsertStatement
 	{
 		StringBuilder insertString = new StringBuilder("INSERT INTO ");
 		Class<?> c = obj.getClass();
-		Table t = c.getAnnotation(Table.class);
 		String tableName = getTableName();
 		insertString.append(tableName)
 		            .append(" (");
 		List<Field> fields = new ArrayList<>();
-
 		Class<?> i = c;
 		while (i != null)
 		{

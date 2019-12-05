@@ -18,6 +18,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 
+import static com.entityassist.querybuilder.EntityAssistStrings.*;
+
 abstract class RunnableStatement
 {
 	private static final String HEXES = "0123456789ABCDEF";
@@ -151,7 +153,13 @@ abstract class RunnableStatement
 		String tableName = "";
 		if (t != null)
 		{
-			tableName = t.name();
+			String catalog = t.catalog();
+			if(!catalog.isEmpty())
+				tableName += catalog + STRING_DOT;
+			String schema = t.schema();
+			if(!schema.isEmpty())
+				tableName += schema + STRING_DOT;
+			tableName += t.name();
 		}
 		if (tableName.isEmpty())
 		{

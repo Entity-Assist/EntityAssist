@@ -22,6 +22,7 @@ public class UpdateStatement
 	{
 		StringBuilder string = new StringBuilder();
 		string.append("UPDATE ");
+
 		string.append(getTableName() + EntityAssistStrings.STRING_SPACE);
 		string.append("SET ");
 
