@@ -56,6 +56,7 @@ abstract class RunnableStatement
 		return hex.toString();
 	}
 
+	@SuppressWarnings("rawtypes")
 	protected String getValue(Object columnValue)
 	{
 		StringBuilder insertString = new StringBuilder();
@@ -150,7 +151,7 @@ abstract class RunnableStatement
 	{
 		Class<?> c = obj.getClass();
 		Table t = c.getAnnotation(Table.class);
-		String tableName = "";
+		String tableName = STRING_EMPTY;
 		if (t != null)
 		{
 			String catalog = t.catalog();
