@@ -1,14 +1,12 @@
 package com.entityassist;
 
-import com.entityassist.entities.EntityClass;
-import com.entityassist.entities.EntityClassGeneratedID;
+import com.entityassist.*;
 import com.entityassist.enumerations.ActiveFlag;
 import com.entityassist.enumerations.Operand;
 import com.google.inject.Key;
-import com.entityassist.entities.EntityClassTwo_;
-import com.entityassist.entities.EntityClass_;
 import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedpersistence.db.annotations.Transactional;
+import com.guicedee.logger.LogFactory;
 import org.junit.jupiter.api.*;
 
 import javax.persistence.EntityManager;
@@ -17,8 +15,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
-import static com.entityassist.entities.EntityClass_.*;
+import static com.entityassist.EntityClass_.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -33,6 +32,10 @@ public class TestEntities
 	@Test
 	public void testEntity()
 	{
+		LogFactory.configureConsoleColourOutput(Level.FINE);
+		GuiceContext.instance()
+		            .loadIGuiceModules()
+		            .add(new com.entityassist.EntityAssistTestDBModule());
 		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 
@@ -44,6 +47,10 @@ public class TestEntities
 	@Test
 	public void testEntity2Really()
 	{
+		LogFactory.configureConsoleColourOutput(Level.FINE);
+		GuiceContext.instance()
+		            .loadIGuiceModules()
+		            .add(new com.entityassist.EntityAssistTestDBModule());
 		GuiceContext.get(TestEntities.class)
 		            .testEntity2();
 	}
@@ -59,7 +66,6 @@ public class TestEntities
 		ec.setId(l = getNextNumber());
 		ec.persistNow();
 
-
 		long l2;
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(l2 = getNextNumber());
@@ -74,6 +80,44 @@ public class TestEntities
 		List<EntityClass> numberofresults = ec.builder()
 		                                      .where(id, Operand.InList, l2)
 		                                      .getAll();
+		System.out.println("Wow that returned : " + numberofresults);
+	}
+
+	@Test
+	public void testEntityEmbeddableID()
+	{
+		LogFactory.configureConsoleColourOutput(Level.FINE);
+		GuiceContext.instance()
+		            .loadIGuiceModules()
+		            .add(new com.entityassist.EntityAssistTestDBModule());
+		GuiceContext.get(TestEntities.class)
+		            .testEntityEmbeddableIDReally();
+	}
+
+	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+	public void testEntityEmbeddableIDReally()
+	{
+		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+		System.out.println("EM Open : " + em.isOpen());
+
+		TransYtd ytd = new TransYtd();
+		ytd.setId(new TransYtdPK().setDayID(1)
+		                          .setYtdDayID(1));
+		ytd.persist();
+
+		Long numberofresults = ytd.builder()
+		                             .getCount();
+		System.out.println("Wow that returned : " + numberofresults);
+
+		ytd = new TransYtd();
+		ytd.setId(new TransYtdPK().setDayID(2)
+		                          .setYtdDayID(2));
+		ytd.builder()
+		   .setRunDetached(true)
+		   .persist(ytd);
+
+		numberofresults = ytd.builder()
+		                          .getCount();
 		System.out.println("Wow that returned : " + numberofresults);
 	}
 
@@ -96,6 +140,10 @@ public class TestEntities
 
 	private void configUp()
 	{
+		LogFactory.configureConsoleColourOutput(Level.FINE);
+		GuiceContext.instance()
+		            .loadIGuiceModules()
+		            .add(new com.entityassist.EntityAssistTestDBModule());
 	}
 
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
@@ -448,7 +496,6 @@ public class TestEntities
 		ec.delete();
 		ec2.delete();
 
-
 	}
 
 	@Test
@@ -490,6 +537,10 @@ public class TestEntities
 	@Test
 	public void testBulkUpdateReally()
 	{
+		LogFactory.configureConsoleColourOutput(Level.FINE);
+		GuiceContext.instance()
+		            .loadIGuiceModules()
+		            .add(new com.entityassist.EntityAssistTestDBModule());
 		GuiceContext.get(TestEntities.class)
 		            .testBulkUpdate();
 	}
@@ -507,10 +558,13 @@ public class TestEntities
 		                 .bulkUpdate(updates, true);
 	}
 
-
 	@Test
 	public void testUpdateStatementReally()
 	{
+		LogFactory.configureConsoleColourOutput(Level.FINE);
+		GuiceContext.instance()
+		            .loadIGuiceModules()
+		            .add(new com.entityassist.EntityAssistTestDBModule());
 		GuiceContext.get(TestEntities.class)
 		            .testUpdateStatement();
 	}

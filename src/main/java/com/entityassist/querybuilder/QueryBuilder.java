@@ -763,4 +763,24 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 		return fieldList;
 	}
+
+	/**
+	 * If must be detached from the entity manager
+	 * @return
+	 */
+	public boolean isDetach()
+	{
+		return detach;
+	}
+
+	/**
+	 * If must be detached from the entity manager
+	 * @param detach
+	 * @return
+	 */
+	public J setDetach(boolean detach)
+	{
+		this.detach = detach;
+		return (J) this;
+	}
 }

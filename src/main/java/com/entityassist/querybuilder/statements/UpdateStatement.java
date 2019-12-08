@@ -13,17 +13,19 @@ public class UpdateStatement
 {
 	private static final Logger log = LogFactory.getLog(UpdateStatement.class.getName());
 
-	public UpdateStatement(BaseEntity obj)
+	public UpdateStatement(BaseEntity<?,?,?> obj)
 	{
 		super(obj);
 	}
 
+	@SuppressWarnings("unchecked")
 	public String buildUpdateStatement()
 	{
 		StringBuilder string = new StringBuilder();
 		string.append("UPDATE ");
 
-		string.append(getTableName() + EntityAssistStrings.STRING_SPACE);
+		string.append(getTableName())
+		      .append(EntityAssistStrings.STRING_SPACE);
 		string.append("SET ");
 
 		Map<String,Object> updateMap = getObject().builder()

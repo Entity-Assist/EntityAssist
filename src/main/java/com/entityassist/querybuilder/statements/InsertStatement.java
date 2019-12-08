@@ -72,31 +72,11 @@ public class InsertStatement
 				{
 					continue;
 				}
-
-				JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
-				Column col = field.getAnnotation(Column.class);
-				Id idCol = field.getAnnotation(Id.class);
-				OneToOne oneToOne = field.getAnnotation(OneToOne.class);
-				OneToMany oneToMany = field.getAnnotation(OneToMany.class);
-				ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
-				ManyToOne manyToOne = field.getAnnotation(ManyToOne.class);
-				if (col == joinCol && joinCol == idCol
-					/*	&& joinCol == oneToOne
-						&& joinCol == oneToMany
-						&& joinCol == manyToMany
-						&& joinCol == manyToOne*/
-				) //fuzzy logic, if everything is null go to next field, easier than is null
+				if (!isColumnReadable(field))
 				{
 					continue;
 				}
-
-				if (col == null && joinCol == null)
-				{
-					//TODO Nested inserts
-				}
-
 				String columnName = getColumnName(field);
-
 				if (fieldObject instanceof Long)
 				{
 					Long wct = (Long) fieldObject;
@@ -108,7 +88,20 @@ public class InsertStatement
 				if (!columnsNames.contains(columnName))
 				{
 					columnsNames.add(columnName);
-					columnValues.add(fieldObject);
+					if(fieldObject.getClass().isAnnotationPresent(Embeddable.class))
+					{
+						Field[] f = fieldObject.getClass().getDeclaredFields();
+						for (Field field1 : f)
+						{
+							if(isColumnReadable(field1))
+							{
+								field1.setAccessible(true);
+								columnValues.add(field1.get(fieldObject));
+							}
+						}
+					}
+					else
+						columnValues.add(fieldObject);
 				}
 			}
 			catch (IllegalArgumentException | IllegalAccessException ex)

@@ -1,8 +1,4 @@
-package com.entityassist.entities;
-
-import com.entityassist.CoreEntity;
-import com.entityassist.SCDEntity;
-import com.entityassist.entities.builders.EntityClassGeneratedIDBuilder;
+package com.entityassist;
 
 import javax.persistence.*;
 

@@ -1,9 +1,6 @@
-package com.entityassist.entities.builders;
+package com.entityassist;
 
-import com.entityassist.TestEntityAssistCustomPersistenceLoader;
-import com.entityassist.entities.EntityClassGeneratedID;
 import com.entityassist.querybuilder.QueryBuilderCore;
-import com.entityassist.querybuilder.QueryBuilderSCD;
 import com.google.inject.Key;
 import com.guicedee.guicedinjection.GuiceContext;
 

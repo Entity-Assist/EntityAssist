@@ -1,14 +1,15 @@
 package com.entityassist.querybuilder.builders;
 
+import com.entityassist.EntityClass;
+import com.entityassist.EntityClassTwo;
 import com.entityassist.TestEntityAssistCustomPersistenceLoader;
-import com.entityassist.entities.EntityClass;
-import com.entityassist.entities.EntityClassTwo;
+import com.entityassist.EntityClassTwo_;
 import com.entityassist.enumerations.ActiveFlag;
 import com.entityassist.enumerations.Operand;
 import com.google.inject.Key;
-import com.entityassist.entities.EntityClassTwo_;
 import com.guicedee.guicedinjection.GuiceContext;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;
@@ -22,6 +23,8 @@ public class QueryBuilderCoreTest
 	@Test
 	public void testVisibleRange()
 	{
+
+
 		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()

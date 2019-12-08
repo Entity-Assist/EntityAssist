@@ -1,8 +1,8 @@
 package com.entityassist.querybuilder.statements;
 
 import com.entityassist.TestEntityAssistCustomPersistenceLoader;
-import com.entityassist.entities.EntityClass;
-import com.entityassist.entities.EntityClassGeneratedID;
+import com.entityassist.EntityClass;
+import com.entityassist.EntityClassGeneratedID;
 import com.entityassist.enumerations.ActiveFlag;
 import com.guicedee.guicedpersistence.db.annotations.Transactional;
 import com.guicedee.logger.LogFactory;

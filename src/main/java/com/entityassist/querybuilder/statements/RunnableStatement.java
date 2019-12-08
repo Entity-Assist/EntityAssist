@@ -44,8 +44,7 @@ abstract class RunnableStatement
 		this.obj = obj;
 	}
 
-
-	String getHex(byte[] raw)
+	private String getHex(byte[] raw)
 	{
 		StringBuilder hex = new StringBuilder(2 * raw.length);
 		for (byte b : raw)
@@ -63,6 +62,11 @@ abstract class RunnableStatement
 		if (columnValue instanceof Boolean)
 		{
 			insertString.append((Boolean) columnValue ? "1" : "0")
+			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
+		}
+		else if (columnValue instanceof RawInsertObjectValue)
+		{
+			insertString.append(columnValue)
 			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Long)
@@ -94,7 +98,8 @@ abstract class RunnableStatement
 		else if (columnValue instanceof String)
 		{
 			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
-			            .append(((String) columnValue).replaceAll(EntityAssistStrings.STRING_SINGLE_QUOTES, EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_SINGLE_QUOTES))
+			            .append(((String) columnValue).replaceAll(EntityAssistStrings.STRING_SINGLE_QUOTES,
+			                                                      EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_SINGLE_QUOTES))
 			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Date)
@@ -155,11 +160,15 @@ abstract class RunnableStatement
 		if (t != null)
 		{
 			String catalog = t.catalog();
-			if(!catalog.isEmpty())
+			if (!catalog.isEmpty())
+			{
 				tableName += catalog + STRING_DOT;
+			}
 			String schema = t.schema();
-			if(!schema.isEmpty())
+			if (!schema.isEmpty())
+			{
 				tableName += schema + STRING_DOT;
+			}
 			tableName += t.name();
 		}
 		if (tableName.isEmpty())
@@ -177,7 +186,6 @@ abstract class RunnableStatement
 		}
 		return tableName;
 	}
-
 
 	public List<Field> getFields()
 	{
@@ -202,10 +210,38 @@ abstract class RunnableStatement
 			try
 			{
 				Id idCol = field.getAnnotation(Id.class);
+				EmbeddedId embId = field.getAnnotation(EmbeddedId.class);
 				if (idCol != null)
 				{
 					field.setAccessible(true);
 					return Pair.of(getColumnName(field), field.get(getObject()));
+				}
+				if (embId != null)
+				{
+					Pair<String, Object> pair = new Pair<>();
+
+					//run the object through the analyzer
+					field.setAccessible(true);
+					Object be = field.get(this.obj);
+					Field[] fields = be.getClass()
+					                   .getFields();
+					StringBuilder sb = new StringBuilder();
+					StringBuilder valueList = new StringBuilder();
+					for (Field field1 : fields)
+					{
+						if (isColumnReadable(field1))
+						{
+							sb.append(getColumnName(field1))
+							  .append(STRING_COMMNA);
+
+							valueList.append(getValue(field1))
+							         .append(STRING_COMMNA);
+						}
+					}
+					sb.deleteCharAt(sb.length() - 1);
+					valueList.deleteCharAt(valueList.length() - 1);
+					RawInsertObjectValue r = new RawInsertObjectValue().setRawInsert(valueList.toString());
+					return Pair.of(sb.toString(), r);
 				}
 			}
 			catch (IllegalArgumentException | IllegalAccessException ex)
@@ -217,6 +253,31 @@ abstract class RunnableStatement
 		return Pair.empty();
 	}
 
+	@SuppressWarnings("EqualsBetweenInconvertibleTypes")
+	protected boolean isColumnReadable(Field field)
+	{
+		JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
+		Column col = field.getAnnotation(Column.class);
+		Id idCol = field.getAnnotation(Id.class);
+		EmbeddedId embId = field.getAnnotation(EmbeddedId.class);
+		OneToOne oneToOne = field.getAnnotation(OneToOne.class);
+		OneToMany oneToMany = field.getAnnotation(OneToMany.class);
+		ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
+		ManyToOne manyToOne = field.getAnnotation(ManyToOne.class);
+		GeneratedValue genVal = field.getAnnotation(GeneratedValue.class);
+		if (col == joinCol && joinCol == idCol && idCol == embId
+		    && joinCol == oneToOne
+		    && joinCol == oneToMany
+		    && joinCol == manyToMany
+		    && joinCol == manyToOne
+		    && joinCol == genVal
+		) //if everything is null go to next field, easier than is nulls
+		{
+			return false;
+		}
+		return true;
+	}
+
 	public BaseEntity getObject()
 	{
 		return obj;
@@ -226,7 +287,32 @@ abstract class RunnableStatement
 	{
 		JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
 		Column col = field.getAnnotation(Column.class);
-		String columnName = col == null ? joinCol.name() : col.name();
+		EmbeddedId embId = field.getAnnotation(EmbeddedId.class);
+		String columnName = embId == null ? (col == null ? joinCol.name() : col.name()) : "";
+		if (embId != null)
+		{
+			try
+			{
+				Object o = field.get(this.obj);
+				Field[] f = o.getClass()
+				             .getDeclaredFields();
+				StringBuilder colNames = new StringBuilder();
+				for (Field field1 : f)
+				{
+					if (isColumnReadable(field1))
+					{
+						colNames.append(getColumnName(field1))
+						        .append(STRING_COMMNA);
+					}
+				}
+				colNames.deleteCharAt(colNames.length() - 1);
+				return colNames.toString();
+			}
+			catch (IllegalAccessException e)
+			{
+				columnName = "";
+			}
+		}
 		if (columnName.isEmpty())
 		{
 			columnName = field.getName();
