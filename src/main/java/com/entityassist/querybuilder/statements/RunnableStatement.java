@@ -275,6 +275,10 @@ abstract class RunnableStatement
 		{
 			return false;
 		}
+		if(Collection.class.isAssignableFrom(field.getType()))
+		{
+			return false;
+		}
 		return true;
 	}
 
@@ -288,7 +292,19 @@ abstract class RunnableStatement
 		JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
 		Column col = field.getAnnotation(Column.class);
 		EmbeddedId embId = field.getAnnotation(EmbeddedId.class);
-		String columnName = embId == null ? (col == null ? joinCol.name() : col.name()) : "";
+		String columnName = "";
+
+		if(joinCol != null)
+		{
+			columnName = joinCol.name();
+		}else if (col != null)
+		{
+			columnName = col.name();
+		}else if (embId != null)
+		{
+			columnName = "";
+		}
+
 		if (embId != null)
 		{
 			try
