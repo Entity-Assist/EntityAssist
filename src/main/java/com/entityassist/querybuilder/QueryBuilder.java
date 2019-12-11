@@ -606,7 +606,10 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		{
 			if (detach)
 			{
-				getEntityManager().detach(j);
+				for (T t : j)
+				{
+					getEntityManager().detach(t);
+				}
 			}
 			if (BaseEntity.class.isAssignableFrom(j.get(0)
 			                                       .getClass()))
