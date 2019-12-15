@@ -34,7 +34,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	/**
 	 * The actual builder for the entity
 	 */
-	private final CriteriaBuilder criteriaBuilder;
+	private CriteriaBuilder criteriaBuilder;
 	/**
 	 * The set of joins to apply
 	 */
@@ -116,17 +116,12 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	/**
 	 * Constructs a new query builder core with typed classes instantiated
 	 */
-	@SuppressWarnings("unchecked")
 	public DefaultQueryBuilder()
 	{
 		filters = new LinkedHashSet<>();
 		selections = new LinkedHashSet<>();
 		groupBys = new LinkedHashSet<>();
 		orderBys = new LinkedHashMap<>();
-
-		criteriaBuilder = getEntityManager().getCriteriaBuilder();
-		criteriaQuery = criteriaBuilder.createQuery();
-
 		joins = new LinkedHashSet<>();
 		havingExpressions = new LinkedHashSet<>();
 		selectExpressions = new LinkedHashSet<>();
@@ -165,6 +160,8 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	public CriteriaBuilder getCriteriaBuilder()
 	{
+		if(criteriaBuilder == null)
+			criteriaBuilder = getEntityManager().getCriteriaBuilder();
 		return criteriaBuilder;
 	}
 
@@ -1520,6 +1517,8 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 */
 	public CriteriaQuery getCriteriaQuery()
 	{
+		if(criteriaQuery == null)
+			criteriaQuery = getCriteriaBuilder().createQuery();
 		return criteriaQuery;
 	}
 
@@ -1564,7 +1563,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	public J setEntity(E entity)
 	{
 		super.setEntity(entity);
-		root = criteriaQuery.from(entity.getClass());
+		root = getCriteriaQuery().from(entity.getClass());
 		return (J) this;
 	}
 
@@ -1581,7 +1580,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	public J setEntity(Object entity)
 	{
 		super.setEntity((E) entity);
-		root = criteriaQuery.from(entity.getClass());
+		root = getCriteriaQuery().from(entity.getClass());
 		return (J) this;
 	}
 
