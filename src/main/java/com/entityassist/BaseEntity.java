@@ -84,15 +84,12 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	public Q builder()
 	{
 		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
-		QueryBuilder<?, ?, ?> instance = null;
+		Q instance = null;
 		try
 		{
-			instance = foundQueryBuilderClass.getDeclaredConstructor()
-			                                 .newInstance();
-			GuiceContext.inject()
-			            .injectMembers(instance);
+			instance = GuiceContext.get(foundQueryBuilderClass);
 			instance.setEntity(this);
-			return (Q) instance;
+			return instance;
 		}
 		catch (Exception e)
 		{
