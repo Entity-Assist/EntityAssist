@@ -438,7 +438,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 					getEntityManager().detach(j);
 				}catch(Throwable T)
 				{
-					log.fine("Unable to detach : " + j.getClass().getName());
+					log.finer("Unable to detach : " + j.getClass().getName());
 				}
 			}
 			return Optional.of(j);
@@ -469,7 +469,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 							getEntityManager().detach(j);
 						}catch(Throwable T)
 						{
-							log.fine("Unable to detach : " + j.getClass().getName());
+							log.finer("Unable to detach : " + j.getClass().getName());
 						}
 					}
 				}
@@ -625,7 +625,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 						getEntityManager().detach(t);
 					}catch(Throwable T)
 					{
-						log.fine("Unable to detach : " + j.getClass().getName());
+						log.finer("Unable to detach : " + t.getClass().getName());
 					}
 				}
 			}
