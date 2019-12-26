@@ -488,7 +488,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				if (isRunDetached())
 				{
 					String insertString = new UpdateStatement(entity).toString();
-					log.fine(insertString);
+					log.finer(insertString);
 					if (DbStartup.getAvailableDataSources()
 					             .contains(getEntityManagerAnnotation()))
 					{
@@ -562,7 +562,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				if (isRunDetached())
 				{
 					String insertString = new UpdateStatement(entity).toString();
-					log.fine(insertString);
+					log.finer(insertString);
 					if (DbStartup.getAvailableDataSources()
 					             .contains(getEntityManagerAnnotation()))
 					{

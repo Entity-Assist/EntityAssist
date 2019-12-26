@@ -13,7 +13,7 @@ public class UpdateStatement
 {
 	private static final Logger log = LogFactory.getLog(UpdateStatement.class.getName());
 
-	public UpdateStatement(BaseEntity<?,?,?> obj)
+	public UpdateStatement(BaseEntity<?, ?, ?> obj)
 	{
 		super(obj);
 	}
@@ -28,8 +28,8 @@ public class UpdateStatement
 		      .append(EntityAssistStrings.STRING_SPACE);
 		string.append("SET ");
 
-		Map<String,Object> updateMap = getObject().builder()
-		                                                     .getUpdateFieldMap(getObject());
+		Map<String, Object> updateMap = getObject().builder()
+		                                           .getUpdateFieldMap(getObject());
 
 		for (Map.Entry<String, Object> entry : updateMap.entrySet())
 		{
@@ -40,16 +40,17 @@ public class UpdateStatement
 			string.append(valueString);
 		}
 
-		string = string.deleteCharAt(string.lastIndexOf(EntityAssistStrings.STRING_COMMNA));
+		string.deleteCharAt(string.lastIndexOf(EntityAssistStrings.STRING_COMMNA));
 		string.append(EntityAssistStrings.STRING_SPACE);
 		string.append("WHERE ");
 		Pair<String, Object> idPair = getIdPair();
-		string.append(idPair.getKey() + EntityAssistStrings.STRING_EQUALS_SPACE_EQUALS + getValue(idPair.getValue()));
-		string = string.deleteCharAt(string.lastIndexOf(EntityAssistStrings.STRING_COMMNA));
+		string.append(idPair.getKey())
+		      .append(EntityAssistStrings.STRING_EQUALS_SPACE_EQUALS)
+		      .append(getValue(idPair.getValue()));
+		string.deleteCharAt(string.lastIndexOf(EntityAssistStrings.STRING_COMMNA));
 
 		return string.toString();
 	}
-
 
 	public String toString()
 	{

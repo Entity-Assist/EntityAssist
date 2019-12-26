@@ -2,8 +2,12 @@ package com.entityassist;
 
 import com.entityassist.converters.LocalDateTimeAttributeConverter;
 import com.entityassist.querybuilder.QueryBuilderSCD;
+import com.entityassist.services.LocalDateTimeDeserializer;
+import com.entityassist.services.LocalDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -34,6 +38,8 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	@Column(nullable = false,
 			name = "EffectiveFromDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime effectiveFromDate;
 	/**
 	 * A date to designate when this record is effective to
@@ -43,6 +49,8 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	@Column(nullable = false,
 			name = "EffectiveToDate")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime effectiveToDate;
 	/**
 	 * A date to mark when a warehouse can fetch the given record
@@ -52,6 +60,8 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	@Column(nullable = false,
 			name = "WarehouseCreatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime warehouseCreatedTimestamp;
 	/**
 	 * A marker for the warehouse to identify when last this field was updated
@@ -61,6 +71,8 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	@Column(nullable = false,
 			name = "WarehouseLastUpdatedTimestamp")
 	@Convert(converter = LocalDateTimeAttributeConverter.class)
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime warehouseLastUpdatedTimestamp;
 
 	public SCDEntity()
@@ -123,7 +135,6 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 		return (J) this;
 	}
 
-
 	/**
 	 * Returns the warehouse created timestamp column value
 	 *
@@ -150,7 +161,6 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 		return (J) this;
 	}
 
-
 	/**
 	 * Returns the last time the warehouse timestamp column was updated
 	 *
@@ -175,6 +185,7 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 		this.warehouseLastUpdatedTimestamp = warehouseLastUpdatedTimestamp;
 		return (J) this;
 	}
+
 	/**
 	 * Deletes this entity with the entity mananger. This will remove the row.
 	 *

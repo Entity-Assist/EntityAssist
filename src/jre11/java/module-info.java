@@ -35,9 +35,10 @@ module com.entityassist {
 	requires com.google.guice;
 
 	requires org.hibernate.orm.core;
+	requires com.fasterxml.jackson.databind;
 
-	opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind,com.google.guice;
-
+	opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
+	opens com.entityassist.services to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
 
 	opens com.entityassist.injections.bigdecimal to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
 	opens com.entityassist.injections.biginteger to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
@@ -47,39 +48,39 @@ module com.entityassist {
 
 	provides IGuiceDefaultBinder with EntityAssistBinder;
 	provides EntityAssistIDMapping with
-			BigDecimalToBigIntIDMapping,
-			BigDecimalToDoubleIDMapping,
-			BigDecimalToFloatIDMapping,
-			BigDecimalToIntIDMapping,
-			BigDecimalToStringIDMapping,
-			BigDecimalToLongIDMapping,
-			BigDecimalIDMapping,
-			BigIntegerBigDecimalIDMapping,
-			BigIntegerFloatIDMapping,
-			BigIntegerIntegerIDMapping,
-			BigIntegerLongIDMapping,
-			BigIntegerDoubleIDMapping,
-			BigIntegerStringIDMapping,
-			BigIntegerIDMapping,
-			LongBigIntegerIDMapping,
-			LongIntegerIDMapping,
-			LongStringIDMapping,
-			LongBigDecimalIDMapping,
-			LongFloatIDMapping,
-			LongIDMapping,
-			IntegerBigDecimalIDMapping,
-			IntegerBigIntegerIDMapping,
-			IntegerDoubleIDMapping,
-			IntegerFloatIDMapping,
-			IntegerLongIDMapping,
-			IntegerStringIDMapping,
-			IntegerIDMapping,
-			StringIDMapping,
-			StringIntegerIDMapping,
-			StringUUIDIDMapping,
-			StringBigDecimalIDMapping,
-			StringBigIntegerIDMapping,
-			StringLongIDMapping
+			                               BigDecimalToBigIntIDMapping,
+			                               BigDecimalToDoubleIDMapping,
+			                               BigDecimalToFloatIDMapping,
+			                               BigDecimalToIntIDMapping,
+			                               BigDecimalToStringIDMapping,
+			                               BigDecimalToLongIDMapping,
+			                               BigDecimalIDMapping,
+			                               BigIntegerBigDecimalIDMapping,
+			                               BigIntegerFloatIDMapping,
+			                               BigIntegerIntegerIDMapping,
+			                               BigIntegerLongIDMapping,
+			                               BigIntegerDoubleIDMapping,
+			                               BigIntegerStringIDMapping,
+			                               BigIntegerIDMapping,
+			                               LongBigIntegerIDMapping,
+			                               LongIntegerIDMapping,
+			                               LongStringIDMapping,
+			                               LongBigDecimalIDMapping,
+			                               LongFloatIDMapping,
+			                               LongIDMapping,
+			                               IntegerBigDecimalIDMapping,
+			                               IntegerBigIntegerIDMapping,
+			                               IntegerDoubleIDMapping,
+			                               IntegerFloatIDMapping,
+			                               IntegerLongIDMapping,
+			                               IntegerStringIDMapping,
+			                               IntegerIDMapping,
+			                               StringIDMapping,
+			                               StringIntegerIDMapping,
+			                               StringUUIDIDMapping,
+			                               StringBigDecimalIDMapping,
+			                               StringBigIntegerIDMapping,
+			                               StringLongIDMapping
 			;
 
 	uses ITransactionHandler;
