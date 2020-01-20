@@ -2,8 +2,8 @@ package com.entityassist;
 
 import com.entityassist.converters.LocalDateTimeAttributeConverter;
 import com.entityassist.querybuilder.QueryBuilderSCD;
-import com.entityassist.services.LocalDateTimeDeserializer;
-import com.entityassist.services.LocalDateTimeSerializer;
+import com.guicedee.guicedinjection.interfaces.LocalDateTimeDeserializer;
+import com.guicedee.guicedinjection.interfaces.LocalDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

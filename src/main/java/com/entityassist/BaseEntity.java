@@ -1,5 +1,6 @@
 package com.entityassist;
 
+import com.entityassist.exceptions.QueryBuilderException;
 import com.entityassist.querybuilder.EntityAssistStrings;
 import com.entityassist.querybuilder.QueryBuilder;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -121,6 +122,25 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	{
 		((QueryBuilder) builder())
 				.delete(this);
+		return (J) this;
+	}
+
+	/**
+	 * Deletes this object from the ID
+	 *
+	 * @return
+	 */
+	public J deleteId()
+	{
+		try
+		{
+			((QueryBuilder) builder())
+					.deleteId(this);
+		}
+		catch (QueryBuilderException e)
+		{
+			log.log(Level.WARNING, "Unable to delete from id : " + e);
+		}
 		return (J) this;
 	}
 

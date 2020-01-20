@@ -1,12 +1,16 @@
 package com.entityassist.querybuilder;
 
 import com.entityassist.enumerations.OrderByType;
+import com.entityassist.exceptions.QueryBuilderException;
+import com.entityassist.querybuilder.statements.DeleteStatement;
+import com.entityassist.querybuilder.statements.InsertStatement;
 import com.google.common.base.Strings;
 import com.google.inject.Key;
 import com.entityassist.BaseEntity;
 import com.entityassist.querybuilder.builders.DefaultQueryBuilder;
 import com.entityassist.querybuilder.builders.JoinExpression;
 import com.guicedee.guicedinjection.GuiceContext;
+import com.guicedee.guicedpersistence.db.DbStartup;
 import com.guicedee.guicedpersistence.services.ITransactionHandler;
 import com.guicedee.logger.LogFactory;
 import com.oracle.jaxb21.PersistenceUnit;
@@ -16,10 +20,14 @@ import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -672,6 +680,39 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		return getEntityManager().createQuery(deletion)
 		                         .executeUpdate();
 	}
+
+	/**
+	 * Deletes a specific ID the good old almost fast way
+	 *
+	 * Delete where ID = getId();
+	 * @param entity entity with id populated
+	 */
+	public void deleteId(E entity) throws QueryBuilderException
+	{
+		String insertString = new DeleteStatement(entity).toString();
+		log.finer(insertString);
+		if (DbStartup.getAvailableDataSources()
+		             .contains(getEntityManagerAnnotation()))
+		{
+			DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
+			if (ds == null)
+			{
+				Query query = getEntityManager().createNativeQuery(insertString);
+				query.executeUpdate();
+			}
+			else
+
+				try (Connection c = ds.getConnection(); Statement st = c.createStatement())
+				{
+					st.executeUpdate(insertString);
+				}
+				catch (Exception e)
+				{
+					throw new QueryBuilderException("Unable to run statement", e);
+				}
+		}
+	}
+
 
 	/**
 	 * Deletes the given entity through the entity manager
