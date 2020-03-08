@@ -1,10 +1,12 @@
 package com.entityassist.querybuilder.statements;
 
 import com.entityassist.BaseEntity;
-import com.entityassist.querybuilder.EntityAssistStrings;
+import com.guicedee.guicedinjection.pairing.Pair;
 import com.guicedee.logger.LogFactory;
 
-import javax.persistence.*;
+import javax.persistence.Embeddable;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -14,12 +16,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.guicedee.guicedinjection.json.StaticStrings.*;
+
 /**
  * An insert statement
  */
 public class InsertStatement
 		extends RunnableStatement
-		implements EntityAssistStrings
 {
 	private static final Logger log = LogFactory.getLog(InsertStatement.class.getName());
 
@@ -37,11 +40,11 @@ public class InsertStatement
 	@NotNull
 	public String buildInsertString()
 	{
-		StringBuilder insertString = new StringBuilder("INSERT INTO ");
+		StringBuilder insertString = new StringBuilder(STRING_INSERT_INTO_SQL);
 		Class<?> c = obj.getClass();
 		String tableName = getTableName();
 		insertString.append(tableName)
-		            .append(" (");
+		            .append(STRING_SPACE_OPEN_BRACKET);
 		List<Field> fields = new ArrayList<>();
 		Class<?> i = c;
 		while (i != null)
@@ -50,7 +53,7 @@ public class InsertStatement
 			i = i.getSuperclass();
 		}
 		List<String> columnsNames = new ArrayList<>();
-		List<Object> columnValues = new ArrayList<>();
+		List<Pair<Field, Object>> columnValues = new ArrayList<>();
 
 		for (Field field : fields)
 		{
@@ -88,20 +91,24 @@ public class InsertStatement
 				if (!columnsNames.contains(columnName))
 				{
 					columnsNames.add(columnName);
-					if(fieldObject.getClass().isAnnotationPresent(Embeddable.class))
+					if (fieldObject.getClass()
+					               .isAnnotationPresent(Embeddable.class))
 					{
-						Field[] f = fieldObject.getClass().getDeclaredFields();
+						Field[] f = fieldObject.getClass()
+						                       .getDeclaredFields();
 						for (Field field1 : f)
 						{
-							if(isColumnReadable(field1))
+							if (isColumnReadable(field1))
 							{
 								field1.setAccessible(true);
-								columnValues.add(field1.get(fieldObject));
+								columnValues.add(Pair.of(field1, field1.get(fieldObject)));
 							}
 						}
 					}
 					else
-						columnValues.add(fieldObject);
+					{
+						columnValues.add(Pair.of(field, fieldObject));
+					}
 				}
 			}
 			catch (IllegalArgumentException | IllegalAccessException ex)
@@ -117,14 +124,14 @@ public class InsertStatement
 			            .append(STRING_COMMNA_SPACE);
 		}
 		insertString.delete(insertString.length() - 2, insertString.length());
-		insertString.append(") VALUES (");
-		for (Object columnValue : columnValues)
+		insertString.append(STRING_VALUES_SQL_INSERT);
+		for (Pair<Field, Object> columnValue : columnValues)
 		{
-			insertString.append(getValue(columnValue));
+			insertString.append(getValue(columnValue.getValue(), columnValue.getKey()));
 		}
 
 		insertString.delete(insertString.length() - 2, insertString.length());
-		insertString.append(");");
+		insertString.append(STRING_CLOSING_BRACKET_SEMICOLON);
 
 		return insertString.toString();
 	}

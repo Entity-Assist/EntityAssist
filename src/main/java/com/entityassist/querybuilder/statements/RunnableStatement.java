@@ -1,7 +1,8 @@
 package com.entityassist.querybuilder.statements;
 
 import com.entityassist.BaseEntity;
-import com.entityassist.querybuilder.EntityAssistStrings;
+
+import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedinjection.pairing.Pair;
 import com.guicedee.logger.LogFactory;
 
@@ -18,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 
-import static com.entityassist.querybuilder.EntityAssistStrings.*;
+import static com.guicedee.guicedinjection.json.StaticStrings.*;
 
 abstract class RunnableStatement
 {
@@ -55,99 +56,126 @@ abstract class RunnableStatement
 		return hex.toString();
 	}
 
-	@SuppressWarnings("rawtypes")
-	protected String getValue(Object columnValue)
+	/**
+	 * To T-SQL Value for simple global compatibility
+	 *
+	 * @param columnValue
+	 * 		The column value to use
+	 *
+	 * @return The key
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	protected String getValue(Object columnValue, Field field)
 	{
 		StringBuilder insertString = new StringBuilder();
+		if (field != null && field.isAnnotationPresent(Convert.class))
+		{
+			Class cc = field.getAnnotation(Convert.class)
+			                .converter();
+			if (AttributeConverter.class.isAssignableFrom(cc))
+			{
+				AttributeConverter ac = (AttributeConverter) GuiceContext.get(cc);
+				columnValue = ac.convertToDatabaseColumn(columnValue);
+			}
+		}
+
 		if (columnValue instanceof Boolean)
 		{
-			insertString.append((Boolean) columnValue ? "1" : "0")
-			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
+			insertString.append((Boolean) columnValue ? STRING_1 : STRING_0)
+			            .append(STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof RawInsertObjectValue)
 		{
 			insertString.append(columnValue)
-			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Long)
 		{
 			insertString.append(columnValue)
-			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Integer)
 		{
 			insertString.append(columnValue)
-			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof BigInteger)
 		{
 			insertString.append(((BigInteger) columnValue).longValue())
-			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof BigDecimal)
 		{
 			insertString.append(((BigDecimal) columnValue).doubleValue())
-			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Short)
 		{
 			short columnVal = (short) columnValue;
 			insertString.append(columnVal)
-			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof String)
 		{
-			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
-			            .append(((String) columnValue).replaceAll(EntityAssistStrings.STRING_SINGLE_QUOTES,
-			                                                      EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_SINGLE_QUOTES))
-			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
+			if (!columnValue.toString()
+			                .startsWith(STRING_SINGLE_QUOTES))
+			{
+				insertString.append(STRING_SINGLE_QUOTES);
+			}
+			insertString.append(((String) columnValue).replaceAll(STRING_SINGLE_QUOTES,
+			                                                      STRING_SINGLE_QUOTES + STRING_SINGLE_QUOTES));
+			if (!columnValue.toString()
+			                .endsWith(STRING_SINGLE_QUOTES))
+			{
+				insertString.append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+			}
 		}
 		else if (columnValue instanceof Date)
 		{
 			Date date = (Date) columnValue;
-			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
+			insertString.append(STRING_SINGLE_QUOTES)
 			            .append(getSdf().format(date))
-			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof LocalDate)
 		{
 			LocalDate date = (LocalDate) columnValue;
-			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
+			insertString.append(STRING_SINGLE_QUOTES)
 			            .append(getDateFormat().format(date))
-			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof LocalDateTime)
 		{
 			LocalDateTime date = (LocalDateTime) columnValue;
-			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
+			insertString.append(STRING_SINGLE_QUOTES)
 			            .append(getDateTimeFormat().format(date))
-			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof BaseEntity)
 		{
 			BaseEntity wct = (BaseEntity) columnValue;
-			insertString.append(getValue(wct.getId()));
+			insertString.append(getValue(wct.getId(), null));
 		}
 		else if (columnValue instanceof Enum)
 		{
 			Enum wct = (Enum) columnValue;
-			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
+			insertString.append(STRING_SINGLE_QUOTES)
 			            .append(wct.toString())
-			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof UUID)
 		{
 			UUID wct = (UUID) columnValue;
-			insertString.append(EntityAssistStrings.STRING_SINGLE_QUOTES)
+			insertString.append(STRING_SINGLE_QUOTES)
 			            .append(wct.toString())
-			            .append(EntityAssistStrings.STRING_SINGLE_QUOTES + EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof byte[])
 		{
 
-			String bitString = "0x" + getHex((byte[]) columnValue);
+			String bitString = STRING_HEX_SQL_START + getHex((byte[]) columnValue);
 			insertString.append(bitString)
-			            .append(EntityAssistStrings.STRING_COMMNA_SPACE);
+			            .append(STRING_COMMNA_SPACE);
 		}
 		return insertString.toString();
 	}
@@ -218,8 +246,6 @@ abstract class RunnableStatement
 				}
 				if (embId != null)
 				{
-					Pair<String, Object> pair = new Pair<>();
-
 					//run the object through the analyzer
 					field.setAccessible(true);
 					Object be = field.get(this.obj);
@@ -234,7 +260,8 @@ abstract class RunnableStatement
 							sb.append(getColumnName(field1))
 							  .append(STRING_COMMNA);
 
-							valueList.append(getValue(field1))
+							Object fo = field.get(be);
+							valueList.append(getValue(fo, field1))
 							         .append(STRING_COMMNA);
 						}
 					}
@@ -275,7 +302,7 @@ abstract class RunnableStatement
 		{
 			return false;
 		}
-		if(Collection.class.isAssignableFrom(field.getType()))
+		if (Collection.class.isAssignableFrom(field.getType()))
 		{
 			return false;
 		}
@@ -292,17 +319,19 @@ abstract class RunnableStatement
 		JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
 		Column col = field.getAnnotation(Column.class);
 		EmbeddedId embId = field.getAnnotation(EmbeddedId.class);
-		String columnName = "";
+		String columnName = STRING_EMPTY;
 
-		if(joinCol != null)
+		if (joinCol != null)
 		{
 			columnName = joinCol.name();
-		}else if (col != null)
+		}
+		else if (col != null)
 		{
 			columnName = col.name();
-		}else if (embId != null)
+		}
+		else if (embId != null)
 		{
-			columnName = "";
+			columnName = STRING_EMPTY;
 		}
 
 		if (embId != null)
@@ -326,7 +355,7 @@ abstract class RunnableStatement
 			}
 			catch (IllegalAccessException e)
 			{
-				columnName = "";
+				columnName = STRING_EMPTY;
 			}
 		}
 		if (columnName.isEmpty())

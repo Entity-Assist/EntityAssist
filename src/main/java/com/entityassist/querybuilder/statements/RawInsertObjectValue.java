@@ -1,6 +1,6 @@
 package com.entityassist.querybuilder.statements;
 
-class RawInsertObjectValue
+public class RawInsertObjectValue
 {
 	private String rawInsert;
 

@@ -2,7 +2,6 @@ package com.entityassist.querybuilder.builders;
 
 import com.entityassist.BaseEntity;
 import com.entityassist.injections.EntityAssistBinder;
-import com.entityassist.querybuilder.EntityAssistStrings;
 import com.entityassist.querybuilder.QueryBuilder;
 import com.entityassist.querybuilder.statements.InsertStatement;
 import com.entityassist.services.EntityAssistIDMapping;
@@ -37,6 +36,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.guicedee.guicedinjection.json.StaticStrings.*;
 import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.ITransactionHandlerReader;
 
 /**
@@ -644,7 +644,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			{
 				ConstraintViolation contraints = (ConstraintViolation) constraintViolation;
 				String error = contraints.getRootBeanClass()
-				                         .getSimpleName() + EntityAssistStrings.STRING_DOT + contraints.getPropertyPath() + EntityAssistStrings.STRING_EMPTY + contraints.getMessage();
+				                         .getSimpleName() + STRING_DOT + contraints.getPropertyPath() + STRING_EMPTY + contraints.getMessage();
 				errors.add(error);
 			}
 		}

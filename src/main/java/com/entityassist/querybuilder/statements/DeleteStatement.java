@@ -1,12 +1,9 @@
 package com.entityassist.querybuilder.statements;
 
 import com.entityassist.BaseEntity;
-import com.entityassist.querybuilder.EntityAssistStrings;
 import com.guicedee.guicedinjection.pairing.Pair;
-import com.guicedee.logger.LogFactory;
 
-import java.util.Map;
-import java.util.logging.Logger;
+import static com.guicedee.guicedinjection.json.StaticStrings.*;
 
 public class DeleteStatement
 		extends RunnableStatement
@@ -20,16 +17,17 @@ public class DeleteStatement
 	public String buildUpdateStatement()
 	{
 		StringBuilder string = new StringBuilder();
-		string.append("DELETE FROM  ");
+		string.append(STRING_DELETE_FROM_SQL);
 
 		string.append(getTableName())
-		      .append(EntityAssistStrings.STRING_SPACE);
-		string.append("WHERE ");
+		      .append(STRING_SPACE);
+		string.append(STRING_WHERE_SQL);
 		Pair<String, Object> idPair = getIdPair();
+
 		string.append(idPair.getKey())
-		      .append(EntityAssistStrings.STRING_EQUALS_SPACE_EQUALS)
-		      .append(getValue(idPair.getValue()));
-		string.deleteCharAt(string.lastIndexOf(EntityAssistStrings.STRING_COMMNA));
+		      .append(STRING_EQUALS_SPACE_EQUALS)
+		      .append(getValue(idPair.getValue(),null));
+		string.deleteCharAt(string.lastIndexOf(STRING_COMMNA));
 		return string.toString();
 	}
 

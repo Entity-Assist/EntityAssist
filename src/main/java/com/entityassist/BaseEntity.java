@@ -1,7 +1,6 @@
 package com.entityassist;
 
 import com.entityassist.exceptions.QueryBuilderException;
-import com.entityassist.querybuilder.EntityAssistStrings;
 import com.entityassist.querybuilder.QueryBuilder;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,6 +19,7 @@ import java.util.logging.Logger;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
+import static com.guicedee.guicedinjection.json.StaticStrings.*;
 
 @MappedSuperclass()
 @JsonAutoDetect(fieldVisibility = ANY,
@@ -191,7 +191,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	@NotNull
 	public boolean isFake()
 	{
-		return getProperties().containsKey(EntityAssistStrings.FAKE_KEY) && Boolean.parseBoolean(getProperties().get(EntityAssistStrings.FAKE_KEY)
+		return getProperties().containsKey(FAKE_KEY) && Boolean.parseBoolean(getProperties().get(FAKE_KEY)
 		                                                                                                        .toString());
 	}
 
@@ -242,11 +242,11 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	{
 		if (fake)
 		{
-			getProperties().put(EntityAssistStrings.FAKE_KEY, true);
+			getProperties().put(FAKE_KEY, true);
 		}
 		else
 		{
-			getProperties().remove(EntityAssistStrings.FAKE_KEY);
+			getProperties().remove(FAKE_KEY);
 		}
 		return (J) this;
 	}
