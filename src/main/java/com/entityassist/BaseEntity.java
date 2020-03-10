@@ -12,7 +12,9 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -153,7 +155,14 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	@NotNull
 	public J update()
 	{
-		builder().update((J) this);
+		try
+		{
+			builder().update((J) this);
+		}
+		catch (SQLException e)
+		{
+			log.log(Level.WARNING, "Unable to update id : " + e,e);
+		}
 		return (J) this;
 	}
 
@@ -177,10 +186,9 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	public J validate()
+	public List<String> validate()
 	{
-		builder().validateEntity((J) this);
-		return (J) this;
+		return builder().validateEntity((J) this);
 	}
 
 	/**

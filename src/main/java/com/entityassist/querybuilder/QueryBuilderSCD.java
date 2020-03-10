@@ -2,10 +2,13 @@ package com.entityassist.querybuilder;
 
 import com.entityassist.SCDEntity;
 import com.entityassist.enumerations.Operand;
+import com.guicedee.logger.LogFactory;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.logging.Level;
 
 public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E extends SCDEntity<E, J, I>, I extends Serializable>
 		extends QueryBuilder<J, E, I>
@@ -114,7 +117,15 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		                         .get();
 		originalEntity.setEffectiveToDate(LocalDateTime.now());
 		originalEntity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
-		return super.update(entity);
+		try
+		{
+			return super.update(entity);
+		}
+		catch (SQLException e)
+		{
+			LogFactory.getLog("QueryBuilderSCD").log(Level.WARNING, "Unable to update id : " + e, e);
+			return entity;
+		}
 	}
 
 	/**

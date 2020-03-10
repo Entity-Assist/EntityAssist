@@ -479,7 +479,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	@NotNull
 	@SuppressWarnings({"unchecked", "Duplicates"})
-	public E update(E entity)
+	public E update(E entity) throws SQLException
 	{
 		try
 		{
@@ -516,6 +516,10 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 					getEntityManager().merge(entity);
 				}
 			}
+		}
+		catch (SQLException ise)
+		{
+			throw ise;
 		}
 		catch (IllegalStateException ise)
 		{

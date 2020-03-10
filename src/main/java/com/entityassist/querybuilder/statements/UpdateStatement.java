@@ -4,6 +4,7 @@ import com.entityassist.BaseEntity;
 import com.guicedee.guicedinjection.pairing.Pair;
 import com.guicedee.logger.LogFactory;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -27,14 +28,13 @@ public class UpdateStatement
 		      .append(STRING_SPACE);
 		string.append(STRING_UPDATE_SET_SQL);
 
-		Map<String, Object> updateMap = getObject().builder()
-		                                           .getUpdateFieldMap(getObject());
+		Map<Field, Object> updateMap =  getUpdateFieldMap(getObject());
 
-		for (Map.Entry<String, Object> entry : updateMap.entrySet())
+		for (Map.Entry<Field, Object> entry : updateMap.entrySet())
 		{
 			Object value = entry.getValue();
-			String valueString = getValue(value, null);
-			string.append(entry.getKey());
+			String valueString = value.toString();
+			string.append(getColumnName(entry.getKey()));
 			string.append(STRING_EQUALS_SPACE_EQUALS);
 			string.append(valueString);
 		}
@@ -45,8 +45,8 @@ public class UpdateStatement
 		Pair<String, Object> idPair = getIdPair();
 		string.append(idPair.getKey())
 		      .append(STRING_EQUALS_SPACE_EQUALS)
-		      .append(getValue(idPair.getValue(), null));
-		string.deleteCharAt(string.lastIndexOf(STRING_COMMNA));
+		      .append(idPair.getValue());
+		//string.deleteCharAt(string.lastIndexOf(STRING_COMMNA));
 
 		return string.toString();
 	}

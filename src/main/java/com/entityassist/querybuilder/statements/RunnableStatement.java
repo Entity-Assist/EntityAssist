@@ -106,7 +106,7 @@ abstract class RunnableStatement
 		}
 		else if (columnValue instanceof BigDecimal)
 		{
-			insertString.append(((BigDecimal) columnValue).doubleValue())
+			insertString.append(((BigDecimal) columnValue).toPlainString())
 			            .append(STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Short)
@@ -129,6 +129,12 @@ abstract class RunnableStatement
 			{
 				insertString.append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 			}
+		}
+		else if (columnValue instanceof Character)
+		{
+			insertString.append(STRING_SINGLE_QUOTES)
+			            .append(columnValue)
+			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Date)
 		{
@@ -159,9 +165,29 @@ abstract class RunnableStatement
 		else if (columnValue instanceof Enum)
 		{
 			Enum wct = (Enum) columnValue;
-			insertString.append(STRING_SINGLE_QUOTES)
-			            .append(wct.toString())
-			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+			if (field != null && field.isAnnotationPresent(Enumerated.class))
+			{
+				Enumerated eee = field.getAnnotation(Enumerated.class);
+				if (eee.value()
+				       .equals(EnumType.STRING))
+				{
+					insertString.append(STRING_SINGLE_QUOTES)
+					            .append(wct.name())
+					            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+				}
+				else
+				{
+					insertString.append(STRING_SINGLE_QUOTES)
+					            .append(wct.ordinal())
+					            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+				}
+			}
+			else
+			{
+				insertString.append(STRING_SINGLE_QUOTES)
+				            .append(wct.toString())
+				            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+			}
 		}
 		else if (columnValue instanceof UUID)
 		{
@@ -363,6 +389,75 @@ abstract class RunnableStatement
 			columnName = field.getName();
 		}
 		return columnName;
+	}
+
+
+	/**
+	 * Goes through the object looking for fields, returns a set where the field name is mapped to the object
+	 *
+	 * @param updateFields
+	 * 		Returns a map of field to update with the values
+	 *
+	 * @return A map of SingularAttribute and its object type
+	 */
+	@SuppressWarnings("WeakerAccess")
+	@NotNull
+	public Map<Field, Object> getUpdateFieldMap(BaseEntity<?,?,?> updateFields)
+	{
+		Map<Field, Object> map = new HashMap<>();
+		List<Field> fieldList = allFields(updateFields.getClass(), new ArrayList<>());
+
+		for (Field field : fieldList)
+		{
+			if (Modifier.isAbstract(field.getModifiers()) ||
+			    Modifier.isStatic(field.getModifiers()) ||
+			    Modifier.isFinal(field.getModifiers()) ||
+			    field.isAnnotationPresent(Id.class) ||
+			    !(
+					    (field.isAnnotationPresent(Column.class)
+					     //  || field.isAnnotationPresent(JoinColumn.class)
+					     || field.isAnnotationPresent(ManyToOne.class))
+
+			    )
+			)
+			{
+				continue;
+			}
+			field.setAccessible(true);
+			try
+			{
+				Object o = field.get(updateFields);
+				if (o != null)
+				{
+					map.put(field, getValue(o,field));
+				}
+			}
+			catch (IllegalAccessException e)
+			{
+				LogFactory.getLog("RunnableStatementUpdate").log(Level.SEVERE, "Unable to determine if field is populated or not", e);
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * Returns a lsit of all fields for an object recursively
+	 *
+	 * @param object
+	 * 		THe object class
+	 * @param fieldList
+	 * 		The list of fields
+	 *
+	 * @return A list of type Field
+	 */
+	private List<Field> allFields(Class<?> object, List<Field> fieldList)
+	{
+		fieldList.addAll(Arrays.asList(object.getDeclaredFields()));
+		if (object.getSuperclass() != Object.class)
+		{
+			allFields(object.getSuperclass(), fieldList);
+		}
+		return fieldList;
 	}
 
 	/**

@@ -4,6 +4,7 @@ import com.entityassist.enumerations.OrderByType;
 import com.entityassist.exceptions.QueryBuilderException;
 import com.entityassist.querybuilder.statements.DeleteStatement;
 import com.entityassist.querybuilder.statements.InsertStatement;
+import com.entityassist.querybuilder.statements.UpdateStatement;
 import com.google.common.base.Strings;
 import com.google.inject.Key;
 import com.entityassist.BaseEntity;
@@ -250,15 +251,15 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			throw new UnsupportedOperationException("Calling the bulk update method with no filters. This will update the entire table.");
 		}
 		CriteriaUpdate update = getCriteriaUpdate();
-		Map<String, Object> updateFieldMap = getUpdateFieldMap(updateFields);
+		Map<Field, Object> updateFieldMap = new UpdateStatement(updateFields).getUpdateFieldMap(updateFields);
 		if (updateFieldMap.isEmpty())
 		{
 			log.warning("Nothing to update, ignore bulk update");
 			return 0;
 		}
-		for (Map.Entry<String, Object> entries : updateFieldMap.entrySet())
+		for (Map.Entry<Field, Object> entries : updateFieldMap.entrySet())
 		{
-			String attributeName = entries.getKey();
+			String attributeName = new UpdateStatement(updateFields).getColumnName(entries.getKey());
 			Object value = entries.getValue();
 			try
 			{
@@ -517,69 +518,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	{
 		this.returnFirst = returnFirst;
 		return (J) this;
-	}
-
-	/**
-	 * Goes through the object looking for fields, returns a set where the field name is mapped to the object
-	 *
-	 * @param updateFields
-	 * 		Returns a map of field to update with the values
-	 *
-	 * @return A map of SingularAttribute and its object type
-	 */
-	@SuppressWarnings("WeakerAccess")
-	@NotNull
-	public Map<String, Object> getUpdateFieldMap(E updateFields)
-	{
-		Map<String, Object> map = new HashMap<>();
-		List<Field> fieldList = allFields(updateFields.getClass(), new ArrayList<>());
-
-		for (Field field : fieldList)
-		{
-			if (Modifier.isAbstract(field.getModifiers()) ||
-			    Modifier.isStatic(field.getModifiers()) ||
-			    Modifier.isFinal(field.getModifiers()) ||
-			    field.isAnnotationPresent(Id.class) ||
-			    !(
-					    (field.isAnnotationPresent(Column.class)
-					  //  || field.isAnnotationPresent(JoinColumn.class)
-					     || field.isAnnotationPresent(ManyToOne.class))
-
-			    )
-			)
-			{
-				continue;
-			}
-			field.setAccessible(true);
-			try
-			{
-				Object o = field.get(updateFields);
-				if (o != null)
-				{
-					String columnName = getColumnName(field);
-					if(columnName == null || columnName.isEmpty())
-						continue;
-					map.put(columnName, o);
-				}
-			}
-			catch (IllegalAccessException e)
-			{
-				log.log(Level.SEVERE, "Unable to determine if field is populated or not", e);
-			}
-		}
-		return map;
-	}
-
-	private String getColumnName(Field field)
-	{
-		JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
-		Column col = field.getAnnotation(Column.class);
-		String columnName = col == null ? joinCol.name() : col.name();
-		if (columnName.isEmpty())
-		{
-			columnName = field.getName();
-		}
-		return columnName;
 	}
 
 	/**
