@@ -37,7 +37,7 @@ module com.entityassist {
 	requires org.hibernate.orm.core;
 	requires com.fasterxml.jackson.databind;
 
-	opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice,org.hibernate.validator;
+	opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind, org.hibernate.validator;
 	opens com.entityassist.services to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
 
 	opens com.entityassist.injections.bigdecimal to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
