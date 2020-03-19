@@ -49,9 +49,9 @@ public class UpdateStatement
 
 		string.append(idPair.getKey())
 		      .append(STRING_EQUALS_SPACE_EQUALS)
-		      .append(asString ? "'" : "")
+		      .append(asString ? "'" : STRING_EMPTY)
 		      .append(idPair.getValue())
-		      .append(asString ? "'" : "");
+		      .append(asString ? "'" : STRING_EMPTY);
 		//string.deleteCharAt(string.lastIndexOf(STRING_COMMNA));
 		return string.toString();
 	}
