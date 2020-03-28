@@ -21,6 +21,8 @@ module com.entityassist {
 	requires com.fasterxml.jackson.annotation;
 	requires java.validation;
 
+	requires java.activation;
+
 	requires com.guicedee.guicedpersistence;
 
 	requires com.guicedee.logmaster;

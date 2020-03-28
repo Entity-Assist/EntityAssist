@@ -91,14 +91,6 @@
             <artifactId>guava</artifactId>
         </dependency>
 
-        <!-- Test Dependencies -->
-        <dependency>
-            <groupId>com.guicedee.services</groupId>
-            <artifactId>hibernate-jpamodelgen</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-
         <dependency>
             <groupId>com.guicedee.services</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
@@ -128,7 +120,7 @@
                 <executions>
                     <execution>
                         <configuration>
-                            <failOnError>false</failOnError>
+                            <failOnError>true</failOnError>
                             <enableLazyInitialization>true</enableLazyInitialization>
                             <enableDirtyTracking>false</enableDirtyTracking>
                             <enableAssociationManagement>false</enableAssociationManagement>
@@ -141,7 +133,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <failOnError>false</failOnError>
+                    <failOnError>true</failOnError>
                     <enableLazyInitialization>true</enableLazyInitialization>
                     <enableDirtyTracking>false</enableDirtyTracking>
                     <enableAssociationManagement>false</enableAssociationManagement>
@@ -157,9 +149,9 @@
                     <release>${jdk.release}</release>
                     <annotationProcessorPaths>
                         <annotationProcessorPath>
-                            <groupId>com.guicedee.services</groupId>
+                            <groupId>org.hibernate</groupId>
                             <artifactId>hibernate-jpamodelgen</artifactId>
-                            <version>${project.version}</version>
+                            <version>5.4.12.Final</version>
                         </annotationProcessorPath>
                         <path>
                             <groupId>com.guicedee.services</groupId>
