@@ -116,15 +116,15 @@
             <plugin>
                 <groupId>org.hibernate.orm.tooling</groupId>
                 <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                <version>5.4.12.Final</version>
+                <version>5.4.13.Final</version>
                 <executions>
                     <execution>
                         <configuration>
-                            <failOnError>true</failOnError>
+                            <failOnError>false</failOnError>
                             <enableLazyInitialization>true</enableLazyInitialization>
                             <enableDirtyTracking>false</enableDirtyTracking>
                             <enableAssociationManagement>false</enableAssociationManagement>
-                            <enableExtendedEnhancement>false</enableExtendedEnhancement>
+                            <enableExtendedEnhancement>true</enableExtendedEnhancement>
                         </configuration>
                         <phase>compile</phase>
                         <goals>
@@ -133,11 +133,11 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <failOnError>true</failOnError>
+                    <failOnError>false</failOnError>
                     <enableLazyInitialization>true</enableLazyInitialization>
                     <enableDirtyTracking>false</enableDirtyTracking>
                     <enableAssociationManagement>false</enableAssociationManagement>
-                    <enableExtendedEnhancement>false</enableExtendedEnhancement>
+                    <enableExtendedEnhancement>true</enableExtendedEnhancement>
                 </configuration>
             </plugin>
 
@@ -151,7 +151,7 @@
                         <annotationProcessorPath>
                             <groupId>org.hibernate</groupId>
                             <artifactId>hibernate-jpamodelgen</artifactId>
-                            <version>5.4.12.Final</version>
+                            <version>5.4.13.Final</version>
                         </annotationProcessorPath>
                         <path>
                             <groupId>com.guicedee.services</groupId>
@@ -163,9 +163,7 @@
                         <AaddGeneratedAnnotation>false</AaddGeneratedAnnotation>
                         <Adebug>true</Adebug>
                     </compilerArguments>
-
                 </configuration>
-
             </plugin>
 
             <plugin>
@@ -188,7 +186,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 </project>
