@@ -1,18 +1,17 @@
 package com.entityassist.querybuilder;
 
+import com.entityassist.BaseEntity;
 import com.entityassist.enumerations.OrderByType;
 import com.entityassist.exceptions.QueryBuilderException;
+import com.entityassist.querybuilder.builders.DefaultQueryBuilder;
+import com.entityassist.querybuilder.builders.JoinExpression;
 import com.entityassist.querybuilder.statements.DeleteStatement;
-import com.entityassist.querybuilder.statements.InsertStatement;
 import com.entityassist.querybuilder.statements.UpdateStatement;
 import com.google.common.base.Strings;
 import com.google.inject.Key;
-import com.entityassist.BaseEntity;
-import com.entityassist.querybuilder.builders.DefaultQueryBuilder;
-import com.entityassist.querybuilder.builders.JoinExpression;
 import com.guicedee.guicedinjection.GuiceContext;
-import com.guicedee.guicedpersistence.db.DbStartup;
 import com.guicedee.guicedpersistence.services.ITransactionHandler;
+import com.guicedee.guicedpersistence.services.PersistenceServicesModule;
 import com.guicedee.logger.LogFactory;
 import com.oracle.jaxb21.PersistenceUnit;
 
@@ -25,9 +24,7 @@ import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 import java.util.logging.Level;
@@ -35,7 +32,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static com.entityassist.querybuilder.builders.IFilterExpression.*;
-import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.ITransactionHandlerReader;
+import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
 
 @SuppressWarnings("unchecked")
 public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
@@ -629,8 +626,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	{
 		String insertString = new DeleteStatement(entity).toString();
 		log.finer(insertString);
-		if (DbStartup.getAvailableDataSources()
-		             .contains(getEntityManagerAnnotation()))
+		if (PersistenceServicesModule.getJtaConnectionBaseInfo()
+		                             .containsKey(getEntityManagerAnnotation()))
 		{
 			DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
 			if (ds == null)

@@ -8,8 +8,8 @@ import com.entityassist.services.EntityAssistIDMapping;
 import com.google.inject.Key;
 import com.entityassist.querybuilder.statements.UpdateStatement;
 import com.guicedee.guicedinjection.GuiceContext;
-import com.guicedee.guicedpersistence.db.DbStartup;
 import com.guicedee.guicedpersistence.services.ITransactionHandler;
+import com.guicedee.guicedpersistence.services.PersistenceServicesModule;
 import com.guicedee.logger.LogFactory;
 import com.oracle.jaxb21.PersistenceUnit;
 
@@ -264,8 +264,8 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				{
 					String insertString = new InsertStatement(entity).toString();
 					log.finer(insertString);
-					if (DbStartup.getAvailableDataSources()
-					             .contains(getEntityManagerAnnotation()))
+					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
+					                             .containsKey(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
 						if(ds == null)
@@ -489,8 +489,8 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				{
 					String insertString = new UpdateStatement(entity).toString();
 					log.finer(insertString);
-					if (DbStartup.getAvailableDataSources()
-					             .contains(getEntityManagerAnnotation()))
+					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
+					                             .containsKey(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
 						if(ds == null)
@@ -567,8 +567,8 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				{
 					String insertString = new UpdateStatement(entity).toString();
 					log.finer(insertString);
-					if (DbStartup.getAvailableDataSources()
-					             .contains(getEntityManagerAnnotation()))
+					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
+					                             .containsKey(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
 						if(ds == null)
