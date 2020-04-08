@@ -565,18 +565,17 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				{
 					try
 					{
+						if (BaseEntity.class.isAssignableFrom(t.getClass()))
+						{
+							((BaseEntity) t)
+									.setFake(false);
+						}
 						getEntityManager().detach(t);
 					}catch(Throwable T)
 					{
 						log.finer("Unable to detach : " + t.getClass().getName());
 					}
 				}
-			}
-			if (BaseEntity.class.isAssignableFrom(j.get(0)
-			                                       .getClass()))
-			{
-				((BaseEntity) j.get(0))
-						.setFake(false);
 			}
 		}
 		return j;
