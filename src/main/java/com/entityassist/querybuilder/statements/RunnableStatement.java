@@ -99,6 +99,16 @@ abstract class RunnableStatement
 			insertString.append(columnValue)
 			            .append(STRING_COMMNA_SPACE);
 		}
+		else if (columnValue instanceof Double)
+		{
+			insertString.append(columnValue)
+			            .append(STRING_COMMNA_SPACE);
+		}
+		else if (columnValue instanceof Float)
+		{
+			insertString.append(columnValue)
+			            .append(STRING_COMMNA_SPACE);
+		}
 		else if (columnValue instanceof BigInteger)
 		{
 			insertString.append(((BigInteger) columnValue).longValue())
@@ -202,6 +212,10 @@ abstract class RunnableStatement
 			String bitString = STRING_HEX_SQL_START + getHex((byte[]) columnValue);
 			insertString.append(bitString)
 			            .append(STRING_COMMNA_SPACE);
+		}
+		else {
+			insertString.append("NOT KNOWN TYPE - " + columnValue.getClass()
+			                                                     .getCanonicalName());
 		}
 		return insertString.toString();
 	}
