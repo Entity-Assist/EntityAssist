@@ -31,7 +31,6 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	 * @return This
 	 */
 	@NotNull
-	@SuppressWarnings("unchecked")
 	public J inDateRange()
 	{
 		return inDateRange(LocalDateTime.now());
@@ -41,23 +40,24 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	/**
 	 * Returns the effective from and to date to be applied
 	 *
-	 * @param effectiveFromDate
+	 * Usually getDate()
+	 *
+	 * @param betweenThisDate
 	 * 		The date
 	 *
 	 * @return This
 	 */
 	@NotNull
 	@SuppressWarnings("unchecked")
-	public J inDateRange(LocalDateTime effectiveFromDate)
+	public J inDateRange(LocalDateTime betweenThisDate)
 	{
-		where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), Operand.GreaterThanEqualTo, effectiveFromDate);
-		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, SCDEntity.EndOfTime);
-
+		where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), Operand.LessThanEqualTo, betweenThisDate);
+		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.GreaterThanEqualTo, betweenThisDate);
 		return (J) this;
 	}
 
 	/**
-	 * Returns the effective from and to date to be applied
+	 * Returns the effective from and to date to be applied when only the effective date is taken into consideration
 	 *
 	 * @param effectiveToDate
 	 * 		The date
@@ -82,7 +82,6 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	 * @return This
 	 */
 	@NotNull
-	@SuppressWarnings("unchecked")
 	public J inDateRangeSpecified(LocalDateTime fromDate)
 	{
 		return inDateRange(fromDate, LocalDateTime.now());
@@ -109,7 +108,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	}
 
 	@Override
-	public @javax.validation.constraints.NotNull E update(E entity)
+	public @NotNull E update(E entity)
 	{
 		E originalEntity = entity.builder()
 		                         .find(entity.getId())
