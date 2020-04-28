@@ -1,7 +1,6 @@
 package com.entityassist.querybuilder.statements;
 
 import com.entityassist.BaseEntity;
-
 import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedinjection.pairing.Pair;
 import com.guicedee.logger.LogFactory;
@@ -24,7 +23,7 @@ import static com.guicedee.guicedinjection.json.StaticStrings.*;
 abstract class RunnableStatement
 {
 	private static final String HEXES = "0123456789ABCDEF";
-
+	protected final BaseEntity obj;
 	/**
 	 * The standard sdf format
 	 */
@@ -37,8 +36,6 @@ abstract class RunnableStatement
 	 * Returns the date time formmatter
 	 */
 	private final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-
-	protected final BaseEntity obj;
 
 	protected RunnableStatement(BaseEntity obj)
 	{
@@ -170,7 +167,29 @@ abstract class RunnableStatement
 		else if (columnValue instanceof BaseEntity)
 		{
 			BaseEntity wct = (BaseEntity) columnValue;
-			insertString.append(getValue(wct.getId(), null));
+			Object value = wct.getId();
+			Field fff = field;
+			if (field != null &&
+			    field.isAnnotationPresent(JoinColumn.class) &&
+			    !field.getAnnotation(JoinColumn.class)
+			          .referencedColumnName()
+			          .equals(STRING_EMPTY))
+			{
+				InsertStatement is = new InsertStatement(wct);
+				fff = is.getColumn(field.getAnnotation(JoinColumn.class)
+				                        .referencedColumnName());
+				fff.setAccessible(true);
+				try
+				{
+					value = fff.get(wct);
+				}
+				catch (Exception e)
+				{
+					LogFactory.getLog(getClass())
+					          .log(Level.WARNING, "Unable to extract", e);
+				}
+			}
+			insertString.append(getValue(value, fff));
 		}
 		else if (columnValue instanceof Enum)
 		{
@@ -213,9 +232,11 @@ abstract class RunnableStatement
 			insertString.append(bitString)
 			            .append(STRING_COMMNA_SPACE);
 		}
-		else {
-			insertString.append("NOT KNOWN TYPE - " + columnValue.getClass()
-			                                                     .getCanonicalName());
+		else
+		{
+			insertString.append("NOT KNOWN TYPE - ")
+			            .append(columnValue.getClass()
+			                               .getCanonicalName());
 		}
 		return insertString.toString();
 	}
@@ -255,6 +276,25 @@ abstract class RunnableStatement
 		return tableName;
 	}
 
+	/**
+	 * Returns a column field for a given name
+	 *
+	 * @param columnName
+	 *
+	 * @return
+	 */
+	public Field getColumn(String columnName)
+	{
+		for (Field field : getFields())
+		{
+			if (columnName.equalsIgnoreCase(getColumnName(field)))
+			{
+				return field;
+			}
+		}
+		throw new UnsupportedOperationException("Invalid Column Name to Find - " + columnName);
+	}
+
 	public List<Field> getFields()
 	{
 		List<Field> fields = new ArrayList<>();
@@ -288,7 +328,7 @@ abstract class RunnableStatement
 				{
 					//run the object through the analyzer
 					field.setAccessible(true);
-					Object be = field.get(this.obj);
+					Object be = field.get(obj);
 					Field[] fields = be.getClass()
 					                   .getFields();
 					StringBuilder sb = new StringBuilder();
@@ -378,7 +418,7 @@ abstract class RunnableStatement
 		{
 			try
 			{
-				Object o = field.get(this.obj);
+				Object o = field.get(obj);
 				Field[] f = o.getClass()
 				             .getDeclaredFields();
 				StringBuilder colNames = new StringBuilder();
@@ -416,7 +456,7 @@ abstract class RunnableStatement
 	 */
 	@SuppressWarnings("WeakerAccess")
 	@NotNull
-	public Map<Field, Object> getUpdateFieldMap(BaseEntity<?,?,?> updateFields)
+	public Map<Field, Object> getUpdateFieldMap(BaseEntity<?, ?, ?> updateFields)
 	{
 		Map<Field, Object> map = new HashMap<>();
 		List<Field> fieldList = allFields(updateFields.getClass(), new ArrayList<>());
@@ -443,12 +483,13 @@ abstract class RunnableStatement
 				Object o = field.get(updateFields);
 				if (o != null)
 				{
-					map.put(field, getValue(o,field));
+					map.put(field, getValue(o, field));
 				}
 			}
 			catch (IllegalAccessException e)
 			{
-				LogFactory.getLog("RunnableStatementUpdate").log(Level.SEVERE, "Unable to determine if field is populated or not", e);
+				LogFactory.getLog("RunnableStatementUpdate")
+				          .log(Level.SEVERE, "Unable to determine if field is populated or not", e);
 			}
 		}
 		return map;
