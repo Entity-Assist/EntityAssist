@@ -116,7 +116,7 @@
             <plugin>
                 <groupId>org.hibernate.orm.tooling</groupId>
                 <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                <version>5.4.15.Final</version>
+                <version>5.4.16.Final</version>
                 <executions>
                     <execution>
                         <configuration>
@@ -151,7 +151,7 @@
                         <annotationProcessorPath>
                             <groupId>org.hibernate</groupId>
                             <artifactId>hibernate-jpamodelgen</artifactId>
-                            <version>5.4.15.Final</version>
+                            <version>5.4.16.Final</version>
                         </annotationProcessorPath>
                         <path>
                             <groupId>com.guicedee.services</groupId>
