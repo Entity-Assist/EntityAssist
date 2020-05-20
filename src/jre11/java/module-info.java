@@ -30,7 +30,7 @@ module com.entityassist {
 	requires java.persistence;
 	requires java.logging;
 	requires java.sql;
-	requires java.naming;
+	requires static java.naming;
 
 	requires com.guicedee.guicedinjection;
 	requires com.google.common;
@@ -39,7 +39,7 @@ module com.entityassist {
 	requires org.hibernate.orm.core;
 	requires com.fasterxml.jackson.databind;
 
-	opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice,org.hibernate.validator;
+	opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice, org.hibernate.validator;
 	opens com.entityassist.services to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
 
 	opens com.entityassist.injections.bigdecimal to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
