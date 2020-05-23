@@ -57,45 +57,6 @@
             <groupId>com.guicedee.persistence</groupId>
             <artifactId>guiced-persistence</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.guicedee.persistence</groupId>
-            <artifactId>guiced-persistence-btm</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.guicedee.persistence</groupId>
-            <artifactId>guiced-persistence-jpa</artifactId>
-            <scope>test</scope>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>com.guicedee.services</groupId>
-            <artifactId>commons-text</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.guicedee.services</groupId>
-            <artifactId>hibernate-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.guicedee.services</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.guicedee.services</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.guicedee.services</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-        </dependency>
-
     </dependencies>
     <scm>
         <url>https://github.com/GedMarc/EntityAssist.git</url>

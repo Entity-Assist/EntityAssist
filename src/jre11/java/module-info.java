@@ -18,26 +18,10 @@ module com.entityassist {
 	exports com.entityassist.querybuilder.builders;
 	exports com.entityassist.querybuilder.statements;
 
-	requires com.fasterxml.jackson.annotation;
-	requires java.validation;
-
-	requires java.activation;
-
 	requires com.guicedee.guicedpersistence;
 
-	requires com.guicedee.logmaster;
-	requires com.google.guice.extensions.persist;
-	requires java.persistence;
 	requires java.logging;
-	requires java.sql;
 	requires static java.naming;
-
-	requires com.guicedee.guicedinjection;
-	requires com.google.common;
-	requires com.google.guice;
-
-	requires org.hibernate.orm.core;
-	requires com.fasterxml.jackson.databind;
 
 	opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice, org.hibernate.validator;
 	opens com.entityassist.services to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
