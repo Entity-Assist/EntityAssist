@@ -20,7 +20,7 @@ module com.entityassist {
 
 	requires com.guicedee.guicedpersistence;
 
-	requires static java.naming;
+	requires java.naming;
 
 	opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice, org.hibernate.validator;
 	opens com.entityassist.services to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
