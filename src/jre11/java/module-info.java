@@ -20,7 +20,6 @@ module com.entityassist {
 
 	requires com.guicedee.guicedpersistence;
 
-	requires java.logging;
 	requires static java.naming;
 
 	opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice, org.hibernate.validator;
@@ -33,40 +32,7 @@ module com.entityassist {
 	opens com.entityassist.injections.strings to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
 
 	provides IGuiceDefaultBinder with EntityAssistBinder;
-	provides EntityAssistIDMapping with
-			                               BigDecimalToBigIntIDMapping,
-			                               BigDecimalToDoubleIDMapping,
-			                               BigDecimalToFloatIDMapping,
-			                               BigDecimalToIntIDMapping,
-			                               BigDecimalToStringIDMapping,
-			                               BigDecimalToLongIDMapping,
-			                               BigDecimalIDMapping,
-			                               BigIntegerBigDecimalIDMapping,
-			                               BigIntegerFloatIDMapping,
-			                               BigIntegerIntegerIDMapping,
-			                               BigIntegerLongIDMapping,
-			                               BigIntegerDoubleIDMapping,
-			                               BigIntegerStringIDMapping,
-			                               BigIntegerIDMapping,
-			                               LongBigIntegerIDMapping,
-			                               LongIntegerIDMapping,
-			                               LongStringIDMapping,
-			                               LongBigDecimalIDMapping,
-			                               LongFloatIDMapping,
-			                               LongIDMapping,
-			                               IntegerBigDecimalIDMapping,
-			                               IntegerBigIntegerIDMapping,
-			                               IntegerDoubleIDMapping,
-			                               IntegerFloatIDMapping,
-			                               IntegerLongIDMapping,
-			                               IntegerStringIDMapping,
-			                               IntegerIDMapping,
-			                               StringIDMapping,
-			                               StringIntegerIDMapping,
-			                               StringUUIDIDMapping,
-			                               StringBigDecimalIDMapping,
-			                               StringBigIntegerIDMapping,
-			                               StringLongIDMapping
+	provides EntityAssistIDMapping with BigDecimalToBigIntIDMapping, BigDecimalToDoubleIDMapping, BigDecimalToFloatIDMapping, BigDecimalToIntIDMapping, BigDecimalToStringIDMapping, BigDecimalToLongIDMapping, BigDecimalIDMapping, BigIntegerBigDecimalIDMapping, BigIntegerFloatIDMapping, BigIntegerIntegerIDMapping, BigIntegerLongIDMapping, BigIntegerDoubleIDMapping, BigIntegerStringIDMapping, BigIntegerIDMapping, LongBigIntegerIDMapping, LongIntegerIDMapping, LongStringIDMapping, LongBigDecimalIDMapping, LongFloatIDMapping, LongIDMapping, IntegerBigDecimalIDMapping, IntegerBigIntegerIDMapping, IntegerDoubleIDMapping, IntegerFloatIDMapping, IntegerLongIDMapping, IntegerStringIDMapping, IntegerIDMapping, StringIDMapping, StringIntegerIDMapping, StringUUIDIDMapping, StringBigDecimalIDMapping, StringBigIntegerIDMapping, StringLongIDMapping
 			;
 
 	uses ITransactionHandler;
