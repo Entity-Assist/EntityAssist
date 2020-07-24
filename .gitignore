@@ -13,3 +13,4 @@ javadoc.zip
 **/*.iml
 *.tlog
 db/
+/.idea/
