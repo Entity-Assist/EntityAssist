@@ -14,7 +14,7 @@ Direct Link : https://jwebmp/artifactory/list/libs-snapshot-local/za/co/mmagon/e
         <artifactId>entity-assist</artifactId>
         <version>RELEASE</version>
         <type>jar</type>
-            </dependency>
+     </dependency>
 
 ```
 *Deployment to maven central scheduled for April
