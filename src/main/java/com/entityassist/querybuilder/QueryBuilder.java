@@ -274,7 +274,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
-			if (handler.transactionExists(getEntityManager(), unit))
+			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
 			{
 				transactionAlreadyStarted = true;
 				break;
@@ -623,22 +623,22 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 */
 	public void deleteId(E entity) throws QueryBuilderException
 	{
-		String insertString = new DeleteStatement(entity).toString();
-		log.finer(insertString);
+		String deleteString = new DeleteStatement(entity).toString();
+		log.fine(deleteString);
 		if (PersistenceServicesModule.getJtaConnectionBaseInfo()
 		                             .containsKey(getEntityManagerAnnotation()))
 		{
 			DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
 			if (ds == null)
 			{
-				Query query = getEntityManager().createNativeQuery(insertString);
+				Query query = getEntityManager().createNativeQuery(deleteString);
 				query.executeUpdate();
 			}
 			else
 
 				try (Connection c = ds.getConnection(); Statement st = c.createStatement())
 				{
-					st.executeUpdate(insertString);
+					st.executeUpdate(deleteString);
 				}
 				catch (Exception e)
 				{
@@ -663,7 +663,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
-			if (handler.transactionExists(getEntityManager(), unit))
+			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
 			{
 				transactionAlreadyStarted = true;
 				break;
@@ -714,7 +714,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
-			if (handler.transactionExists(getEntityManager(), unit))
+			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
 			{
 				transactionAlreadyStarted = true;
 				break;

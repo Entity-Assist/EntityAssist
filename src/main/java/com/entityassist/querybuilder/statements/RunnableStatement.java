@@ -124,18 +124,11 @@ abstract class RunnableStatement
 		}
 		else if (columnValue instanceof String)
 		{
-			if (!columnValue.toString()
-			                .startsWith(STRING_SINGLE_QUOTES))
-			{
-				insertString.append(STRING_SINGLE_QUOTES);
-			}
-			insertString.append(((String) columnValue).replaceAll(STRING_SINGLE_QUOTES,
-			                                                      STRING_SINGLE_QUOTES + STRING_SINGLE_QUOTES));
-			if (!columnValue.toString()
-			                .endsWith(STRING_SINGLE_QUOTES))
-			{
-				insertString.append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
-			}
+			columnValue = ((String) columnValue).replaceAll(STRING_SINGLE_QUOTES,
+					STRING_SINGLE_QUOTES + STRING_SINGLE_QUOTES);
+			insertString.append(STRING_SINGLE_QUOTES);
+			insertString.append(((String) columnValue));
+			insertString.append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 		}
 		else if (columnValue instanceof Character)
 		{
@@ -234,6 +227,10 @@ abstract class RunnableStatement
 		}
 		else
 		{
+			if(columnValue == null)
+				insertString.append("null")
+						.append(STRING_COMMNA_SPACE);
+			else
 			insertString.append("NOT KNOWN TYPE - ")
 			            .append(columnValue.getClass()
 			                               .getCanonicalName());

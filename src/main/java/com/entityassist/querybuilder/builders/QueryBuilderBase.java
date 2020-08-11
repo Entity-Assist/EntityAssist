@@ -198,7 +198,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
 		{
-			if (handler.transactionExists(getEntityManager(), unit))
+			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
 			{
 				transactionAlreadyStarted = true;
 				break;
@@ -263,7 +263,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				if (isRunDetached())
 				{
 					String insertString = new InsertStatement(entity).toString();
-					log.finer(insertString);
+					log.fine(insertString);
 					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
@@ -277,14 +277,13 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 								iterateThroughResultSetForGeneratedIDs();
 							}
 						}
-						else
+						else {
 
-						try (Connection c = ds.getConnection(); Statement st = c.createStatement())
-						{
-							st.executeUpdate(insertString);
-							if (isIdGenerated() && isRequestId())
-							{
-								iterateThroughResultSetForGeneratedIDs(c);
+							try (Connection c = ds.getConnection();Statement st = c.createStatement()) {
+								st.executeUpdate(insertString);
+								if (isIdGenerated() && isRequestId()) {
+									iterateThroughResultSetForGeneratedIDs(c);
+								}
 							}
 						}
 					}
@@ -393,7 +392,6 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 */
 	private void iterateThroughResultSetForGeneratedIDs(Connection connection)
 	{
-		DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
 		try (Statement st = connection.createStatement())
 		{
 			ResultSet rs = st.executeQuery(selectIdentityString);
@@ -488,7 +486,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				if (isRunDetached())
 				{
 					String insertString = new UpdateStatement(entity).toString();
-					log.finer(insertString);
+					log.fine(insertString);
 					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
@@ -499,11 +497,12 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 							query.executeUpdate();
 						}
 						else
-
-							try (Connection c = ds.getConnection(); Statement st = c.createStatement())
+						{
+							try (Connection c = ds.getConnection();Statement st = c.createStatement())
 							{
 								st.executeUpdate(insertString);
 							}
+						}
 					}
 					else
 					{
@@ -566,22 +565,19 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				if (isRunDetached())
 				{
 					String insertString = new UpdateStatement(entity).toString();
-					log.finer(insertString);
+					log.fine(insertString);
 					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
-					                             .containsKey(getEntityManagerAnnotation()))
-					{
+					                             .containsKey(getEntityManagerAnnotation())) {
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-						if(ds == null)
-						{
+						if (ds == null) {
 							Query query = getEntityManager().createNativeQuery(insertString);
 							query.executeUpdate();
-						}
-						else
-
-							try (Connection c = ds.getConnection(); Statement st = c.createStatement())
-							{
+						} else
+						{
+							try (Connection c = ds.getConnection();Statement st = c.createStatement()) {
 								st.executeUpdate(insertString);
 							}
+						}
 					}
 					else
 					{
