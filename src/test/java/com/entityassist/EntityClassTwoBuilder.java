@@ -14,21 +14,21 @@ public class EntityClassTwoBuilder
 	{
 		return GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 	}
-
+	
 	@Override
-	protected boolean onCreate(EntityClassTwo entity)
+	public boolean onCreate(EntityClassTwo entity)
 	{
 		return true;
 	}
-
+	
 	@Override
-	protected boolean isIdGenerated()
+	public boolean isIdGenerated()
 	{
 		return false;
 	}
-
+	
 	@Override
-	protected boolean onUpdate(EntityClassTwo entity)
+	public boolean onUpdate(EntityClassTwo entity)
 	{
 		return true;
 	}

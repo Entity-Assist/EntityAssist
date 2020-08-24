@@ -13,17 +13,17 @@ public class EntityClassGeneratedIDBuilder
 	{
 		setSelectIdentityString("CALL SCOPE_IDENTITY();");
 	}
-
+	
 	@Override
 	public EntityManager getEntityManager()
 	{
 		return GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 	}
-
+	
 	@Override
-	protected boolean isIdGenerated()
+	public boolean isIdGenerated()
 	{
 		return true;
 	}
-
+	
 }

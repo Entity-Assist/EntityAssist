@@ -26,17 +26,22 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static com.entityassist.querybuilder.builders.IFilterExpression.*;
-import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
+import static com.entityassist.querybuilder.builders.IFilterExpression.isPluralOrMapAttribute;
+import static com.entityassist.querybuilder.builders.IFilterExpression.isSingularAttribute;
+import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.ITransactionHandlerReader;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "unused"})
 public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 		extends DefaultQueryBuilder<J, E, I>
+		implements com.entityassist.services.querybuilders.IQueryBuilder<J, E, I>
 {
 	/**
 	 * The logger
@@ -54,12 +59,33 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 * If the first result must be returned from a list
 	 */
 	private boolean returnFirst;
-
+	
+	/**
+	 * Trigger if select should happen
+	 *
+	 * @return if select should occur
+	 */
+	@Override
+	public boolean onSelect()
+	{
+		return true;
+	}
+	
+	/**
+	 * Trigger events on the query when selects occur
+	 */
+	@Override
+	public void onSelectExecution(TypedQuery<?> query)
+	{
+		//For inheritance
+	}
+	
 	/**
 	 * Returns a long of the count for the given builder
 	 *
 	 * @return Long of results - generally never null
 	 */
+	@Override
 	public Long getCount()
 	{
 		if (!selected)
@@ -67,21 +93,59 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			selectCount();
 			select();
 		}
-		TypedQuery<Long> query = getEntityManager().createQuery(getCriteriaQuery());
-		applyCache(query);
-		Long j;
-		try
+		if (onSelect())
 		{
-			j = query.getSingleResult();
-			return j;
+			TypedQuery<Long> query = getQueryCount();
+			applyCache(query);
+			onSelectExecution(query);
+			Long j;
+			try
+			{
+				j = query.getSingleResult();
+				return j;
+			}
+			catch (NoResultException nre)
+			{
+				log.log(Level.WARNING, "Couldn''t find object with name : " + getEntityClass().getName() + "}\n", nre);
+				return 0L;
+			}
 		}
-		catch (NoResultException nre)
-		{
-			log.log(Level.WARNING, "Couldn''t find object with name : " + getEntityClass().getName() + "}\n", nre);
-			return 0L;
-		}
+		return null;
 	}
-
+	
+	/**
+	 * Returns the generated query, always created new
+	 *
+	 * @param <T> Any type returned
+	 * @return A built typed query
+	 */
+	@Override
+	public <T> TypedQuery<T> getQuery()
+	{
+		if (!selected)
+		{
+			select();
+		}
+		return getEntityManager().createQuery(getCriteriaQuery());
+	}
+	
+	/**
+	 * Returns the query for a count, always created new
+	 *
+	 * @param <T> Any type returned
+	 * @return A built typed query
+	 */
+	@Override
+	public <T> TypedQuery<T> getQueryCount()
+	{
+		if (!selected)
+		{
+			selectCount();
+			select();
+		}
+		return getEntityManager().createQuery(getCriteriaQuery());
+	}
+	
 	/**
 	 * Prepares the select statement
 	 *
@@ -93,7 +157,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	{
 		if (!selected)
 		{
-
+			
 			getJoins().forEach(this::processJoins);
 			if (!isDelete() && !isUpdate())
 			{
@@ -101,7 +165,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			}
 			else if (isDelete())
 			{
-				CriteriaDelete cq = getCriteriaDelete();
+				CriteriaDelete<E> cq = getCriteriaDelete();
 				List<Predicate> allWheres = new ArrayList<>(getFilters());
 				Predicate[] preds = new Predicate[allWheres.size()];
 				preds = allWheres.toArray(preds);
@@ -109,7 +173,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			}
 			else if (isUpdate())
 			{
-				CriteriaUpdate cq = getCriteriaUpdate();
+				CriteriaUpdate<E> cq = getCriteriaUpdate();
 				List<Predicate> allWheres = new ArrayList<>(getFilters());
 				Predicate[] preds = new Predicate[allWheres.size()];
 				preds = allWheres.toArray(preds);
@@ -119,16 +183,15 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		selected = true;
 		return (J) this;
 	}
-
+	
 	/**
 	 * Physically applies the cache attributes to the query
 	 * <p>
 	 * Adds cacheable, cache region, and sets persistence cache retrieve mode as use, and store mode as use
 	 *
-	 * @param query
-	 * 		The query to apply to
+	 * @param query The query to apply to
 	 */
-	private void applyCache(TypedQuery query)
+	private void applyCache(TypedQuery<?> query)
 	{
 		if (!Strings.isNullOrEmpty(getCacheName()))
 		{
@@ -138,7 +201,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			query.setHint("javax.persistence.cache.storeMode", "USE");
 		}
 	}
-
+	
 	/**
 	 * Builds up the criteria query to perform (Criteria Query Only)
 	 */
@@ -149,16 +212,16 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		Predicate[] preds = new Predicate[allWheres.size()];
 		preds = allWheres.toArray(preds);
 		getCriteriaQuery().where(preds);
-		for (Expression p : getGroupBys())
+		for (Expression<?> p : getGroupBys())
 		{
 			cq.groupBy(p);
 		}
-
-		for (Expression expression : getHavingExpressions())
+		
+		for (Expression<?> expression : getHavingExpressions())
 		{
-			cq.having(expression);
+			cq.having((Expression<Boolean>) expression);
 		}
-
+		
 		if (!getOrderBys().isEmpty())
 		{
 			List<Order> orderBys = new ArrayList<>();
@@ -166,7 +229,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 					                      orderBys.add(processOrderBys(key, value)));
 			cq.orderBy(orderBys);
 		}
-
+		
 		if (getSelections().isEmpty())
 		{
 			getCriteriaQuery().select(getRoot());
@@ -175,14 +238,14 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		{
 			if (getConstruct() != null)
 			{
-				ArrayList<Selection> aS = new ArrayList(getSelections());
-				Selection[] selections = aS.toArray(new Selection[0]);
-				CompoundSelection cs = getCriteriaBuilder().construct(getConstruct(), selections);
+				ArrayList<Selection<?>> aS = new ArrayList<>(getSelections());
+				Selection<?>[] selections = aS.toArray(new Selection[0]);
+				CompoundSelection<?> cs = getCriteriaBuilder().construct(getConstruct(), selections);
 				getCriteriaQuery().select(cs);
 			}
 			else
 			{
-				getCriteriaQuery().multiselect(new ArrayList(getSelections()));
+				getCriteriaQuery().multiselect(new ArrayList<>(getSelections()));
 			}
 		}
 		else
@@ -190,56 +253,54 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			getSelections().forEach(a -> getCriteriaQuery().select(a));
 		}
 	}
-
+	
 	/**
 	 * Processes the order bys into the given query
 	 *
-	 * @param key
-	 * 		The attribute to apply
-	 * @param value
-	 * 		The value to use
+	 * @param key   The attribute to apply
+	 * @param value The value to use
 	 */
-	private Order processOrderBys(Attribute key, OrderByType value)
+	private Order processOrderBys(Attribute<?, ?> key, OrderByType value)
 	{
+		//noinspection EnhancedSwitchMigration
 		switch (value)
 		{
-
+			
 			case DESC:
 			{
 				if (isSingularAttribute(key))
 				{
-					return getCriteriaBuilder().desc(getRoot().get((SingularAttribute) key));
+					return getCriteriaBuilder().desc(getRoot().get((SingularAttribute<?, ?>) key));
 				}
 				else if (isPluralOrMapAttribute(key))
 				{
-					return getCriteriaBuilder().desc(getRoot().get((PluralAttribute) key));
+					return getCriteriaBuilder().desc(getRoot().get((PluralAttribute<?, ?, ?>) key));
 				}
-				return getCriteriaBuilder().desc(getRoot().get((SingularAttribute) key));
+				return getCriteriaBuilder().desc(getRoot().get((SingularAttribute<?, ?>) key));
 			}
 			case ASC:
 			default:
 			{
 				if (isSingularAttribute(key))
 				{
-					return getCriteriaBuilder().asc(getRoot().get((SingularAttribute) key));
+					return getCriteriaBuilder().asc(getRoot().get((SingularAttribute<?, ?>) key));
 				}
 				else if (isPluralOrMapAttribute(key))
 				{
-					return getCriteriaBuilder().asc(getRoot().get((PluralAttribute) key));
+					return getCriteriaBuilder().asc(getRoot().get((PluralAttribute<?, ?, ?>) key));
 				}
-				return getCriteriaBuilder().asc(getRoot().get((SingularAttribute) key));
+				return getCriteriaBuilder().asc(getRoot().get((SingularAttribute<?, ?>) key));
 			}
 		}
 	}
-
+	
 	/**
 	 * Returns the number of rows or an unsupported exception if there are no filters added
 	 *
-	 * @param updateFields
-	 * 		Allows to use the Criteria Update to run a bulk update on the table
-	 *
+	 * @param updateFields Allows to use the Criteria Update to run a bulk update on the table
 	 * @return number of rows updated
 	 */
+	@Override
 	@SuppressWarnings({"UnusedReturnValue", "Duplicates"})
 	public int bulkUpdate(E updateFields, boolean allowEmpty)
 	{
@@ -247,7 +308,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		{
 			throw new UnsupportedOperationException("Calling the bulk update method with no filters. This will update the entire table.");
 		}
-		CriteriaUpdate update = getCriteriaUpdate();
+		CriteriaUpdate<E> update = getCriteriaUpdate();
 		Map<Field, Object> updateFieldMap = new UpdateStatement(updateFields).getUpdateFieldMap(updateFields);
 		if (updateFieldMap.isEmpty())
 		{
@@ -261,18 +322,20 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			try
 			{
 				update.set(attributeName, value);
-			}catch(IllegalArgumentException iae)
+			}
+			catch (IllegalArgumentException iae)
 			{
-				log.warning("Unable to find attribute name [" + attributeName + "] on type [" + updateFields.getClass().getCanonicalName() + "]");
+				log.warning("Unable to find attribute name [" + attributeName + "] on type [" + updateFields.getClass()
+				                                                                                            .getCanonicalName() + "]");
 				log.log(Level.FINER, "Illegal Attribute", iae);
 				return -1;
 			}
 		}
 		select();
-
+		
 		boolean transactionAlreadyStarted = false;
 		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
 			{
@@ -280,18 +343,18 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				break;
 			}
 		}
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))
 			{
 				handler.beginTransacation(false, getEntityManager(), unit);
 			}
 		}
-
+		
 		int results = getEntityManager().createQuery(update)
 		                                .executeUpdate();
-
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))
 			{
@@ -300,16 +363,15 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 		return results;
 	}
-
+	
 	/**
 	 * Processors the join section
 	 *
-	 * @param executor
-	 * 		Processes the joins into the expression
+	 * @param executor Processes the joins into the expression
 	 */
-	private void processJoins(JoinExpression executor)
+	private void processJoins(JoinExpression<?, ?, ?> executor)
 	{
-		Attribute value = executor.getAttribute();
+		Attribute<?, ?> value = executor.getAttribute();
 		JoinType jt = executor.getJoinType();
 		List<Predicate> onClause = new ArrayList<>();
 		if (executor.getOnBuilder() != null)
@@ -319,8 +381,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			onClause.addAll(executor.getOnBuilder()
 			                        .getFilters());
 		}
-
-		Join join;
+		
+		Join<?, ?> join;
 		if (executor.getGeneratedRoot() == null)
 		{
 			join = getRoot().join(value.getName(), jt);
@@ -334,7 +396,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		{
 			join = join.on(onClause.toArray(new Predicate[]{}));
 		}
-		QueryBuilder key = executor.getExecutor();
+		QueryBuilder<?, ?, ?> key = executor.getExecutor();
 		if (key != null)
 		{
 			key.reset(join);
@@ -344,17 +406,15 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			getOrderBys().putAll(key.getOrderBys());
 		}
 	}
-
+	
 	/**
 	 * Returns the result set as a stream
 	 *
-	 * @param resultType
-	 * 		The result type
-	 * @param <T>
-	 * 		The Class for the type to gerenify
-	 *
+	 * @param resultType The result type
+	 * @param <T>        The Class for the type to gerenify
 	 * @return A stream of the type
 	 */
+	@Override
 	@SuppressWarnings({"Duplicates", "unused"})
 	public <T> Stream<T> getResultStream(Class<T> resultType)
 	{
@@ -362,7 +422,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		{
 			select();
 		}
-		TypedQuery<T> query = getEntityManager().createQuery(getCriteriaQuery());
+		TypedQuery<T> query = getQuery();
 		applyCache(query);
 		if (getMaxResults() != null)
 		{
@@ -374,38 +434,39 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 		return query.getResultStream();
 	}
-
+	
 	/**
 	 * Returns a non-distinct list and returns an empty optional if a non-unique-result exception is thrown
 	 *
 	 * @return An optional of the result
 	 */
+	@Override
 	public Optional<E> get()
 	{
 		return get(this.returnFirst);
 	}
-
+	
 	/**
 	 * Returns the first result returned
 	 *
-	 * @param returnFirst
-	 * 		If the first should be returned in the instance of many results
-	 *
+	 * @param returnFirst If the first should be returned in the instance of many results
 	 * @return Optional of the required object
 	 */
+	@Override
 	@NotNull
 	public Optional<E> get(boolean returnFirst)
 	{
 		this.returnFirst = returnFirst;
 		return get(getEntityClass());
 	}
-
+	
 	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from
 	 * a list with the same criteria
 	 *
 	 * @return Optional of the given class type (which should be a select column)
 	 */
+	@Override
 	@SuppressWarnings({"Duplicates", "unused"})
 	@NotNull
 	public <T> Optional<T> get(@NotNull Class<T> asType)
@@ -414,101 +475,112 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		{
 			select();
 		}
-		TypedQuery<T> query = getEntityManager().createQuery(getCriteriaQuery());
-		if (getMaxResults() != null)
+		if (onSelect())
 		{
-			query.setMaxResults(getMaxResults());
-		}
-		if (getFirstResults() != null)
-		{
-			query.setFirstResult(getFirstResults());
-		}
-		applyCache(query);
-		T j;
-		try
-		{
-			j = query.getSingleResult();
-			if (j == null)
+			TypedQuery<T> query = getQuery();
+			if (getMaxResults() != null)
 			{
+				query.setMaxResults(getMaxResults());
+			}
+			if (getFirstResults() != null)
+			{
+				query.setFirstResult(getFirstResults());
+			}
+			applyCache(query);
+			onSelectExecution(query);
+			T j;
+			try
+			{
+				j = query.getSingleResult();
+				if (j == null)
+				{
+					return Optional.empty();
+				}
+				if (BaseEntity.class.isAssignableFrom(j.getClass()))
+				{
+					//noinspection rawtypes
+					((BaseEntity) j)
+							.setFake(false);
+				}
+				if (detach)
+				{
+					try
+					{
+						getEntityManager().detach(j);
+					}
+					catch (Throwable T)
+					{
+						log.finer("Unable to detach : " + j.getClass()
+						                                   .getName());
+					}
+				}
+				return Optional.of(j);
+			}
+			catch (NoResultException | NullPointerException nre)
+			{
+				log.log(Level.FINER, "Couldn't find object : " + getEntityClass().getName() + "}", nre);
 				return Optional.empty();
 			}
-			if (BaseEntity.class.isAssignableFrom(j.getClass()))
+			catch (NonUniqueResultException nure)
 			{
-				((BaseEntity) j)
-						.setFake(false);
-			}
-			if (detach)
-			{
-				try
+				if (isReturnFirst())
 				{
-					getEntityManager().detach(j);
-				}catch(Throwable T)
-				{
-					log.finer("Unable to detach : " + j.getClass().getName());
-				}
-			}
-			return Optional.of(j);
-		}
-		catch (NoResultException | NullPointerException nre)
-		{
-			log.log(Level.FINER, "Couldn't find object : " + getEntityClass().getName() + "}", nre);
-			return Optional.empty();
-		}
-		catch (NonUniqueResultException nure)
-		{
-			if (isReturnFirst())
-			{
-				query.setMaxResults(1);
-				List<T> returnedList = query.getResultList();
-				j = returnedList.get(0);
-				if (j != null)
-				{
-					if (BaseEntity.class.isAssignableFrom(j.getClass()))
+					query.setMaxResults(1);
+					List<T> returnedList = query.getResultList();
+					j = returnedList.get(0);
+					if (j != null)
 					{
-						((BaseEntity) j)
-								.setFake(false);
-					}
-					if (detach)
-					{
-						try
+						if (BaseEntity.class.isAssignableFrom(j.getClass()))
 						{
-							getEntityManager().detach(j);
-						}catch(Throwable T)
+							//noinspection rawtypes
+							((BaseEntity) j)
+									.setFake(false);
+						}
+						if (detach)
 						{
-							log.finer("Unable to detach : " + j.getClass().getName());
+							try
+							{
+								getEntityManager().detach(j);
+							}
+							catch (Throwable T)
+							{
+								log.finer("Unable to detach : " + j.getClass()
+								                                   .getName());
+							}
 						}
 					}
+					return Optional.ofNullable(j);
 				}
-				return Optional.ofNullable(j);
-			}
-			else
-			{
-				log.log(Level.FINE, "Non Unique Result. Found too many for a get() for class : " + getEntityClass().getName() + "}. Get First Result disabled. Returning empty",
-				        nure);
-				return Optional.empty();
+				else
+				{
+					log.log(Level.FINE, "Non Unique Result. Found too many for a get() for class : " + getEntityClass().getName() + "}. Get First Result disabled. Returning empty",
+					        nure);
+					return Optional.empty();
+				}
 			}
 		}
+		return Optional.empty();
 	}
-
+	
 	/**
 	 * If this builder is configured to return the first row
 	 *
 	 * @return If the first record must be returned
 	 */
+	@Override
 	@SuppressWarnings("WeakerAccess")
 	public boolean isReturnFirst()
 	{
 		return returnFirst;
 	}
-
+	
 	/**
 	 * If a Non-Unique Exception is thrown re-run the query as a list and return the first item
 	 *
-	 * @param returnFirst
-	 * 		if must return first
-	 *
+	 * @param returnFirst if must return first
 	 * @return J
 	 */
+	@Override
 	@SuppressWarnings({"unchecked", "unused"})
 	@NotNull
 	public J setReturnFirst(boolean returnFirst)
@@ -516,27 +588,26 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		this.returnFirst = returnFirst;
 		return (J) this;
 	}
-
+	
 	/**
 	 * Returns a list of entities from a distinct or non distinct list
 	 *
 	 * @return A list of entities returned
 	 */
+	@Override
 	public List<E> getAll()
 	{
 		return getAll(getEntityClass());
 	}
-
+	
 	/**
 	 * Returns the list as the selected class type (for when specifying single select columns)
 	 *
-	 * @param returnClassType
-	 * 		Returns a list of a given column
-	 * @param <T>
-	 * 		The type of the column returned
-	 *
+	 * @param returnClassType Returns a list of a given column
+	 * @param <T>             The type of the column returned
 	 * @return The type of the column returned
 	 */
+	@Override
 	@SuppressWarnings({"Duplicates", "unused"})
 	@NotNull
 	public <T> List<T> getAll(Class<T> returnClassType)
@@ -545,53 +616,62 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		{
 			select();
 		}
-		TypedQuery<T> query = getEntityManager().createQuery(getCriteriaQuery());
-		applyCache(query);
-		if (getMaxResults() != null)
+		if (onSelect())
 		{
-			query.setMaxResults(getMaxResults());
-		}
-		if (getFirstResults() != null)
-		{
-			query.setFirstResult(getFirstResults());
-		}
-		List<T> j;
-		j = query.getResultList();
-		if (!j.isEmpty())
-		{
-			if (detach)
+			TypedQuery<T> query = getQuery();
+			applyCache(query);
+			if (getMaxResults() != null)
 			{
-				for (T t : j)
+				query.setMaxResults(getMaxResults());
+			}
+			if (getFirstResults() != null)
+			{
+				query.setFirstResult(getFirstResults());
+			}
+			onSelectExecution(query);
+			List<T> j;
+			j = query.getResultList();
+			if (!j.isEmpty())
+			{
+				if (detach)
 				{
-					try
+					for (T t : j)
 					{
-						if (BaseEntity.class.isAssignableFrom(t.getClass()))
+						try
 						{
-							((BaseEntity) t)
-									.setFake(false);
+							if (BaseEntity.class.isAssignableFrom(t.getClass()))
+							{
+								//noinspection rawtypes
+								((BaseEntity) t)
+										.setFake(false);
+							}
+							getEntityManager().detach(t);
 						}
-						getEntityManager().detach(t);
-					}catch(Throwable T)
-					{
-						log.finer("Unable to detach : " + t.getClass().getName());
+						catch (Throwable T)
+						{
+							log.finer("Unable to detach : " + t.getClass()
+							                                   .getName());
+						}
 					}
 				}
 			}
+			return j;
 		}
-		return j;
+		return null;
 	}
-
+	
 	/**
 	 * Sets whether or not to detach the selected entity/ies
 	 *
 	 * @return This
 	 */
+	@Override
 	public J detach()
 	{
 		detach = true;
 		return (J) this;
 	}
-
+	
 	/**
 	 * Returns the number of rows affected by the delete.
 	 * <p>
@@ -601,26 +681,29 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 *
 	 * @return number of results deleted
 	 */
+	@Override
 	public int delete()
 	{
 		if (getFilters().isEmpty())
 		{
 			throw new UnsupportedOperationException("Calling the delete method with no filters. This will truncate the table. Rather call truncate()");
 		}
-		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
+		CriteriaDelete<E> deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
 		reset(deletion.from(getEntityClass()));
 		setCriteriaDelete(deletion);
 		select();
 		return getEntityManager().createQuery(deletion)
 		                         .executeUpdate();
 	}
-
+	
 	/**
 	 * Deletes a specific ID the good old almost fast way
-	 *
+	 * <p>
 	 * Delete where ID = getId();
+	 *
 	 * @param entity entity with id populated
 	 */
+	@Override
 	public void deleteId(E entity) throws QueryBuilderException
 	{
 		String deleteString = new DeleteStatement(entity).toString();
@@ -635,7 +718,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				query.executeUpdate();
 			}
 			else
-
+			
+			{
 				try (Connection c = ds.getConnection(); Statement st = c.createStatement())
 				{
 					st.executeUpdate(deleteString);
@@ -644,24 +728,24 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				{
 					throw new QueryBuilderException("Unable to run statement", e);
 				}
+			}
 		}
 	}
-
-
+	
+	
 	/**
 	 * Deletes the given entity through the entity manager
 	 *
-	 * @param entity
-	 * 		Deletes through the entity manager
-	 *
+	 * @param entity Deletes through the entity manager
 	 * @return This
 	 */
+	@Override
 	@SuppressWarnings("Duplicates")
 	public E delete(E entity)
 	{
 		boolean transactionAlreadyStarted = false;
 		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
 			{
@@ -669,7 +753,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				break;
 			}
 		}
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))
 			{
@@ -677,17 +761,17 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			}
 		}
 		getEntityManager().remove(entity);
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))
 			{
 				handler.commitTransacation(false, getEntityManager(), unit);
 			}
 		}
-
+		
 		return entity;
 	}
-
+	
 	/**
 	 * Returns the assigned entity manager
 	 *
@@ -695,24 +779,25 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	 */
 	@Override
 	public abstract EntityManager getEntityManager();
-
+	
 	/**
 	 * Returns the number of rows affected by the delete.
 	 * WARNING : Be very careful if you haven't added a filter this will truncate the table or throw a unsupported exception if no filters.
 	 *
 	 * @return The number of records deleted
 	 */
+	@Override
 	@SuppressWarnings({"unused", "Duplicates"})
 	public int truncate()
 	{
-		CriteriaDelete deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
+		CriteriaDelete<E> deletion = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
 		setCriteriaDelete(deletion);
 		reset(deletion.from(getEntityClass()));
 		getFilters().clear();
 		select();
 		boolean transactionAlreadyStarted = false;
 		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
 			{
@@ -720,17 +805,17 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				break;
 			}
 		}
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))
 			{
 				handler.beginTransacation(false, getEntityManager(), unit);
 			}
 		}
-
+		
 		int results = getEntityManager().createQuery(deletion)
 		                                .executeUpdate();
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))
 			{
@@ -739,41 +824,25 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		}
 		return results;
 	}
-
-	/**
-	 * Returns a lsit of all fields for an object recursively
-	 *
-	 * @param object
-	 * 		THe object class
-	 * @param fieldList
-	 * 		The list of fields
-	 *
-	 * @return A list of type Field
-	 */
-	private List<Field> allFields(Class<?> object, List<Field> fieldList)
-	{
-		fieldList.addAll(Arrays.asList(object.getDeclaredFields()));
-		if (object.getSuperclass() != Object.class)
-		{
-			allFields(object.getSuperclass(), fieldList);
-		}
-		return fieldList;
-	}
-
+	
 	/**
 	 * If must be detached from the entity manager
-	 * @return
+	 *
+	 * @return if the entity automatically detaches from the entity manager
 	 */
+	@Override
 	public boolean isDetach()
 	{
 		return detach;
 	}
-
+	
 	/**
 	 * If must be detached from the entity manager
-	 * @param detach
-	 * @return
+	 *
+	 * @param detach if the entity must detach
+	 * @return this object
 	 */
+	@Override
 	public J setDetach(boolean detach)
 	{
 		this.detach = detach;

@@ -1,12 +1,12 @@
 package com.entityassist.querybuilder.builders;
 
-import com.entityassist.BaseEntity;
+import com.entityassist.RootEntity;
 import com.entityassist.injections.EntityAssistBinder;
-import com.entityassist.querybuilder.QueryBuilder;
 import com.entityassist.querybuilder.statements.InsertStatement;
-import com.entityassist.services.EntityAssistIDMapping;
-import com.google.inject.Key;
 import com.entityassist.querybuilder.statements.UpdateStatement;
+import com.entityassist.services.EntityAssistIDMapping;
+import com.entityassist.services.querybuilders.IQueryBuilderRoot;
+import com.google.inject.Key;
 import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedpersistence.services.ITransactionHandler;
 import com.guicedee.guicedpersistence.services.PersistenceServicesModule;
@@ -42,15 +42,14 @@ import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersB
 /**
  * Builds a Query Base
  *
- * @param <J>
- * 		This class type
- * @param <E>
- * 		The entity type
- * @param <I>
- * 		The entity ID type
+ * @param <J> This class type
+ * @param <E> The entity type
+ * @param <I> The entity ID type
  */
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue", "unused"})
-public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E extends BaseEntity<E, ? extends QueryBuilder, I>, I extends Serializable>
+public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
+		E extends RootEntity<E, J, I>,
+		I extends Serializable> implements IQueryBuilderRoot<J, E, I>
 {
 	/**
 	 * This logger
@@ -85,43 +84,44 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 * If the inserted ID should be request override
 	 */
 	private boolean requestId = true;
-
+	
 	/**
 	 * Constructor QueryBuilderBase creates a new QueryBuilderBase instance.
 	 */
-	protected QueryBuilderBase()
+	protected QueryBuilderRoot()
 	{
 		entityClass = getEntityClass();
 	}
-
+	
 	/**
 	 * Returns the associated entity class for this builder
 	 *
 	 * @return class of type entity
 	 */
-	protected Class<E> getEntityClass()
+	@Override
+	public Class<E> getEntityClass()
 	{
 		return entityClass;
 	}
-
+	
 	/**
 	 * Returns a mapped entity on this builder
 	 *
 	 * @return the actual entity
 	 */
+	@Override
 	public E getEntity()
 	{
 		return entity;
 	}
-
+	
 	/**
 	 * Sets the entity for this particular builder
 	 *
-	 * @param entity
-	 * 		The entity
-	 *
+	 * @param entity The entity
 	 * @return J This object
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@NotNull
 	public J setEntity(E entity)
@@ -130,25 +130,25 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		entityClass = (Class<E>) entity.getClass();
 		return (J) this;
 	}
-
+	
 	/**
 	 * Returns the current set first results
 	 *
 	 * @return where to start the first results
 	 */
+	@Override
 	public Integer getFirstResults()
 	{
 		return firstResults;
 	}
-
+	
 	/**
 	 * Sets the first restults to return
 	 *
-	 * @param firstResults
-	 * 		the number of results to skip before loading
-	 *
+	 * @param firstResults the number of results to skip before loading
 	 * @return This
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@NotNull
 	public J setFirstResults(Integer firstResults)
@@ -156,25 +156,25 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		this.firstResults = firstResults;
 		return (J) this;
 	}
-
+	
 	/**
 	 * Returns the current set maximum results
 	 *
 	 * @return int
 	 */
+	@Override
 	public Integer getMaxResults()
 	{
 		return maxResults;
 	}
-
+	
 	/**
 	 * Sets the maximum results to return
 	 *
-	 * @param maxResults
-	 * 		the maximum number of results to return
-	 *
+	 * @param maxResults the maximum number of results to return
 	 * @return This
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@NotNull
 	public J setMaxResults(Integer maxResults)
@@ -182,7 +182,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		this.maxResults = maxResults;
 		return (J) this;
 	}
-
+	
 	/**
 	 * Persist and Flush
 	 * <p>
@@ -190,13 +190,14 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 *
 	 * @return This
 	 */
+	@Override
 	@NotNull
 	@SuppressWarnings({"unchecked", "Duplicates"})
 	public J persistNow(E entity)
 	{
 		boolean transactionAlreadyStarted = false;
 		PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
 			{
@@ -204,8 +205,8 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				break;
 			}
 		}
-
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))
 			{
@@ -213,7 +214,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			}
 		}
 		persist(entity);
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))
 			{
@@ -222,12 +223,13 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 		return (J) this;
 	}
-
+	
 	/**
 	 * Returns the annotation associated with the entity manager
 	 *
 	 * @return The annotations associated with this builder
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public Class<? extends Annotation> getEntityManagerAnnotation()
 	{
@@ -235,21 +237,13 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		return (Class<? extends Annotation>) em.getProperties()
 		                                       .get("annotation");
 	}
-
-	/**
-	 * Returns the assigned entity manager
-	 *
-	 * @return The entity manager to use for this run
-	 */
-	@NotNull
-	@Transient
-	protected abstract EntityManager getEntityManager();
-
+	
 	/**
 	 * Persists this entity. Uses the get instance entity manager to operate.
 	 *
 	 * @return This
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@NotNull
 	public J persist(E entity)
@@ -268,7 +262,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-						if(ds == null)
+						if (ds == null)
 						{
 							Query query = getEntityManager().createNativeQuery(insertString);
 							query.executeUpdate();
@@ -277,11 +271,14 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 								iterateThroughResultSetForGeneratedIDs();
 							}
 						}
-						else {
-
-							try (Connection c = ds.getConnection();Statement st = c.createStatement()) {
+						else
+						{
+							
+							try (Connection c = ds.getConnection(); Statement st = c.createStatement())
+							{
 								st.executeUpdate(insertString);
-								if (isIdGenerated() && isRequestId()) {
+								if (isIdGenerated() && isRequestId())
+								{
 									iterateThroughResultSetForGeneratedIDs(c);
 								}
 							}
@@ -315,20 +312,19 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 		return (J) this;
 	}
-
+	
 	/**
 	 * Performed on create/persist
 	 *
-	 * @param entity
-	 * 		The entity
-	 *
+	 * @param entity The entity
 	 * @return true if must still create
 	 */
-	protected boolean onCreate(E entity)
+	@Override
+	public boolean onCreate(E entity)
 	{
 		return true;
 	}
-
+	
 	/**
 	 * If this entity should run in a detached and separate to the entity manager
 	 * <p>
@@ -336,21 +332,21 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 *
 	 * @return boolean
 	 */
+	@Override
 	public boolean isRunDetached()
 	{
 		return runDetached;
 	}
-
+	
 	/**
 	 * If this entity should run in a detached and separate to the entity manager
 	 * <p>
 	 * If the library generates the sql and runs it through a native query. Use InsertStatement, SelectStatement, Delete and UpdateStatement to view the queries that will get run
 	 *
-	 * @param runDetached
-	 * 		if must do
-	 *
+	 * @param runDetached if must do
 	 * @return This
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@NotNull
 	public J setRunDetached(boolean runDetached)
@@ -358,25 +354,29 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		this.runDetached = runDetached;
 		return (J) this;
 	}
-
-	/**
-	 * If this ID is generated from the source and which form to use
-	 * Default is Generated
-	 *
-	 * @return Returns if the id column is a generated type
-	 */
-	protected abstract boolean isIdGenerated();
-
+	
 	/**
 	 * Getter for property 'requestId'.
 	 *
 	 * @return Value for property 'requestId'.
 	 */
+	@Override
 	public boolean isRequestId()
 	{
 		return requestId;
 	}
-
+	
+	/**
+	 * Setter for property 'requestId'.
+	 *
+	 * @param requestId Value to set for property 'requestId'.
+	 */
+	@Override
+	public void setRequestId(boolean requestId)
+	{
+		this.requestId = requestId;
+	}
+	
 	/**
 	 * Method iterateThroughResultSetForGeneratedIDs ...
 	 */
@@ -386,7 +386,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		Object o = statmentSelectId.getSingleResult();
 		processId(o);
 	}
-
+	
 	/**
 	 * Method iterateThroughResultSetForGeneratedIDs ...
 	 */
@@ -406,43 +406,32 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			log.log(Level.WARNING, "Unable to get generatedID", e);
 		}
 	}
-
+	
 	/**
 	 * Method processId ...
 	 *
-	 * @param o
-	 * 		of type Object
+	 * @param o of type Object
 	 */
 	@SuppressWarnings("unchecked")
-	private void processId(Object o)
+	private <DB, JPA> void processId(DB o)
 	{
-		EntityAssistIDMapping mapping = EntityAssistBinder.lookup(o.getClass(), entity.getClassIDType());
+		EntityAssistIDMapping<DB, JPA> mapping = EntityAssistBinder.lookup(o.getClass(), entity.getClassIDType());
 		entity.setId((I) mapping.toObject(o));
 	}
-
-	/**
-	 * Setter for property 'requestId'.
-	 *
-	 * @param requestId
-	 * 		Value to set for property 'requestId'.
-	 */
-	public void setRequestId(boolean requestId)
-	{
-		this.requestId = requestId;
-	}
-
+	
 	/**
 	 * Persist and Flush using the detached method (as a native query)
 	 *
 	 * @return This
 	 */
+	@Override
 	@NotNull
 	@SuppressWarnings({"unchecked", "Duplicates"})
 	public J persistNow(E entity, boolean runDetached)
 	{
 		boolean transactionAlreadyStarted = false;
 		PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
 			{
@@ -450,8 +439,8 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 				break;
 			}
 		}
-
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))
 			{
@@ -460,7 +449,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 		setRunDetached(runDetached);
 		persist(entity);
-		for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (!transactionAlreadyStarted && handler.active(unit))
 			{
@@ -469,14 +458,15 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 		return (J) this;
 	}
-
+	
 	/**
 	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
 	 *
 	 * @return This
 	 */
+	@Override
 	@NotNull
-	@SuppressWarnings({"unchecked", "Duplicates"})
+	@SuppressWarnings({"Duplicates"})
 	public E update(E entity) throws SQLException
 	{
 		try
@@ -491,14 +481,14 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-						if(ds == null)
+						if (ds == null)
 						{
 							Query query = getEntityManager().createNativeQuery(insertString);
 							query.executeUpdate();
 						}
 						else
 						{
-							try (Connection c = ds.getConnection();Statement st = c.createStatement())
+							try (Connection c = ds.getConnection(); Statement st = c.createStatement())
 							{
 								st.executeUpdate(insertString);
 							}
@@ -530,14 +520,15 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 		return entity;
 	}
-
+	
 	/**
 	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
 	 *
 	 * @return This
 	 */
+	@Override
 	@NotNull
-	@SuppressWarnings({"unchecked", "Duplicates"})
+	@SuppressWarnings({"Duplicates"})
 	public E updateNow(E entity)
 	{
 		try
@@ -546,7 +537,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 			{
 				boolean transactionAlreadyStarted = false;
 				PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
-				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+				for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 				{
 					if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
 					{
@@ -554,8 +545,8 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 						break;
 					}
 				}
-
-				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+				
+				for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 				{
 					if (!transactionAlreadyStarted && handler.active(unit))
 					{
@@ -567,14 +558,18 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 					String insertString = new UpdateStatement(entity).toString();
 					log.fine(insertString);
 					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
-					                             .containsKey(getEntityManagerAnnotation())) {
+					                             .containsKey(getEntityManagerAnnotation()))
+					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-						if (ds == null) {
+						if (ds == null)
+						{
 							Query query = getEntityManager().createNativeQuery(insertString);
 							query.executeUpdate();
-						} else
+						}
+						else
 						{
-							try (Connection c = ds.getConnection();Statement st = c.createStatement()) {
+							try (Connection c = ds.getConnection(); Statement st = c.createStatement())
+							{
 								st.executeUpdate(insertString);
 							}
 						}
@@ -590,7 +585,7 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 					getEntityManager().merge(entity);
 					getEntityManager().flush();
 				}
-				for (ITransactionHandler handler : GuiceContext.get(ITransactionHandlerReader))
+				for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 				{
 					if (!transactionAlreadyStarted && handler.active(unit))
 					{
@@ -609,21 +604,20 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 		return entity;
 	}
-
-
+	
+	
 	/**
 	 * Performed on update/persist
 	 *
-	 * @param entity
-	 * 		The entity
-	 *
+	 * @param entity The entity
 	 * @return true if must carry on updating
 	 */
-	protected boolean onUpdate(E entity)
+	@Override
+	public boolean onUpdate(E entity)
 	{
 		return true;
 	}
-
+	
 	/**
 	 * Performs the constraint validation and returns a list of all constraint errors.
 	 *
@@ -631,18 +625,19 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 	 *
 	 * @return List of Strings
 	 */
+	@Override
 	@NotNull
 	public List<String> validateEntity(E entity)
 	{
 		List<String> errors = new ArrayList<>();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		Validator validator = factory.getValidator();
-		Set constraintViolations = validator.validate(entity);
+		Set<?> constraintViolations = validator.validate(entity);
 		if (!constraintViolations.isEmpty())
 		{
 			for (Object constraintViolation : constraintViolations)
 			{
-				ConstraintViolation contraints = (ConstraintViolation) constraintViolation;
+				ConstraintViolation<?> contraints = (ConstraintViolation<?>) constraintViolation;
 				String error = contraints.getRootBeanClass()
 				                         .getSimpleName() + STRING_DOT + contraints.getPropertyPath() + STRING_EMPTY + contraints.getMessage();
 				errors.add(error);
@@ -650,22 +645,23 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 		return errors;
 	}
-
+	
 	/**
 	 * Returns the given attribute for a field name by reflectively accesing the static class
 	 *
-	 * @param fieldName
-	 *
-	 * @return
+	 * @param fieldName the field to get an attribute for
+	 * @return the attribute or null
 	 */
-	public Attribute getAttribute(String fieldName)
+	@Override
+	public <X, Y> Attribute<X, Y> getAttribute(@NotNull String fieldName)
 	{
-		String clazz = getEntityClass().getCanonicalName() + "_";
+		String clazz = getEntityClass().getCanonicalName() + CHAR_UNDERSCORE;
 		try
 		{
-			Class c = Class.forName(clazz);
+			Class<?> c = Class.forName(clazz);
 			Field f = c.getField(fieldName);
-			return (Attribute) f.get(null);
+			//noinspection unchecked
+			return (Attribute<X, Y>) f.get(null);
 		}
 		catch (Exception e)
 		{
@@ -673,23 +669,24 @@ public abstract class QueryBuilderBase<J extends QueryBuilderBase<J, E, I>, E ex
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Method getSelectIdentityString returns the selectIdentityString of this QueryBuilderBase object.
 	 *
 	 * @return the selectIdentityString (type String) of this QueryBuilderBase object.
 	 */
+	@Override
 	public String getSelectIdentityString()
 	{
 		return selectIdentityString;
 	}
-
+	
 	/**
 	 * Method setSelectIdentityString sets the selectIdentityString of this QueryBuilderBase object.
 	 *
-	 * @param selectIdentityString
-	 * 		the selectIdentityString of this QueryBuilderBase object.
+	 * @param selectIdentityString the selectIdentityString of this QueryBuilderBase object.
 	 */
+	@Override
 	public void setSelectIdentityString(String selectIdentityString)
 	{
 		this.selectIdentityString = selectIdentityString;

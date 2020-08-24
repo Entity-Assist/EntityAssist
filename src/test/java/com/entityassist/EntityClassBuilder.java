@@ -12,27 +12,27 @@ public class EntityClassBuilder
 	public EntityClassBuilder()
 	{
 	}
-
+	
 	@Override
 	public EntityManager getEntityManager()
 	{
 		return GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 	}
-
+	
 	@Override
-	protected boolean onCreate(EntityClass entity)
+	public boolean onCreate(EntityClass entity)
 	{
 		return true;
 	}
-
+	
 	@Override
-	protected boolean isIdGenerated()
+	public boolean isIdGenerated()
 	{
 		return false;
 	}
-
+	
 	@Override
-	protected boolean onUpdate(EntityClass entity)
+	public boolean onUpdate(EntityClass entity)
 	{
 		return true;
 	}

@@ -1,6 +1,6 @@
 package com.entityassist.querybuilder.statements;
 
-import com.entityassist.BaseEntity;
+import com.entityassist.RootEntity;
 import com.guicedee.guicedinjection.pairing.Pair;
 import com.guicedee.logger.LogFactory;
 
@@ -25,13 +25,13 @@ public class InsertStatement
 		extends RunnableStatement
 {
 	private static final Logger log = LogFactory.getLog(InsertStatement.class.getName());
-
-	public InsertStatement(BaseEntity obj)
+	
+	public InsertStatement(RootEntity obj)
 	{
 		super(obj);
 	}
-
-
+	
+	
 	/**
 	 * Builds the physical insert string for this entity class
 	 *
@@ -54,7 +54,7 @@ public class InsertStatement
 		}
 		List<String> columnsNames = new ArrayList<>();
 		List<Pair<Field, Object>> columnValues = new ArrayList<>();
-
+		
 		for (Field field : fields)
 		{
 			if (field.isAnnotationPresent(Transient.class) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()))
@@ -69,7 +69,7 @@ public class InsertStatement
 				{
 					continue;
 				}
-
+				
 				GeneratedValue genValu = field.getAnnotation(GeneratedValue.class);
 				if (genValu != null)
 				{
@@ -116,7 +116,7 @@ public class InsertStatement
 				log.log(Level.SEVERE, null, ex);
 			}
 		}
-
+		
 		//columns
 		for (String columnName : columnsNames)
 		{
@@ -129,16 +129,17 @@ public class InsertStatement
 		{
 			insertString.append(getValue(columnValue.getValue(), columnValue.getKey()));
 		}
-
+		
 		insertString.delete(insertString.length() - 2, insertString.length());
 		insertString.append(STRING_CLOSING_BRACKET_SEMICOLON);
-
+		
 		return insertString.toString();
 	}
-
+	
+	@Override
 	public String toString()
 	{
 		return buildInsertString();
 	}
-
+	
 }
