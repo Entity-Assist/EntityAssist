@@ -7,6 +7,7 @@ import com.entityassist.enumerations.Operand;
 import com.entityassist.enumerations.OrderByType;
 import com.entityassist.enumerations.SelectAggregrate;
 import com.entityassist.querybuilder.QueryBuilder;
+import com.google.common.base.Strings;
 import com.guicedee.logger.LogFactory;
 
 import javax.persistence.Id;
@@ -1062,7 +1063,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectColumn(Expression selectColumn)
 	{
+		return selectColumn(selectColumn, null);
+	}
+	
+	/**
+	 * Selects a given column
+	 *
+	 * @param selectColumn The given column from the static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectColumn(Expression selectColumn, String aliasName)
+	{
 		SelectExpression selectExpression = new SelectExpression(selectColumn, SelectAggregrate.None);
+		selectExpression.setAlias(aliasName);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionNone(selectExpression);
 		return (J) this;
@@ -1079,7 +1095,23 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectAverage(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
+		return selectAverage(attribute, null);
+	}
+	
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectAverage(Expression attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.Avg);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectAverage(selectExpression);
 		return (J) this;
@@ -1096,7 +1128,26 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectCount(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.Count);
+		selectExpressions.add(selectExpression);
+		processSelectCount(selectExpression);
+		return (J) this;
+	}
+	
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCount(Expression attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.Count);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectCount(selectExpression);
 		return (J) this;
@@ -1113,7 +1164,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectCountDistinct(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
+		return selectCountDistinct(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return this
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCountDistinct(Expression attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.CountDistinct);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectCountDistinct(selectExpression);
 		return (J) this;
@@ -1130,7 +1196,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectMax(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
+		return selectMax(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectMax(Expression attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.Max);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionMax(selectExpression);
 		return (J) this;
@@ -1147,7 +1228,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectMin(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
+		return selectMin(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectMin(Expression attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.Min);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionMin(selectExpression);
 		return (J) this;
@@ -1164,7 +1260,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSum(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
+		return selectSum(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSum(Expression attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.Sum);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectSum(selectExpression);
 		return (J) this;
@@ -1181,7 +1292,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSumAsDouble(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
+		return selectSumAsDouble(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSumAsDouble(Expression attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.SumDouble);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectSumAsDouble(selectExpression);
 		return (J) this;
@@ -1198,7 +1324,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSumAsLong(Expression attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.None);
+		return selectSumAsLong(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSumAsLong(Expression attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(attribute, SelectAggregrate.SumLong);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectSumAsLong(selectExpression);
 		return (J) this;
@@ -1211,11 +1352,25 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 * @return This
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@NotNull
 	public J selectColumn(Attribute selectColumn)
 	{
+		return selectColumn(selectColumn, null);
+	}
+	
+	/**
+	 * Selects a given column
+	 *
+	 * @param selectColumn The given column from the static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectColumn(Attribute selectColumn, String alias)
+	{
 		SelectExpression selectExpression = new SelectExpression(getRoot().get(selectColumn.getName()), SelectAggregrate.None);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionNone(selectExpression);
 		return (J) this;
@@ -1232,7 +1387,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectAverage(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
+		return selectAverage(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectAverage(Attribute attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.Avg);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectAverage(selectExpression);
 		return (J) this;
@@ -1249,7 +1419,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectCount(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
+		return selectColumn(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCount(Attribute attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.Count);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectCount(selectExpression);
 		return (J) this;
@@ -1266,7 +1451,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectCountDistinct(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
+		return selectCountDistinct(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return this
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectCountDistinct(Attribute attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.CountDistinct);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectCountDistinct(selectExpression);
 		return (J) this;
@@ -1283,7 +1483,23 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectMax(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
+		return selectMax(attribute, null);
+	}
+	
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectMax(Attribute attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.Max);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionMax(selectExpression);
 		return (J) this;
@@ -1300,7 +1516,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectMin(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
+		return selectMin(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectMin(Attribute attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.Min);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectExpressionMin(selectExpression);
 		return (J) this;
@@ -1317,7 +1548,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSum(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
+		return selectSum(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSum(Attribute attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.Sum);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectSum(selectExpression);
 		return (J) this;
@@ -1334,7 +1580,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSumAsDouble(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
+		return selectSumAsDouble(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSumAsDouble(Attribute attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.SumDouble);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectSumAsDouble(selectExpression);
 		return (J) this;
@@ -1351,7 +1612,22 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public J selectSumAsLong(Attribute attribute)
 	{
-		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.None);
+		return selectSumAsLong(attribute, null);
+	}
+	
+	/**
+	 * Selects the minimum min() of a column
+	 *
+	 * @param attribute A given column from static metadata
+	 * @return This
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public J selectSumAsLong(Attribute attribute, String alias)
+	{
+		SelectExpression selectExpression = new SelectExpression(getRoot().get(attribute.getName()), SelectAggregrate.SumLong);
+		selectExpression.setAlias(alias);
 		selectExpressions.add(selectExpression);
 		processSelectSumAsLong(selectExpression);
 		return (J) this;
@@ -1363,10 +1639,13 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 * @param selectExpression A given column from static metadata
 	 * @return true or false
 	 */
-	@SuppressWarnings("unchecked")
 	private boolean processSelectExpressionNone(SelectExpression selectExpression)
 	{
-		Expression selectColumn = selectExpression.getAttribute();
+		Expression<?> selectColumn = selectExpression.getAttribute();
+		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		{
+			selectColumn.alias(selectExpression.getAlias());
+		}
 		getSelections().add(selectColumn);
 		return true;
 	}
@@ -1381,6 +1660,10 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectAverage(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
+		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		{
+			selectColumn.alias(selectExpression.getAlias());
+		}
 		getSelections().add(getCriteriaBuilder().avg(selectColumn));
 		return true;
 	}
@@ -1395,7 +1678,12 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectCount(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
+		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		{
+			selectColumn.alias(selectExpression.getAlias());
+		}
 		getSelections().add(getCriteriaBuilder().count(selectColumn));
+		
 		return true;
 	}
 	
@@ -1409,6 +1697,10 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectCountDistinct(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
+		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		{
+			selectColumn.alias(selectExpression.getAlias());
+		}
 		getSelections().add(getCriteriaBuilder().countDistinct(selectColumn));
 		return true;
 	}
@@ -1417,6 +1709,10 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectExpressionMax(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
+		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		{
+			selectColumn.alias(selectExpression.getAlias());
+		}
 		getSelections().add(getCriteriaBuilder().max(selectColumn));
 		return true;
 	}
@@ -1425,6 +1721,10 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectExpressionMin(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
+		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		{
+			selectColumn.alias(selectExpression.getAlias());
+		}
 		getSelections().add(getCriteriaBuilder().min(selectColumn));
 		return true;
 	}
@@ -1433,6 +1733,10 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectSum(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
+		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		{
+			selectColumn.alias(selectExpression.getAlias());
+		}
 		getSelections().add(getCriteriaBuilder().sum(selectColumn));
 		return true;
 	}
@@ -1441,6 +1745,10 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectSumAsDouble(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
+		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		{
+			selectColumn.alias(selectExpression.getAlias());
+		}
 		getSelections().add(getCriteriaBuilder().sumAsDouble(selectColumn));
 		return true;
 	}
@@ -1449,6 +1757,10 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectSumAsLong(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
+		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		{
+			selectColumn.alias(selectExpression.getAlias());
+		}
 		getSelections().add(getCriteriaBuilder().sumAsLong(selectColumn));
 		return true;
 	}
