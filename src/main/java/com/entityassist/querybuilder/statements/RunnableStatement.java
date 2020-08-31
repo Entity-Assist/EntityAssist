@@ -1,6 +1,7 @@
 package com.entityassist.querybuilder.statements;
 
 import com.entityassist.RootEntity;
+import com.google.common.base.Strings;
 import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedinjection.pairing.Pair;
 import com.guicedee.logger.LogFactory;
@@ -257,7 +258,12 @@ abstract class RunnableStatement
 			{
 				tableName += schema + STRING_DOT;
 			}
-			tableName += t.name();
+			if (Strings.isNullOrEmpty(t.name()))
+			{
+				tableName += c.getSimpleName();
+			}
+			else
+			{ tableName += t.name(); }
 		}
 		if (tableName.isEmpty())
 		{
