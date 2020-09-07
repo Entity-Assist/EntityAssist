@@ -126,6 +126,26 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		}
 	}
 	
+	public @NotNull E update(E entity,java.time.Duration expiresIn)
+	{
+		E originalEntity = entity.builder()
+		                         .find(entity.getId())
+		                         .get()
+		                         .orElseThrow();
+		originalEntity.setEffectiveToDate(LocalDateTime.now().plus(expiresIn));
+		originalEntity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		try
+		{
+			return super.update(entity);
+		}
+		catch (SQLException e)
+		{
+			LogFactory.getLog("QueryBuilderSCD")
+			          .log(Level.WARNING, "Unable to update id : " + e, e);
+			return entity;
+		}
+	}
+	
 	/**
 	 * Performs any required logic between the original and new entities during an update operation
 	 * which is a delete and marking of the record as historical, and the insert of a new record which is updated
