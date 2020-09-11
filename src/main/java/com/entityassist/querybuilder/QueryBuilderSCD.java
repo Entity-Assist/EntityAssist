@@ -131,7 +131,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		E originalEntity = entity.builder()
 		                         .find(entity.getId())
 		                         .get()
-		                         .orElseThrow();
+		                         .orElseThrow(()-> new IllegalArgumentException("Entity not found"));
 		originalEntity.setEffectiveToDate(LocalDateTime.now().plus(expiresIn));
 		originalEntity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		try
