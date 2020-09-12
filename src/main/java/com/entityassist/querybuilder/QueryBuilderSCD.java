@@ -111,7 +111,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		E originalEntity = entity.builder()
 		                         .find(entity.getId())
 		                         .get()
-		                         .orElseThrow();
+		                         .orElseThrow(() -> new IllegalArgumentException("Entity cannot be refreshed"));
 		originalEntity.setEffectiveToDate(LocalDateTime.now());
 		originalEntity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		try
@@ -126,13 +126,14 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		}
 	}
 	
-	public @NotNull E update(E entity,java.time.Duration expiresIn)
+	public @NotNull E update(E entity, java.time.Duration expiresIn)
 	{
 		E originalEntity = entity.builder()
 		                         .find(entity.getId())
 		                         .get()
-		                         .orElseThrow(()-> new IllegalArgumentException("Entity not found"));
-		originalEntity.setEffectiveToDate(LocalDateTime.now().plus(expiresIn));
+		                         .orElseThrow(() -> new IllegalArgumentException("Entity not found"));
+		originalEntity.setEffectiveToDate(LocalDateTime.now()
+		                                               .plus(expiresIn));
 		originalEntity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
 		try
 		{
