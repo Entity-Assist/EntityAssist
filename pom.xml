@@ -40,6 +40,18 @@
 
     <url>https://github.com/GedMarc/EntityAssist</url>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.guicedee</groupId>
+                <artifactId>guicedee-bom</artifactId>
+                <type>pom</type>
+                <scope>import</scope>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.guicedee.persistence</groupId>
@@ -66,7 +78,7 @@
             <plugin>
                 <groupId>org.hibernate.orm.tooling</groupId>
                 <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                <version>${maven.hibernate.enhance.version}</version>
+                <version>5.4.21.Final</version>
                 <executions>
                     <execution>
                         <configuration>
@@ -98,9 +110,9 @@
             <id>jdk8</id>
             <dependencies>
                 <dependency>
-                    <groupId>org.hibernate</groupId>
+                    <groupId>com.guicedee.services</groupId>
                     <artifactId>hibernate-jpamodelgen</artifactId>
-                    <version>${maven.hibernate.version}</version>
+                    <version>${project.version}</version>
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
@@ -116,9 +128,9 @@
                         <configuration>
                             <annotationProcessorPaths>
                                 <annotationProcessorPath>
-                                    <groupId>org.hibernate</groupId>
+                                    <groupId>com.guicedee.services</groupId>
                                     <artifactId>hibernate-jpamodelgen</artifactId>
-                                    <version>${maven.hibernate.version}</version>
+                                    <version>${project.version}</version>
                                 </annotationProcessorPath>
                                 <path>
                                     <groupId>com.guicedee.services</groupId>
