@@ -1,8 +1,8 @@
 package com.entityassist;
 
-import com.guicedee.guicedpersistence.db.DatabaseModule;
 import com.guicedee.guicedpersistence.db.ConnectionBaseInfo;
-import com.oracle.jaxb21.PersistenceUnit;
+import com.guicedee.guicedpersistence.db.DatabaseModule;
+import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 
 import javax.validation.constraints.NotNull;
 import java.lang.annotation.Annotation;
@@ -21,7 +21,7 @@ public class EntityAssistTestDBModule
 
 	@Override
 	@NotNull
-	protected ConnectionBaseInfo getConnectionBaseInfo(PersistenceUnit unit, Properties filteredProperties)
+	protected ConnectionBaseInfo getConnectionBaseInfo(ParsedPersistenceXmlDescriptor unit, Properties filteredProperties)
 	{
 		return new JPAConnectionBaseInfo();
 	}

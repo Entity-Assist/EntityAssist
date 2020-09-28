@@ -11,7 +11,7 @@ import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedpersistence.services.ITransactionHandler;
 import com.guicedee.guicedpersistence.services.PersistenceServicesModule;
 import com.guicedee.logger.LogFactory;
-import com.oracle.jaxb21.PersistenceUnit;
+import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -196,7 +196,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	public J persistNow(E entity)
 	{
 		boolean transactionAlreadyStarted = false;
-		PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+		ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
@@ -253,7 +253,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 			if (onCreate(entity))
 			{
 				boolean transactionAlreadyStarted = false;
-				com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+				ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
 				if (isRunDetached())
 				{
 					String insertString = new InsertStatement(entity).toString();
@@ -430,7 +430,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	public J persistNow(E entity, boolean runDetached)
 	{
 		boolean transactionAlreadyStarted = false;
-		PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+		ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
@@ -536,7 +536,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 			if (onUpdate(entity))
 			{
 				boolean transactionAlreadyStarted = false;
-				PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+				ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
 				for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 				{
 					if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))

@@ -13,7 +13,7 @@ import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedpersistence.services.ITransactionHandler;
 import com.guicedee.guicedpersistence.services.PersistenceServicesModule;
 import com.guicedee.logger.LogFactory;
-import com.oracle.jaxb21.PersistenceUnit;
+import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
@@ -334,7 +334,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		select();
 		
 		boolean transactionAlreadyStarted = false;
-		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+		ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
@@ -744,7 +744,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	public E delete(E entity)
 	{
 		boolean transactionAlreadyStarted = false;
-		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+		ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
@@ -796,7 +796,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		getFilters().clear();
 		select();
 		boolean transactionAlreadyStarted = false;
-		com.oracle.jaxb21.PersistenceUnit unit = GuiceContext.get(Key.get(PersistenceUnit.class, getEntityManagerAnnotation()));
+		ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
 		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
 		{
 			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
