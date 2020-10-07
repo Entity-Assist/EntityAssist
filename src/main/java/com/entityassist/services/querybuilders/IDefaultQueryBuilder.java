@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings({"UnusedReturnValue", "unused", "rawtypes"})
 public interface IDefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>,
 		E extends DefaultEntity<E, J, I>,
 		I extends Serializable>
@@ -713,7 +713,7 @@ public interface IDefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>,
 	 * @return Always this object
 	 */
 	
-	J setCacheName(@NotNull String cacheName, @NotNull String cacheRegion);
+	J setCacheName(String cacheName, String cacheRegion);
 	
 	/**
 	 * Adds an OR group to the filter expressions with the previous where statement

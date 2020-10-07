@@ -94,8 +94,6 @@ public interface IQueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	 *
 	 * @return The entity manager to use for this run
 	 */
-	@NotNull
-	@Transient
 	EntityManager getEntityManager();
 	
 	/**
@@ -192,7 +190,7 @@ public interface IQueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	 *
 	 * @return List of Strings
 	 */
-	@NotNull List<String> validateEntity(E entity);
+	List<String> validateEntity(E entity);
 	
 	/**
 	 * Returns the given attribute for a field name by reflectively accesing the static class
@@ -200,7 +198,7 @@ public interface IQueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	 * @param fieldName the field to get an attribute for
 	 * @return the attribute or null
 	 */
-	<X, Y> Attribute<X, Y> getAttribute(@NotNull String fieldName);
+	<X, Y> Attribute<X, Y> getAttribute(String fieldName);
 	
 	/**
 	 * Method getSelectIdentityString returns the selectIdentityString of this QueryBuilderBase object.

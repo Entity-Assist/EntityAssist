@@ -83,7 +83,7 @@ public interface IQueryBuilder<J extends QueryBuilder<J, E, I>,
 	 * @param returnFirst If the first should be returned in the instance of many results
 	 * @return Optional of the required object
 	 */
-	@NotNull Optional<E> get(boolean returnFirst);
+	Optional<E> get(boolean returnFirst);
 	
 	/**
 	 * Returns a list (distinct or not) and returns an empty optional if returns a list, or will simply return the first result found from
@@ -92,7 +92,7 @@ public interface IQueryBuilder<J extends QueryBuilder<J, E, I>,
 	 * @return Optional of the given class type (which should be a select column)
 	 */
 	
-	@NotNull <T> Optional<T> get(@NotNull Class<T> asType);
+	<T> Optional<T> get(Class<T> asType);
 	
 	/**
 	 * If this builder is configured to return the first row
@@ -126,7 +126,7 @@ public interface IQueryBuilder<J extends QueryBuilder<J, E, I>,
 	 * @return The type of the column returned
 	 */
 	
-	@NotNull <T> List<T> getAll(Class<T> returnClassType);
+	<T> List<T> getAll(Class<T> returnClassType);
 	
 	/**
 	 * Sets whether or not to detach the selected entity/ies
