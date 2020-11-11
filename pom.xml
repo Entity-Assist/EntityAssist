@@ -112,9 +112,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.hibernate.orm.tooling</groupId>
+                <groupId>com.guicedee.services</groupId>
                 <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                <version>5.4.23.Final</version>
+                <version>${project.version}</version>
                 <executions>
                     <execution>
                         <configuration>

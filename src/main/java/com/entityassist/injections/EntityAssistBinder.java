@@ -10,7 +10,7 @@ import com.guicedee.guicedinjection.abstractions.GuiceInjectorModule;
 import com.guicedee.guicedinjection.interfaces.IGuiceDefaultBinder;
 import com.guicedee.guicedinjection.pairing.Pair;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;

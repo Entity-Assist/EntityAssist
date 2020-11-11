@@ -6,8 +6,8 @@ import com.entityassist.querybuilder.builders.DefaultQueryBuilder;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.logging.Level;

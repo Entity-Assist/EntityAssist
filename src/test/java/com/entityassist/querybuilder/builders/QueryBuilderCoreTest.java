@@ -11,8 +11,8 @@ import com.guicedee.guicedinjection.GuiceContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.JoinType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;

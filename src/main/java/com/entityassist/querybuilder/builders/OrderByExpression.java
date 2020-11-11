@@ -2,7 +2,7 @@ package com.entityassist.querybuilder.builders;
 
 import com.entityassist.enumerations.OrderByType;
 
-import javax.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute;
 
 /**
  * An order by expression

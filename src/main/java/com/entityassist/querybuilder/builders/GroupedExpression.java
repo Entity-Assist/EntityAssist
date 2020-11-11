@@ -2,8 +2,8 @@ package com.entityassist.querybuilder.builders;
 
 import com.entityassist.enumerations.GroupedFilterType;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
 import java.util.*;
 
 /**

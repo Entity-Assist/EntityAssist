@@ -4,7 +4,7 @@ import com.guicedee.guicedpersistence.db.ConnectionBaseInfo;
 import com.guicedee.guicedpersistence.db.DatabaseModule;
 import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.lang.annotation.Annotation;
 import java.util.Properties;
 

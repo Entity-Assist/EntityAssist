@@ -4,7 +4,7 @@ import com.entityassist.querybuilder.QueryBuilder;
 import com.google.inject.Key;
 import com.guicedee.guicedinjection.GuiceContext;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 public class TransYtdQueryBuilder
 		extends QueryBuilder<TransYtdQueryBuilder, TransYtd, TransYtdPK>

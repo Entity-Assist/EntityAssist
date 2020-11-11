@@ -3,9 +3,9 @@ package com.entityassist.querybuilder.builders;
 import com.entityassist.BaseEntity;
 import com.entityassist.querybuilder.QueryBuilder;
 
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.metamodel.Attribute;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.metamodel.Attribute;
 
 /**
  * Public join expression

@@ -1,6 +1,6 @@
 package com.entityassist;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table

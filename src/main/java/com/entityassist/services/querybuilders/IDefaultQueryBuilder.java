@@ -9,9 +9,9 @@ import com.entityassist.querybuilder.builders.DefaultQueryBuilder;
 import com.entityassist.querybuilder.builders.IFilterExpression;
 import com.entityassist.querybuilder.builders.JoinExpression;
 
-import javax.persistence.criteria.*;
-import javax.persistence.metamodel.Attribute;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.criteria.*;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;

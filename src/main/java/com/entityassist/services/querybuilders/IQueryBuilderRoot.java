@@ -3,10 +3,10 @@ package com.entityassist.services.querybuilders;
 import com.entityassist.RootEntity;
 import com.entityassist.querybuilder.builders.QueryBuilderRoot;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Transient;
-import javax.persistence.metamodel.Attribute;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Transient;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.sql.SQLException;

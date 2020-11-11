@@ -4,10 +4,10 @@ import com.entityassist.RootEntity;
 import com.guicedee.guicedinjection.pairing.Pair;
 import com.guicedee.logger.LogFactory;
 
-import javax.persistence.Embeddable;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;

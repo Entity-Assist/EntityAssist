@@ -15,13 +15,13 @@ import com.guicedee.guicedpersistence.services.PersistenceServicesModule;
 import com.guicedee.logger.LogFactory;
 import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 
-import javax.persistence.*;
-import javax.persistence.criteria.*;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.*;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -197,8 +197,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		{
 			query.setHint("org.hibernate.cacheable", true);
 			query.setHint("org.hibernate.cacheRegion", getCacheRegion());
-			query.setHint("javax.persistence.cache.retrieveMode", "USE");
-			query.setHint("javax.persistence.cache.storeMode", "USE");
+			query.setHint("jakarta.persistence.cache.retrieveMode", "USE");
+			query.setHint("jakarta.persistence.cache.storeMode", "USE");
 		}
 	}
 	

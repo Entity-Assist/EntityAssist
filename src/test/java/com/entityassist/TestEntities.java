@@ -9,8 +9,8 @@ import com.guicedee.guicedpersistence.db.annotations.Transactional;
 import com.guicedee.logger.LogFactory;
 import org.junit.jupiter.api.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.JoinType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.JoinType;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

@@ -4,7 +4,7 @@ import com.entityassist.querybuilder.QueryBuilderCore;
 import com.google.inject.Key;
 import com.guicedee.guicedinjection.GuiceContext;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 public class EntityClassTwoBuilder
 		extends QueryBuilderCore<EntityClassTwoBuilder, EntityClassTwo, Long>

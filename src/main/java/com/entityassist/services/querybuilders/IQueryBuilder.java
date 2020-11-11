@@ -4,8 +4,8 @@ import com.entityassist.BaseEntity;
 import com.entityassist.exceptions.QueryBuilderException;
 import com.entityassist.querybuilder.QueryBuilder;
 
-import javax.persistence.TypedQuery;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.TypedQuery;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;

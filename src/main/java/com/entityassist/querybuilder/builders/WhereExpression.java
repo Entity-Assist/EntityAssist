@@ -4,9 +4,9 @@ import com.entityassist.EntityAssistException;
 import com.entityassist.enumerations.Operand;
 import com.guicedee.logger.LogFactory;
 
-import javax.persistence.criteria.*;
-import javax.persistence.metamodel.Attribute;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.criteria.*;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Optional;

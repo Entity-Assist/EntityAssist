@@ -4,7 +4,7 @@ import com.entityassist.SCDEntity;
 import com.entityassist.enumerations.Operand;
 import com.guicedee.logger.LogFactory;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.time.LocalDateTime;

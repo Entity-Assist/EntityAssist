@@ -4,8 +4,8 @@ import com.entityassist.CoreEntity;
 import com.entityassist.SCDEntity;
 import com.entityassist.enumerations.ActiveFlag;
 
-import javax.persistence.metamodel.Attribute;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 

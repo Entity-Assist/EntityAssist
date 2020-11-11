@@ -1,9 +1,9 @@
 package com.entityassist.querybuilder.builders;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.metamodel.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.metamodel.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.*;
 
 /**
