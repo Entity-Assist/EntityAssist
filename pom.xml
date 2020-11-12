@@ -152,6 +152,12 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
+            <repositories>
+                <repository>
+                    <id>Jakarta</id>
+                    <url>https://jakarta.oss.sonatype.org/content/groups/staging/</url>
+                </repository>
+            </repositories>
         </profile>
 
         <profile>
@@ -182,6 +188,12 @@
                     </plugin>
                 </plugins>
             </build>
+            <repositories>
+                <repository>
+                    <id>Jakarta</id>
+                    <url>https://jakarta.oss.sonatype.org/content/groups/staging/</url>
+                </repository>
+            </repositories>
         </profile>
 
     </profiles>
