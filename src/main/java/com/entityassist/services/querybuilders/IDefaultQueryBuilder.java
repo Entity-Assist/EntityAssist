@@ -254,7 +254,7 @@ public interface IDefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>,
 	 * @return This
 	 */
 	
-	<X, Y> J where(Expression<X> attribute, Operand operator, Collection<Y> value);
+	//<X, Y> J where(Expression<X> attribute, Operand operator, Collection<Y> value);
 	
 	/**
 	 * Performs a filter on the database with the where clauses

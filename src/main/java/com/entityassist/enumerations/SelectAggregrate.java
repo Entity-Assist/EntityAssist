@@ -8,38 +8,49 @@ public enum SelectAggregrate
 	/**
 	 * Just select the thing
 	 */
-	None,
+	None(""),
 	/**
 	 * Minimum
 	 */
-	Min,
+	Min("MIN"),
 	/**
 	 * Maximum
 	 */
-	Max,
+	Max("MAX"),
 	/**
 	 * Count
 	 */
-	Count,
+	Count("COUNT"),
 	/**
 	 * Count Distinct
 	 */
-	CountDistinct,
+	CountDistinct("COUNT(DISTINCT"),
 	/**
 	 * Sum (whatever the db returns)
 	 */
-	Sum,
+	Sum("SUM"),
 	/**
 	 * Sum returned as a long
 	 */
-	SumLong,
+	SumLong("SUM"),
 	/**
 	 * Sum Double
 	 */
-	SumDouble,
+	SumDouble("SUM"),
 	/**
 	 * Average
 	 */
-	Avg,
-
+	Avg("AVG"),
+;
+	private String selectString;
+	
+	SelectAggregrate(String selectString)
+	{
+		this.selectString = selectString;
+	}
+	
+	public String getSelectString()
+	{
+		return selectString;
+	}
 }

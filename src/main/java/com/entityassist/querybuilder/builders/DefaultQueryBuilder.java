@@ -637,7 +637,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 * @param <Y>       The attribute value type
 	 * @return This
 	 */
-	@Override
+	/*@Override
 	@NotNull
 	@SuppressWarnings("unchecked")
 	public <X, Y> J where(Expression<X> attribute, Operand operator, Collection<Y> value)
@@ -646,7 +646,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		whereExpressions.add(whereExpression);
 		doWhere(whereExpression);
 		return (J) this;
-	}
+	}*/
 	
 	/**
 	 * Performs a filter on the database with the where clauses
