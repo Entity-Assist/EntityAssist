@@ -57,7 +57,9 @@ public class InsertStatement
 		
 		for (Field field : fields)
 		{
-			if (field.isAnnotationPresent(Transient.class) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()))
+			if (field.isAnnotationPresent(Transient.class) ||
+					Modifier.isStatic(field.getModifiers()) ||
+					Modifier.isFinal(field.getModifiers()))
 			{
 				continue;
 			}

@@ -54,7 +54,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	/**
 	 * This logger
 	 */
-	private static final Logger log = LogFactory.getLog("QueryBuilderBase");
+	private static final Logger log = LogFactory.getLog("QueryBuilderRoot");
 	/**
 	 * The maximum number of results
 	 */
@@ -257,7 +257,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 				if (isRunDetached())
 				{
 					String insertString = new InsertStatement(entity).toString();
-					log.fine(insertString);
+					log.finer(insertString);
 					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
@@ -476,7 +476,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 				if (isRunDetached())
 				{
 					String insertString = new UpdateStatement(entity).toString();
-					log.fine(insertString);
+					log.finer(insertString);
 					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
@@ -556,7 +556,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 				if (isRunDetached())
 				{
 					String insertString = new UpdateStatement(entity).toString();
-					log.fine(insertString);
+					log.finer(insertString);
 					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
 					                             .containsKey(getEntityManagerAnnotation()))
 					{

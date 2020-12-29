@@ -119,7 +119,7 @@
                     <execution>
                         <configuration>
                             <failOnError>false</failOnError>
-                            <enableLazyInitialization>true</enableLazyInitialization>
+                            <enableLazyInitialization>false</enableLazyInitialization>
                             <enableDirtyTracking>false</enableDirtyTracking>
                             <enableAssociationManagement>false</enableAssociationManagement>
                             <enableExtendedEnhancement>false</enableExtendedEnhancement>
@@ -132,7 +132,7 @@
                 </executions>
                 <configuration>
                     <failOnError>false</failOnError>
-                    <enableLazyInitialization>true</enableLazyInitialization>
+                    <enableLazyInitialization>false</enableLazyInitialization>
                     <enableDirtyTracking>false</enableDirtyTracking>
                     <enableAssociationManagement>false</enableAssociationManagement>
                     <enableExtendedEnhancement>false</enableExtendedEnhancement>
