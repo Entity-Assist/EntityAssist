@@ -129,7 +129,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		
 		entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
 		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
-		entity.setEffectiveFromDate(LocalDateTime.now());
+		entity.setEffectiveFromDate(SCDEntity.StartOfTime);
 		entity.setEffectiveToDate(SCDEntity.EndOfTime);
 		entity.setActiveFlag(ActiveFlag.Active);
 		

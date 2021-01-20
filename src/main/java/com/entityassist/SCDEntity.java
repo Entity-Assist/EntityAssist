@@ -28,6 +28,7 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	/**
 	 * A timestamp designating the end of time or not applied
 	 */
+	public static LocalDateTime StartOfTime = LocalDateTime.of(2000, 1, 1, 0, 0, 0, 0);
 	public static final LocalDateTime EndOfTime = LocalDateTime.of(2999, 12, 31, 23, 59, 59, 999);
 
 	/**

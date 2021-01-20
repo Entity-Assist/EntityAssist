@@ -5,10 +5,13 @@ import com.entityassist.enumerations.Operand;
 import com.guicedee.logger.LogFactory;
 
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.logging.Level;
+
+import static com.entityassist.SCDEntity.*;
 
 @SuppressWarnings("unused")
 public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E extends SCDEntity<E, J, I>, I extends Serializable>
@@ -26,6 +29,16 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@SuppressWarnings("WeakerAccess")
 	public static final String EFFECTIVE_FROM_DATE_COLUMN_NAME = "effectiveFromDate";
 	
+	/**
+	 * The effective from date column name
+	 */
+	@SuppressWarnings("WeakerAccess")
+	public static final String WAREHOUSE_CREATED_DATE_COLUMN_NAME = "warehouseCreatedTimestamp";
+	/**
+	 * The effective from date column name
+	 */
+	@SuppressWarnings("WeakerAccess")
+	public static final String WAREHOUSE_UPDATED_DATE_COLUMN_NAME = "warehouseLastUpdatedTimestamp";
 	
 	/**
 	 * Where effective from date is greater than today
@@ -46,6 +59,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	 * Usually getDate()
 	 *
 	 * @param betweenThisDate The date
+	 *
 	 * @return This
 	 */
 	@Override
@@ -62,6 +76,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	 * Returns the effective from and to date to be applied when only the effective date is taken into consideration
 	 *
 	 * @param effectiveToDate The date
+	 *
 	 * @return This
 	 */
 	@Override
@@ -78,6 +93,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	 * In date range from till now
 	 *
 	 * @param fromDate The date for from
+	 *
 	 * @return This
 	 */
 	@Override
@@ -92,6 +108,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	 *
 	 * @param fromDate The from date
 	 * @param toDate   The to date
+	 *
 	 * @return This
 	 */
 	@Override
@@ -99,9 +116,40 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@SuppressWarnings("unchecked")
 	public J inDateRange(LocalDateTime fromDate, LocalDateTime toDate)
 	{
-		where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), Operand.GreaterThanEqualTo, fromDate);
-		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, toDate);
+		if (fromDate != null)
+		{
+			where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), Operand.GreaterThanEqualTo, fromDate);
+		}
+		//noinspection ReplaceNullCheck
+		if (toDate != null)
+		{
+			where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, toDate);
+		}
+		else
+		{
+			where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, EndOfTime);
+		}
 		
+		return (J) this;
+	}
+	
+	public J withWarehouseCreated(LocalDateTime time)
+	{
+		if (time != null)
+		{
+			where(getAttribute(WAREHOUSE_CREATED_DATE_COLUMN_NAME), Operand.Equals, time);
+		}
+		//noinspection unchecked
+		return (J) this;
+	}
+	
+	public J withWarehouseUpdated(LocalDateTime time)
+	{
+		if (time != null)
+		{
+			where(getAttribute(WAREHOUSE_UPDATED_DATE_COLUMN_NAME), Operand.Equals, time);
+		}
+		//noinspection unchecked
 		return (J) this;
 	}
 	
@@ -155,6 +203,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	 *
 	 * @param originalEntity The entity that is going to be deleted
 	 * @param newEntity      The entity that is going to be created
+	 *
 	 * @return currently always true @TODO
 	 */
 	@Override
@@ -167,6 +216,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	 * Sets the SCD values to new ones if not present
 	 *
 	 * @param entity The entity
+	 *
 	 * @return true if must create
 	 */
 	@Override
@@ -182,11 +232,11 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		}
 		if (entity.getEffectiveFromDate() == null)
 		{
-			entity.setEffectiveFromDate(LocalDateTime.now());
+			entity.setEffectiveFromDate(StartOfTime);
 		}
 		if (entity.getEffectiveToDate() == null)
 		{
-			entity.setEffectiveToDate(SCDEntity.EndOfTime);
+			entity.setEffectiveToDate(EndOfTime);
 		}
 		return true;
 	}
@@ -195,6 +245,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	 * Updates the on update to specify the new warehouse last updated
 	 *
 	 * @param entity The entity
+	 *
 	 * @return boolean
 	 */
 	@Override
