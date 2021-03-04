@@ -56,7 +56,11 @@
         <dependency>
             <groupId>com.guicedee.persistence</groupId>
             <artifactId>guiced-persistence</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.guicedee.services</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
 		
 		<!-- Test Libraries -->
