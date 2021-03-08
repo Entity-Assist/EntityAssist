@@ -24,7 +24,7 @@ module com.entityassist {
 	requires java.naming;
 	requires java.sql;
 
-	requires static java.servlet;
+	requires static jakarta.servlet;
 	requires jakarta.persistence;
 	requires jakarta.xml.bind;
 	
