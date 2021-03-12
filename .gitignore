@@ -14,3 +14,4 @@ javadoc.zip
 *.tlog
 db/
 /.idea/
+/.flattened-pom.xml
