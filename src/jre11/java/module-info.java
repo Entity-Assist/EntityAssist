@@ -11,6 +11,7 @@ import com.guicedee.guicedpersistence.services.ITransactionHandler;
 module com.entityassist {
 	
 	exports com.entityassist;
+	exports com.entityassist.services.entities;
 	exports com.entityassist.services.querybuilders;
 	exports com.entityassist.converters;
 	exports com.entityassist.enumerations;

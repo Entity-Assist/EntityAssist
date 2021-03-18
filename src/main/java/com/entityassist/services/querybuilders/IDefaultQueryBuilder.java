@@ -9,6 +9,7 @@ import com.entityassist.querybuilder.builders.DefaultQueryBuilder;
 import com.entityassist.querybuilder.builders.IFilterExpression;
 import com.entityassist.querybuilder.builders.JoinExpression;
 
+import com.entityassist.services.entities.IDefaultEntity;
 import jakarta.persistence.criteria.*;
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.validation.constraints.NotNull;
@@ -18,8 +19,8 @@ import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings({"UnusedReturnValue", "unused", "rawtypes"})
-public interface IDefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>,
-		E extends DefaultEntity<E, J, I>,
+public interface IDefaultQueryBuilder<J extends IDefaultQueryBuilder<J, E, I>,
+		E extends IDefaultEntity<E, J, I>,
 		I extends Serializable>
 		extends IQueryBuilderRoot<J, E, I>
 {

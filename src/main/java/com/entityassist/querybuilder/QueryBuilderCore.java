@@ -17,7 +17,8 @@ import static com.entityassist.enumerations.Operand.InList;
  * @author GedMarc
  */
 public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E extends CoreEntity<E, J, I>, I extends Serializable>
-		extends QueryBuilderSCD<J, E, I> implements com.entityassist.services.querybuilders.IQueryBuilderCore<J, E, I>
+		extends QueryBuilderSCD<J, E, I>
+		implements com.entityassist.services.querybuilders.IQueryBuilderCore<J, E, I>
 {
 	/**
 	 * The active flag column name

@@ -7,6 +7,7 @@ import com.entityassist.querybuilder.builders.DefaultQueryBuilder;
 import com.entityassist.querybuilder.builders.JoinExpression;
 import com.entityassist.querybuilder.statements.DeleteStatement;
 import com.entityassist.querybuilder.statements.UpdateStatement;
+import com.entityassist.services.querybuilders.IQueryBuilder;
 import com.google.common.base.Strings;
 import com.google.inject.Key;
 import com.guicedee.guicedinjection.GuiceContext;
@@ -41,7 +42,7 @@ import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersB
 @SuppressWarnings({"unchecked", "unused"})
 public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 		extends DefaultQueryBuilder<J, E, I>
-		implements com.entityassist.services.querybuilders.IQueryBuilder<J, E, I>
+		implements IQueryBuilder<J, E, I>
 {
 	/**
 	 * The logger

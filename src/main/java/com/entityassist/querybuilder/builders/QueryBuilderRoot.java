@@ -49,7 +49,8 @@ import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersB
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue", "unused"})
 public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 		E extends RootEntity<E, J, I>,
-		I extends Serializable> implements IQueryBuilderRoot<J, E, I>
+		I extends Serializable>
+		implements IQueryBuilderRoot<J, E, I>
 {
 	/**
 	 * This logger

@@ -1,6 +1,7 @@
 package com.entityassist;
 
 import com.entityassist.querybuilder.builders.QueryBuilderRoot;
+import com.entityassist.services.entities.IRootEntity;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -29,6 +30,7 @@ import static com.guicedee.guicedinjection.json.StaticStrings.FAKE_KEY;
                 setterVisibility = NONE)
 @JsonInclude(NON_NULL)
 public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryBuilderRoot<Q, J, I>, I extends Serializable>
+	implements IRootEntity<J,Q,I>
 {
 	private static final Logger log = Logger.getLogger(RootEntity.class.getName());
 	
@@ -44,25 +46,7 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 		//No configuration needed
 		setFake(true);
 	}
-	
-	/**
-	 * Returns the id of the given type in the generic decleration
-	 *
-	 * @return Returns the ID
-	 */
-	@NotNull
-	public abstract I getId();
-	
-	/**
-	 * Returns the id of the given type in the generic decleration
-	 *
-	 * @param id
-	 * @return
-	 */
-	@SuppressWarnings("all")
-	@NotNull
-	public abstract J setId(I id);
-	
+
 	/**
 	 * Returns the builder associated with this entity
 	 *

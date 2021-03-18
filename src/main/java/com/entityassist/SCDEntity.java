@@ -2,6 +2,7 @@ package com.entityassist;
 
 import com.entityassist.converters.LocalDateTimeAttributeConverter;
 import com.entityassist.querybuilder.QueryBuilderSCD;
+import com.entityassist.services.entities.ISCDEntity;
 import com.guicedee.guicedinjection.json.LocalDateTimeDeserializer;
 import com.guicedee.guicedinjection.json.LocalDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -24,6 +25,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 @JsonInclude(NON_NULL)
 public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBuilderSCD<Q, J, I>, I extends Serializable>
 		extends BaseEntity<J, Q, I>
+	implements ISCDEntity<J,Q,I>
 {
 	/**
 	 * A timestamp designating the end of time or not applied
@@ -184,21 +186,6 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	public J setWarehouseLastUpdatedTimestamp(@NotNull LocalDateTime warehouseLastUpdatedTimestamp)
 	{
 		this.warehouseLastUpdatedTimestamp = warehouseLastUpdatedTimestamp;
-		return (J) this;
-	}
-
-	/**
-	 * Deletes this entity with the entity mananger. This will remove the row.
-	 *
-	 * @return This
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J delete()
-	{
-		((QueryBuilderSCD) builder())
-				.delete(this);
 		return (J) this;
 	}
 }
