@@ -52,6 +52,8 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 		I extends Serializable>
 		implements IQueryBuilderRoot<J, E, I>
 {
+	public static Level defaultLoggingLevel = Level.FINER;
+
 	/**
 	 * This logger
 	 */
@@ -258,7 +260,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 				if (isRunDetached())
 				{
 					String insertString = new InsertStatement(entity).toString();
-					log.finer(insertString);
+					log.log(defaultLoggingLevel,insertString);
 					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
@@ -274,7 +276,6 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 						}
 						else
 						{
-							
 							try (Connection c = ds.getConnection(); Statement st = c.createStatement())
 							{
 								st.executeUpdate(insertString);
@@ -476,28 +477,28 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 			{
 				if (isRunDetached())
 				{
-					String insertString = new UpdateStatement(entity).toString();
-					log.finer(insertString);
+					String updateString = new UpdateStatement(entity).toString();
+					log.log(defaultLoggingLevel,updateString);
 					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
 						if (ds == null)
 						{
-							Query query = getEntityManager().createNativeQuery(insertString);
+							Query query = getEntityManager().createNativeQuery(updateString);
 							query.executeUpdate();
 						}
 						else
 						{
 							try (Connection c = ds.getConnection(); Statement st = c.createStatement())
 							{
-								st.executeUpdate(insertString);
+								st.executeUpdate(updateString);
 							}
 						}
 					}
 					else
 					{
-						Query query = getEntityManager().createNativeQuery(insertString);
+						Query query = getEntityManager().createNativeQuery(updateString);
 						query.executeUpdate();
 					}
 				}
@@ -556,28 +557,28 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 				}
 				if (isRunDetached())
 				{
-					String insertString = new UpdateStatement(entity).toString();
-					log.finer(insertString);
+					String updateString = new UpdateStatement(entity).toString();
+					log.log(defaultLoggingLevel,updateString);
 					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
 						if (ds == null)
 						{
-							Query query = getEntityManager().createNativeQuery(insertString);
+							Query query = getEntityManager().createNativeQuery(updateString);
 							query.executeUpdate();
 						}
 						else
 						{
 							try (Connection c = ds.getConnection(); Statement st = c.createStatement())
 							{
-								st.executeUpdate(insertString);
+								st.executeUpdate(updateString);
 							}
 						}
 					}
 					else
 					{
-						Query query = getEntityManager().createNativeQuery(insertString);
+						Query query = getEntityManager().createNativeQuery(updateString);
 						query.executeUpdate();
 					}
 				}
