@@ -14,6 +14,7 @@ import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedpersistence.services.ITransactionHandler;
 import com.guicedee.guicedpersistence.services.PersistenceServicesModule;
 import com.guicedee.logger.LogFactory;
+import org.hibernate.Session;
 import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 
 import jakarta.persistence.*;
@@ -719,16 +720,13 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				query.executeUpdate();
 			}
 			else
-			
 			{
-				try (Connection c = ds.getConnection(); Statement st = c.createStatement())
-				{
-					st.executeUpdate(deleteString);
-				}
-				catch (Exception e)
-				{
-					throw new QueryBuilderException("Unable to run statement", e);
-				}
+				Session session = getEntityManager().unwrap(Session.class);
+				session.doWork(c -> {
+					try (Statement st = c.createStatement()) {
+						st.executeUpdate(deleteString);
+					}
+				});
 			}
 		}
 	}
