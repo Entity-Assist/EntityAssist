@@ -14,31 +14,24 @@ import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedpersistence.services.ITransactionHandler;
 import com.guicedee.guicedpersistence.services.PersistenceServicesModule;
 import com.guicedee.logger.LogFactory;
-import org.hibernate.Session;
-import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
-
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
-import jakarta.persistence.metamodel.Attribute;
-import jakarta.persistence.metamodel.PluralAttribute;
-import jakarta.persistence.metamodel.SingularAttribute;
-import javax.sql.DataSource;
+import jakarta.persistence.metamodel.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
+
+import javax.sql.DataSource;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static com.entityassist.querybuilder.builders.IFilterExpression.isPluralOrMapAttribute;
-import static com.entityassist.querybuilder.builders.IFilterExpression.isSingularAttribute;
-import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.ITransactionHandlerReader;
+import static com.entityassist.querybuilder.builders.IFilterExpression.*;
+import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
 
 @SuppressWarnings({"unchecked", "unused"})
 public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
@@ -228,7 +221,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		{
 			List<Order> orderBys = new ArrayList<>();
 			getOrderBys().forEach((key, value) ->
-					                      orderBys.add(processOrderBys(key, value)));
+					orderBys.add(processOrderBys(key, value)));
 			cq.orderBy(orderBys);
 		}
 		
@@ -556,7 +549,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				else
 				{
 					log.log(Level.FINE, "Non Unique Result. Found too many for a get() for class : " + getEntityClass().getName() + "}. Get First Result disabled. Returning empty",
-					        nure);
+							nure);
 					return Optional.empty();
 				}
 			}
@@ -721,12 +714,22 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			}
 			else
 			{
-				Session session = getEntityManager().unwrap(Session.class);
-				session.doWork(c -> {
-					try (Statement st = c.createStatement()) {
+				try
+				{
+					//var c = ds.getConnection();
+					//Session session = getEntityManager().unwrap(Session.class);
+					//session.doWork(c -> {
+					try (var c = ds.getConnection();Statement st = c.createStatement())
+					{
 						st.executeUpdate(deleteString);
 					}
-				});
+					//});
+				}
+				catch (SQLException throwables)
+				{
+					throwables.printStackTrace();
+				}
+				
 			}
 		}
 	}
