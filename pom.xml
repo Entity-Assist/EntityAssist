@@ -47,21 +47,21 @@
                 <artifactId>guicedee-bom</artifactId>
                 <type>pom</type>
                 <scope>import</scope>
-                <version>${project.version}</version>
+                <version>${guicedee.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.guicedee</groupId>
                 <artifactId>fasterxml-bom</artifactId>
                 <type>pom</type>
                 <scope>import</scope>
-                <version>${project.version}</version>
+                <version>${guicedee.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.guicedee</groupId>
                 <artifactId>tests-bom</artifactId>
                 <type>pom</type>
                 <scope>import</scope>
-                <version>${project.version}</version>
+                <version>${guicedee.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -132,7 +132,7 @@
             <plugin>
                 <groupId>com.guicedee.services</groupId>
                 <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${maven.hibernate.enhance.version}</version>
                 <executions>
                     <execution>
                         <configuration>
@@ -195,7 +195,6 @@
                 <dependency>
                     <groupId>com.guicedee.services</groupId>
                     <artifactId>hibernate-jpamodelgen</artifactId>
-                    <version>${project.version}</version>
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
@@ -219,12 +218,12 @@
                                 <annotationProcessorPath>
                                     <groupId>com.guicedee.services</groupId>
                                     <artifactId>hibernate-jpamodelgen</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${maven.hibernate.version}</version>
                                 </annotationProcessorPath>
                                 <path>
                                     <groupId>com.guicedee.services</groupId>
                                     <artifactId>jakarta.xml.bind-api</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${jakarta.xml.jaxb.api.version}</version>
                                 </path>
                             </annotationProcessorPaths>
                             <compilerArguments>
