@@ -132,7 +132,7 @@
             <plugin>
                 <groupId>com.guicedee.services</groupId>
                 <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                <version>${maven.hibernate.enhance.version}</version>
+                <version>${project.version}</version>
                 <executions>
                     <execution>
                         <configuration>
@@ -218,12 +218,12 @@
                                 <annotationProcessorPath>
                                     <groupId>com.guicedee.services</groupId>
                                     <artifactId>hibernate-jpamodelgen</artifactId>
-                                    <version>${maven.hibernate.version}</version>
+                                    <version>${project.version}</version>
                                 </annotationProcessorPath>
                                 <path>
                                     <groupId>com.guicedee.services</groupId>
                                     <artifactId>jakarta.xml.bind-api</artifactId>
-                                    <version>${jakarta.xml.jaxb.api.version}</version>
+                                    <version>${project.version}</version>
                                 </path>
                             </annotationProcessorPaths>
                             <compilerArguments>
