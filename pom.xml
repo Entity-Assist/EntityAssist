@@ -162,18 +162,20 @@
                 <artifactId>flatten-maven-plugin</artifactId>
                 <version>1.2.5</version>
                 <configuration>
+                    <flattenMode>ossrh</flattenMode>
+                    <flattenDependencyMode>direct</flattenDependencyMode>
+                    <detail>true</detail>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenedPomFilename>flatter.pom</flattenedPomFilename>
                 </configuration>
                 <executions>
                     <!-- enable flattening -->
                     <execution>
                         <id>flatten</id>
-                        <phase>process-resources</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>flatten</goal>
                         </goals>
-                        <configuration>
-                            <flattenMode>oss</flattenMode>
-                        </configuration>
                     </execution>
                     <!-- ensure proper cleanup -->
                     <execution>
@@ -182,6 +184,24 @@
                         <goals>
                             <goal>clean</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-file</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <sourceFile>flatter.pom</sourceFile>
+                            <destinationFile>dependency-reduced-pom.xml</destinationFile>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
