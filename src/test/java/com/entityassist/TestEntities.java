@@ -436,7 +436,7 @@ public class TestEntities
 		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		System.out.println("EM Open : " + em.isOpen());
 		List<EntityClass> list = new EntityClass().builder()
-		                                          .inDateRange(LocalDateTime.now(), LocalDateTime.now())
+		                                          .inDateRange(RootEntity.getNow(), RootEntity.getNow())
 		                                          .join(EntityClassTwo_.entityClass, JoinType.LEFT)
 		                                          .getAll();
 		if (!list.isEmpty())

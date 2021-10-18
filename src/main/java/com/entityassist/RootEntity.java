@@ -1,27 +1,21 @@
 package com.entityassist;
 
-import com.entityassist.querybuilder.builders.QueryBuilderRoot;
-import com.entityassist.services.entities.IRootEntity;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.guicedee.guicedinjection.GuiceContext;
+import com.entityassist.querybuilder.builders.*;
+import com.entityassist.services.entities.*;
+import com.fasterxml.jackson.annotation.*;
+import com.guicedee.guicedinjection.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.Transient;
-import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.*;
+import java.lang.reflect.*;
+import java.time.*;
+import java.util.*;
+import java.util.logging.*;
 
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-import static com.guicedee.guicedinjection.json.StaticStrings.FAKE_KEY;
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
+import static com.guicedee.guicedinjection.json.StaticStrings.*;
 
 @SuppressWarnings("unused")
 @MappedSuperclass()
@@ -30,9 +24,40 @@ import static com.guicedee.guicedinjection.json.StaticStrings.FAKE_KEY;
                 setterVisibility = NONE)
 @JsonInclude(NON_NULL)
 public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryBuilderRoot<Q, J, I>, I extends Serializable>
-	implements IRootEntity<J,Q,I>
+		implements IRootEntity<J, Q, I>
 {
 	private static final Logger log = Logger.getLogger(RootEntity.class.getName());
+	
+	private static LocalDateTime now;
+	
+	public static LocalDateTime getNow()
+	{
+		if (now == null)
+		{
+			return LocalDateTime.now();
+		}
+		return now;
+	}
+	
+	public static void setNow(LocalDateTime now)
+	{
+		RootEntity.now = now;
+	}
+	
+	public static void tick()
+	{
+		if (now != null)
+		{
+			now = now.plusSeconds(1L);
+		}
+	}
+	public static void tickMilli()
+	{
+		if (now != null)
+		{
+			now = now.plusNanos(100);
+		}
+	}
 	
 	@Transient
 	@JsonIgnore
@@ -46,7 +71,7 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 		//No configuration needed
 		setFake(true);
 	}
-
+	
 	/**
 	 * Returns the builder associated with this entity
 	 *

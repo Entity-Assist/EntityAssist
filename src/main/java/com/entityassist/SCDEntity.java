@@ -81,9 +81,9 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	public SCDEntity()
 	{
 		effectiveToDate = EndOfTime;
-		effectiveFromDate = LocalDateTime.now();
-		warehouseCreatedTimestamp = LocalDateTime.now();
-		warehouseLastUpdatedTimestamp = LocalDateTime.now();
+		effectiveFromDate = RootEntity.getNow();
+		warehouseCreatedTimestamp = RootEntity.getNow();
+		warehouseLastUpdatedTimestamp = RootEntity.getNow();
 	}
 
 	/**

@@ -1,6 +1,6 @@
 package com.entityassist.querybuilder;
 
-import com.entityassist.SCDEntity;
+import com.entityassist.*;
 import com.entityassist.enumerations.Operand;
 import com.guicedee.logger.LogFactory;
 
@@ -49,7 +49,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@NotNull
 	public J inDateRange()
 	{
-		return inDateRange(LocalDateTime.now());
+		return inDateRange(getNow());
 	}
 	
 	
@@ -100,7 +100,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@NotNull
 	public J inDateRangeSpecified(LocalDateTime fromDate)
 	{
-		return inDateRange(fromDate, LocalDateTime.now());
+		return inDateRange(fromDate, RootEntity.getNow());
 	}
 	
 	/**
@@ -156,8 +156,8 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@Override
 	public @NotNull E update(E entity)
 	{
-		entity.setEffectiveToDate(LocalDateTime.now());
-		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		entity.setEffectiveToDate(RootEntity.getNow());
+		entity.setWarehouseLastUpdatedTimestamp(RootEntity.getNow());
 		try
 		{
 			return super.update(entity);
@@ -172,9 +172,9 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	
 	public @NotNull E update(E entity, java.time.Duration expiresIn)
 	{
-		entity.setEffectiveToDate(LocalDateTime.now()
+		entity.setEffectiveToDate(RootEntity.getNow()
 		                                               .plus(expiresIn));
-		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		entity.setWarehouseLastUpdatedTimestamp(RootEntity.getNow());
 		try
 		{
 			return super.update(entity);
@@ -216,11 +216,11 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	{
 		if (entity.getWarehouseCreatedTimestamp() == null)
 		{
-			entity.setWarehouseCreatedTimestamp(LocalDateTime.now());
+			entity.setWarehouseCreatedTimestamp(RootEntity.getNow());
 		}
 		if (entity.getWarehouseLastUpdatedTimestamp() == null)
 		{
-			entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+			entity.setWarehouseLastUpdatedTimestamp(RootEntity.getNow());
 		}
 		if (entity.getEffectiveFromDate() == null)
 		{
@@ -243,7 +243,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@Override
 	public boolean onUpdate(E entity)
 	{
-		entity.setWarehouseLastUpdatedTimestamp(LocalDateTime.now());
+		entity.setWarehouseLastUpdatedTimestamp(RootEntity.getNow());
 		return true;
 	}
 }
