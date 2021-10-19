@@ -28,34 +28,38 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 {
 	private static final Logger log = Logger.getLogger(RootEntity.class.getName());
 	
-	private static LocalDateTime now;
+	private static final ThreadLocal<LocalDateTime> now = new ThreadLocal<>();
 	
 	public static LocalDateTime getNow()
 	{
-		if (now == null)
+		LocalDateTime value = now.get();
+		if (value == null)
 		{
 			return LocalDateTime.now();
 		}
-		return now;
+		return value;
 	}
 	
 	public static void setNow(LocalDateTime now)
 	{
-		RootEntity.now = now;
+		RootEntity.now.set(now);
 	}
 	
 	public static void tick()
 	{
-		if (now != null)
+		if (now.get() != null)
 		{
-			now = now.plusSeconds(1L);
+			now.set(now.get()
+			           .plusSeconds(1L));
 		}
 	}
+	
 	public static void tickMilli()
 	{
-		if (now != null)
+		if (now.get() != null)
 		{
-			now = now.plusNanos(100);
+			now.set(now.get()
+			           .plusNanos(100L));
 		}
 	}
 	
