@@ -224,7 +224,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		}
 		if (entity.getEffectiveFromDate() == null)
 		{
-			entity.setEffectiveFromDate(StartOfTime);
+			entity.setEffectiveFromDate(RootEntity.getNow());
 		}
 		if (entity.getEffectiveToDate() == null)
 		{
