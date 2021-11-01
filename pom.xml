@@ -10,7 +10,7 @@
 
     <groupId>com.entityassist</groupId>
     <artifactId>entity-assist</artifactId>
-
+    <version>0.0.0_0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Entity Assist</name>
 
