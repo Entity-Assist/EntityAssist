@@ -156,7 +156,6 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@Override
 	public @NotNull E update(E entity)
 	{
-		entity.setEffectiveToDate(RootEntity.getNow());
 		entity.setWarehouseLastUpdatedTimestamp(RootEntity.getNow());
 		try
 		{

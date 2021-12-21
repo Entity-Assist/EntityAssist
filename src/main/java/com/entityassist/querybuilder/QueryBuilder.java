@@ -23,8 +23,7 @@ import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -707,7 +706,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		                             .containsKey(getEntityManagerAnnotation()))
 		{
 			DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-			if (ds == null)
+			if (!isUseDirectConnection() || ds == null)
 			{
 				Query query = getEntityManager().createNativeQuery(deleteString);
 				query.executeUpdate();
@@ -716,14 +715,15 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			{
 				try
 				{
-					//var c = ds.getConnection();
-					//Session session = getEntityManager().unwrap(Session.class);
-					//session.doWork(c -> {
-					try (var c = ds.getConnection();Statement st = c.createStatement())
+					var c = GuiceContext.get(Key.get(Connection.class, getEntityManagerAnnotation()));
+					try (Statement st = c.createStatement())
 					{
 						st.executeUpdate(deleteString);
 					}
-					//});
+					if(!c.getAutoCommit() && isCommitDirectConnection())
+					{
+						c.commit();
+					}
 				}
 				catch (SQLException throwables)
 				{

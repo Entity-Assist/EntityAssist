@@ -1,31 +1,27 @@
 package com.entityassist.querybuilder.builders;
 
-import com.entityassist.RootEntity;
-import com.entityassist.injections.EntityAssistBinder;
-import com.entityassist.querybuilder.statements.InsertStatement;
-import com.entityassist.querybuilder.statements.UpdateStatement;
-import com.entityassist.services.EntityAssistIDMapping;
-import com.entityassist.services.querybuilders.IQueryBuilderRoot;
-import com.google.inject.Key;
-import com.guicedee.guicedinjection.GuiceContext;
-import com.guicedee.guicedpersistence.services.ITransactionHandler;
-import com.guicedee.guicedpersistence.services.PersistenceServicesModule;
-import com.guicedee.logger.LogFactory;
+import com.entityassist.*;
+import com.entityassist.injections.*;
+import com.entityassist.querybuilder.statements.*;
+import com.entityassist.services.*;
+import com.entityassist.services.querybuilders.*;
+import com.google.inject.*;
+import com.guicedee.guicedinjection.*;
+import com.guicedee.guicedpersistence.services.*;
+import com.guicedee.logger.*;
 import jakarta.persistence.*;
-import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.*;
 import jakarta.validation.*;
-import jakarta.validation.constraints.NotNull;
-import org.hibernate.Session;
-import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
+import jakarta.validation.constraints.*;
+import org.hibernate.jpa.boot.internal.*;
 
-import javax.sql.DataSource;
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
+import javax.sql.*;
+import java.io.*;
+import java.lang.annotation.*;
+import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import static com.guicedee.guicedinjection.json.StaticStrings.*;
 import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
@@ -72,12 +68,15 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	/**
 	 * Whether or not to run these queries as detached objects or within the entity managers scope
 	 */
-	@Transient
 	private boolean runDetached;
 	/**
 	 * If the inserted ID should be request override
 	 */
 	private boolean requestId = true;
+	
+	private boolean useDirectConnection = false;
+	
+	private boolean commitDirectConnection;
 	
 	/**
 	 * Constructor QueryBuilderBase creates a new QueryBuilderBase instance.
@@ -256,7 +255,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-						if (ds == null)
+						if (!useDirectConnection || ds == null)
 						{
 							Query query = getEntityManager().createNativeQuery(insertString);
 							query.executeUpdate();
@@ -267,10 +266,8 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 						}
 						else
 						{
-							//var c = ds.getConnection();
-							//Session session = getEntityManager().unwrap(Session.class);
-							//session.doWork(c -> {
-							try (var c = ds.getConnection();Statement st = c.createStatement())
+							var c = GuiceContext.get(Key.get(Connection.class, getEntityManagerAnnotation()));
+							try (Statement st = c.createStatement())
 							{
 								st.executeUpdate(insertString);
 								if (isIdGenerated() && isRequestId())
@@ -278,7 +275,10 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 									iterateThroughResultSetForGeneratedIDs(c);
 								}
 							}
-							//});
+							if(!c.getAutoCommit() && commitDirectConnection)
+							{
+								c.commit();
+							}
 						}
 					}
 					else
@@ -478,21 +478,22 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-						if (ds == null)
+						if (!useDirectConnection || ds == null)
 						{
 							Query query = getEntityManager().createNativeQuery(updateString);
 							query.executeUpdate();
 						}
 						else
 						{
-                           // var c = ds.getConnection();
-							//Session session = getEntityManager().unwrap(Session.class);
-							//session.doWork(c -> {
-							try (var c = ds.getConnection();Statement st = c.createStatement())
-								{
-									st.executeUpdate(updateString);
-								}
-							//});
+							var c = GuiceContext.get(Key.get(Connection.class, getEntityManagerAnnotation()));
+							try (Statement st = c.createStatement())
+							{
+								st.executeUpdate(updateString);
+							}
+							if(!c.getAutoCommit() && commitDirectConnection)
+							{
+								c.commit();
+							}
 						}
 					}
 					else
@@ -558,21 +559,22 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 					                             .containsKey(getEntityManagerAnnotation()))
 					{
 						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-						if (ds == null)
+						if (!useDirectConnection || ds == null)
 						{
 							Query query = getEntityManager().createNativeQuery(updateString);
 							query.executeUpdate();
 						}
 						else
 						{
-                            //var c = ds.getConnection();
-							//Session session = getEntityManager().unwrap(Session.class);
-							//session.doWork(c -> {
-							try (var c = ds.getConnection();Statement st = c.createStatement())
-								{
-									st.executeUpdate(updateString);
-								}
-							//});
+							var c = GuiceContext.get(Key.get(Connection.class, getEntityManagerAnnotation()));
+							try (Statement st = c.createStatement())
+							{
+								st.executeUpdate(updateString);
+							}
+							if(!c.getAutoCommit() && commitDirectConnection)
+							{
+								c.commit();
+							}
 						}
 					}
 					else
@@ -691,5 +693,51 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	public void setSelectIdentityString(String selectIdentityString)
 	{
 		this.selectIdentityString = selectIdentityString;
+	}
+	
+	/**
+	 * If a connection should be directly fetched from the datasource, or if an entity manager create native sql should be used
+	 *
+	 * @return
+	 */
+	public boolean isUseDirectConnection()
+	{
+		return useDirectConnection;
+	}
+	
+	/**
+	 * If a connection should be directly fetched from the datasource, or if an entity manager create native sql should be used
+	 *
+	 * @param useDirectConnection
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public J setUseDirectConnection(boolean useDirectConnection)
+	{
+		this.useDirectConnection = useDirectConnection;
+		return (J) this;
+	}
+	
+	/**
+	 * Commits the direct connection after execution
+	 *
+	 * @return
+	 */
+	public boolean isCommitDirectConnection()
+	{
+		return commitDirectConnection;
+	}
+	
+	/**
+	 * Commits the direct connection after execution
+	 *
+	 * @param commitDirectConnection
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public QueryBuilderRoot<J, E, I> setCommitDirectConnection(boolean commitDirectConnection)
+	{
+		this.commitDirectConnection = commitDirectConnection;
+		return (J) this;
 	}
 }
