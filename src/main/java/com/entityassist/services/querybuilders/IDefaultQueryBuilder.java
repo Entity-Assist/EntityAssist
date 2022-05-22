@@ -229,7 +229,7 @@ public interface IDefaultQueryBuilder<J extends IDefaultQueryBuilder<J, E, I>,
 	 * @return This
 	 */
 	
-	<X, Y> J where(Expression<X> attribute, Operand operator, Y[] value);
+//	<X, Y> J where(Expression<X> attribute, Operand operator, Y[] value);
 	
 	/**
 	 * Where the operand is the type of collection or list
@@ -277,7 +277,7 @@ public interface IDefaultQueryBuilder<J extends IDefaultQueryBuilder<J, E, I>,
 	 * @return This object
 	 */
 	
-	<X, Y> J where(Expression<X> attribute, Operand operator, Y value);
+//	<X, Y> J where(Expression<X> attribute, Operand operator, Y value);
 	
 	/**
 	 * Gets the cache region for this query
@@ -752,7 +752,7 @@ public interface IDefaultQueryBuilder<J extends IDefaultQueryBuilder<J, E, I>,
 	 * @return This
 	 */
 	
-	<X, Y> J or(Expression<X> attribute, Operand operator, Collection<Y> value, boolean nest);
+	//<X, Y> J or(Expression<X> attribute, Operand operator, Collection<Y> value, boolean nest);
 	
 	/**
 	 * Adds an OR group to the filter expressions with the previous where statement
@@ -792,7 +792,7 @@ public interface IDefaultQueryBuilder<J extends IDefaultQueryBuilder<J, E, I>,
 	 * @return This
 	 */
 	
-	<X, Y> J or(Expression<X> attribute, Operand operator, Y value, boolean nest);
+//	<X, Y> J or(Expression<X> attribute, Operand operator, Y value, boolean nest);
 	
 	/**
 	 * Adds an OR group to the filter expressions with the previous where statement
@@ -833,5 +833,5 @@ public interface IDefaultQueryBuilder<J extends IDefaultQueryBuilder<J, E, I>,
 	 * @return This
 	 */
 	
-	<X, Y> J or(Expression<X> attribute, Operand operator, Y[] value, boolean nest);
+	//<X, Y> J or(Expression<X> attribute, Operand operator, Y[] value, boolean nest);
 }

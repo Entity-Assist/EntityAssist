@@ -585,7 +585,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Y[] value)
 	{
-		return (J) where(getRoot().get(attribute.getName()), operator, value);
+		return (J) where(attribute, getRoot().get(attribute.getName()), operator, value);
 	}
 	
 	/**
@@ -598,12 +598,12 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 * @param <Y>       The field value type
 	 * @return This
 	 */
-	@Override
+	//@Override
 	@NotNull
 	@SuppressWarnings("unchecked")
-	public <X, Y> J where(Expression<X> attribute, Operand operator, Y[] value)
+	<X, Y> J where(Attribute attr, Expression<X> attribute, Operand operator, Y[] value)
 	{
-		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
+		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attr, attribute, operator, value);
 		whereExpressions.add(whereExpression);
 		doWhere(whereExpression);
 		return (J) this;
@@ -624,7 +624,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Collection<Y> value)
 	{
-		return (J) where(getRoot().get(attribute.getName()), operator, value);
+		return (J) where(attribute, getRoot().get(attribute.getName()), operator, value);
 	}
 	
 	/**
@@ -637,16 +637,16 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 * @param <Y>       The attribute value type
 	 * @return This
 	 */
-	/*@Override
+	//@Override
 	@NotNull
 	@SuppressWarnings("unchecked")
-	public <X, Y> J where(Expression<X> attribute, Operand operator, Collection<Y> value)
+	<X, Y> J where(Attribute attr, Expression<X> attribute, Operand operator, Collection<Y> value)
 	{
-		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
+		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attr, attribute, operator, value);
 		whereExpressions.add(whereExpression);
 		doWhere(whereExpression);
 		return (J) this;
-	}*/
+	}
 	
 	/**
 	 * Performs a filter on the database with the where clauses
@@ -661,7 +661,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@SuppressWarnings("unchecked")
 	public <X, Y> J where(Attribute<X, Y> attribute, Operand operator, Y value)
 	{
-		return (J) where(getRoot().get(attribute.getName()), operator, value);
+		return (J) where(attribute, getRoot().get(attribute.getName()), operator, value);
 	}
 	
 	/**
@@ -672,12 +672,12 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 * @param value     The value to apply (Usually serializable)
 	 * @return This object
 	 */
-	@Override
+	//@Override
 	@NotNull
 	@SuppressWarnings("unchecked")
-	public <X, Y> J where(Expression<X> attribute, Operand operator, Y value)
+	<X, Y> J where(Attribute attr, Expression<X> attribute, Operand operator, Y value)
 	{
-		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
+		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attr, attribute, operator, value);
 		whereExpressions.add(whereExpression);
 		doWhere(whereExpression);
 		return (J) this;
@@ -1922,7 +1922,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public <X, Y> J or(Attribute<X, Y> attribute, Operand operator, Collection<Y> value, boolean nest)
 	{
-		return (J) or(getRoot().get(attribute.getName()), operator, value, nest);
+		return (J) or(attribute,  getRoot().get(attribute.getName()), operator, value, nest);
 	}
 	
 	/**
@@ -1935,14 +1935,14 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 * @param <Y>       The attribute field type
 	 * @return This
 	 */
-	@Override
+	//@Override
 	@SuppressWarnings({"Duplicates", "unchecked"})
 	@NotNull
-	public <X, Y> J or(Expression<X> attribute, Operand operator, Collection<Y> value, boolean nest)
+	 <X, Y> J or(Attribute attr, Expression<X> attribute, Operand operator, Collection<Y> value, boolean nest)
 	{
 		GroupedExpression groupedExpression = new GroupedExpression();
 		groupedExpression.setGroupedFilterType(GroupedFilterType.Or);
-		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
+		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attr, attribute, operator, value);
 		processOr(groupedExpression, whereExpression, nest);
 		return (J) this;
 	}
@@ -2028,7 +2028,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public <X, Y> J or(Attribute<X, Y> attribute, Operand operator, Y value, boolean nest)
 	{
-		return (J) or(getRoot().get(attribute.getName()), operator, value, nest);
+		return (J) or(attribute, getRoot().get(attribute.getName()), operator, value, nest);
 	}
 	
 	/**
@@ -2042,14 +2042,14 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 * @param nest      If must nest a new group or not
 	 * @return This
 	 */
-	@Override
+	//@Override
 	@SuppressWarnings({"Duplicates", "unchecked"})
 	@NotNull
-	public <X, Y> J or(Expression<X> attribute, Operand operator, Y value, boolean nest)
+	<X, Y> J or(Attribute attr, Expression<X> attribute, Operand operator, Y value, boolean nest)
 	{
 		GroupedExpression groupedExpression = new GroupedExpression();
 		groupedExpression.setGroupedFilterType(GroupedFilterType.Or);
-		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
+		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attr, attribute, operator, value);
 		processOr(groupedExpression, whereExpression, nest);
 		return (J) this;
 	}
@@ -2088,7 +2088,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	@NotNull
 	public <X, Y> J or(Attribute<X, Y> attribute, Operand operator, Y[] value, boolean nest)
 	{
-		return (J) or(getRoot().get(attribute.getName()), operator, value, nest);
+		return (J) or(attribute, getRoot().get(attribute.getName()), operator, value, nest);
 	}
 	
 	/**
@@ -2102,14 +2102,14 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 * @param nest      To start a new group or not
 	 * @return This
 	 */
-	@Override
+//	@Override
 	@SuppressWarnings({"Duplicates", "unchecked"})
 	@NotNull
-	public <X, Y> J or(Expression<X> attribute, Operand operator, Y[] value, boolean nest)
+	public <X, Y> J or(Attribute attr, Expression<X> attribute, Operand operator, Y[] value, boolean nest)
 	{
 		GroupedExpression groupedExpression = new GroupedExpression();
 		groupedExpression.setGroupedFilterType(GroupedFilterType.Or);
-		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attribute, operator, value);
+		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attr, attribute, operator, value);
 		processOr(groupedExpression, whereExpression, nest);
 		return (J) this;
 	}

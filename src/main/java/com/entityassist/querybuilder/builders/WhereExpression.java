@@ -18,6 +18,7 @@ final class WhereExpression<X, Y>
 	private static final Logger log = LogFactory.getLog("WhereExpression");
 
 	private Expression<X> expressionAttribute;
+	private Attribute attribute;
 
 	private Operand operand;
 	private Object expressionValue;
@@ -28,9 +29,10 @@ final class WhereExpression<X, Y>
 	{
 	}
 
-	WhereExpression(Expression<X> expressionAttribute, Operand operand, Object expressionValue)
+	WhereExpression(Attribute attribute, Expression<X> expressionAttribute, Operand operand, Object expressionValue)
 	{
 		this.expressionAttribute = expressionAttribute;
+		this.attribute = attribute;
 		this.operand = operand;
 		this.expressionValue = expressionValue;
 	}
@@ -38,18 +40,7 @@ final class WhereExpression<X, Y>
 	public WhereExpression switchRoot(From root)
 	{
 		Path attr = (Path) expressionAttribute;
-		try
-		{
-			Field f = attr.getClass()
-			              .getDeclaredField("attribute");
-			f.setAccessible(true);
-			Attribute at = (Attribute) f.get(attr);
-			expressionAttribute = root.get(at.getName());
-		}
-		catch (NoSuchFieldException | IllegalAccessException e)
-		{
-			throw new EntityAssistException("Unable to get field to switch root in where expression - " + expressionAttribute);
-		}
+		expressionAttribute = root.get(attribute.getName());
 		return this;
 	}
 
