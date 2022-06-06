@@ -151,7 +151,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	{
 		if (!selected)
 		{
-			
 			getJoins().forEach(this::processJoins);
 			if (!isDelete() && !isUpdate())
 			{

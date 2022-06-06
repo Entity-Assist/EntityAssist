@@ -4,7 +4,7 @@ import com.entityassist.services.querybuilders.IQueryBuilderSCD;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.*;
 
 public interface ISCDEntity<J extends ISCDEntity<J, Q, I>, Q extends IQueryBuilderSCD<Q, J, I>, I extends Serializable>
         extends IBaseEntity<J, Q, I> {
@@ -13,7 +13,7 @@ public interface ISCDEntity<J extends ISCDEntity<J, Q, I>, Q extends IQueryBuild
      *
      * @return
      */
-    LocalDateTime getEffectiveFromDate();
+    OffsetDateTime getEffectiveFromDate();
     /**
      * Sets the effective from date value for default value
      *
@@ -22,14 +22,14 @@ public interface ISCDEntity<J extends ISCDEntity<J, Q, I>, Q extends IQueryBuild
      * @return
      */
     @NotNull
-    J setEffectiveFromDate(@NotNull LocalDateTime effectiveFromDate);
+    J setEffectiveFromDate(@NotNull OffsetDateTime effectiveFromDate);
 
     /**
      * Returns the effice to date setting for active flag calculation
      *
      * @return
      */
-    LocalDateTime getEffectiveToDate();
+    OffsetDateTime getEffectiveToDate();
 
     /**
      * Sets the effective to date column value for active flag determination
@@ -38,14 +38,14 @@ public interface ISCDEntity<J extends ISCDEntity<J, Q, I>, Q extends IQueryBuild
      * @return This
      */
     @NotNull
-    J setEffectiveToDate(@NotNull LocalDateTime effectiveToDate);
+    J setEffectiveToDate(@NotNull OffsetDateTime effectiveToDate);
 
     /**
      * Returns the warehouse created timestamp column value
      *
      * @return The current time
      */
-    LocalDateTime getWarehouseCreatedTimestamp();
+    OffsetDateTime getWarehouseCreatedTimestamp();
 
     /**
      * Sets the warehouse created timestamp
@@ -54,7 +54,7 @@ public interface ISCDEntity<J extends ISCDEntity<J, Q, I>, Q extends IQueryBuild
      * @return This
      */
     @NotNull
-    J setWarehouseCreatedTimestamp(@NotNull LocalDateTime warehouseCreatedTimestamp);
+    J setWarehouseCreatedTimestamp(@NotNull OffsetDateTime warehouseCreatedTimestamp);
 
 
     /**
@@ -62,7 +62,7 @@ public interface ISCDEntity<J extends ISCDEntity<J, Q, I>, Q extends IQueryBuild
      *
      * @return The time
      */
-    LocalDateTime getWarehouseLastUpdatedTimestamp();
+    OffsetDateTime getWarehouseLastUpdatedTimestamp();
 
     /**
      * Sets the last time the warehouse timestamp column was updated
@@ -72,5 +72,5 @@ public interface ISCDEntity<J extends ISCDEntity<J, Q, I>, Q extends IQueryBuild
      * @return This
      */
     @NotNull
-    J setWarehouseLastUpdatedTimestamp(@NotNull LocalDateTime warehouseLastUpdatedTimestamp);
+    J setWarehouseLastUpdatedTimestamp(@NotNull OffsetDateTime warehouseLastUpdatedTimestamp);
 }

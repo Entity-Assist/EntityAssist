@@ -12,9 +12,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.JavaType;
+import org.hibernate.type.descriptor.java.*;
 
+import java.io.Serializable;
+import java.time.*;
+
+import static com.entityassist.querybuilder.QueryBuilderSCD.*;
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 
@@ -39,10 +44,9 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "EffectiveFromDate")
-	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
-	private LocalDateTime effectiveFromDate;
+	private OffsetDateTime effectiveFromDate;
 	/**
 	 * A date to designate when this record is effective to
 	 */
@@ -50,10 +54,9 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "EffectiveToDate")
-	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
-	private LocalDateTime effectiveToDate;
+	private OffsetDateTime effectiveToDate;
 	/**
 	 * A date to mark when a warehouse can fetch the given record
 	 */
@@ -61,10 +64,9 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "WarehouseCreatedTimestamp")
-	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
-	private LocalDateTime warehouseCreatedTimestamp;
+	private OffsetDateTime warehouseCreatedTimestamp;
 	/**
 	 * A marker for the warehouse to identify when last this field was updated
 	 */
@@ -72,17 +74,16 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "WarehouseLastUpdatedTimestamp")
-	@Convert(converter = LocalDateTimeAttributeConverter.class)
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
-	private LocalDateTime warehouseLastUpdatedTimestamp;
+	private OffsetDateTime warehouseLastUpdatedTimestamp;
 
 	public SCDEntity()
 	{
-		effectiveToDate = EndOfTime;
-		effectiveFromDate = RootEntity.getNow();
-		warehouseCreatedTimestamp = RootEntity.getNow();
-		warehouseLastUpdatedTimestamp = RootEntity.getNow();
+		effectiveToDate = EndOfTime.atOffset(ZoneOffset.UTC);
+		effectiveFromDate = convertToUTCDateTime(RootEntity.getNow());
+		warehouseCreatedTimestamp = convertToUTCDateTime(RootEntity.getNow());
+		warehouseLastUpdatedTimestamp = convertToUTCDateTime(RootEntity.getNow());
 	}
 
 	/**
@@ -91,7 +92,7 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	 * @return
 	 */
 	@SuppressWarnings("all")
-	public LocalDateTime getEffectiveFromDate()
+	public OffsetDateTime getEffectiveFromDate()
 	{
 		return effectiveFromDate;
 	}
@@ -105,7 +106,7 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	public J setEffectiveFromDate(@NotNull LocalDateTime effectiveFromDate)
+	public J setEffectiveFromDate(@NotNull OffsetDateTime effectiveFromDate)
 	{
 		this.effectiveFromDate = effectiveFromDate;
 		return (J) this;
@@ -117,7 +118,7 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	 * @return
 	 */
 	@SuppressWarnings("all")
-	public LocalDateTime getEffectiveToDate()
+	public OffsetDateTime getEffectiveToDate()
 	{
 		return effectiveToDate;
 	}
@@ -131,7 +132,7 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	public J setEffectiveToDate(@NotNull LocalDateTime effectiveToDate)
+	public J setEffectiveToDate(@NotNull OffsetDateTime effectiveToDate)
 	{
 		this.effectiveToDate = effectiveToDate;
 		return (J) this;
@@ -142,7 +143,7 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	 *
 	 * @return The current time
 	 */
-	public LocalDateTime getWarehouseCreatedTimestamp()
+	public OffsetDateTime getWarehouseCreatedTimestamp()
 	{
 		return warehouseCreatedTimestamp;
 	}
@@ -157,7 +158,7 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	public J setWarehouseCreatedTimestamp(@NotNull LocalDateTime warehouseCreatedTimestamp)
+	public J setWarehouseCreatedTimestamp(@NotNull OffsetDateTime warehouseCreatedTimestamp)
 	{
 		this.warehouseCreatedTimestamp = warehouseCreatedTimestamp;
 		return (J) this;
@@ -168,7 +169,7 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	 *
 	 * @return The time
 	 */
-	public LocalDateTime getWarehouseLastUpdatedTimestamp()
+	public OffsetDateTime getWarehouseLastUpdatedTimestamp()
 	{
 		return warehouseLastUpdatedTimestamp;
 	}
@@ -182,7 +183,7 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	 */
 	@NotNull
 	@SuppressWarnings("all")
-	public J setWarehouseLastUpdatedTimestamp(@NotNull LocalDateTime warehouseLastUpdatedTimestamp)
+	public J setWarehouseLastUpdatedTimestamp(@NotNull OffsetDateTime warehouseLastUpdatedTimestamp)
 	{
 		this.warehouseLastUpdatedTimestamp = warehouseLastUpdatedTimestamp;
 		return (J) this;

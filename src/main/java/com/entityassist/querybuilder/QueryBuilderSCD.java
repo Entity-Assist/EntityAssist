@@ -8,10 +8,11 @@ import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.logging.Level;
 
 import static com.entityassist.SCDEntity.*;
+import static java.time.ZoneOffset.*;
 
 @SuppressWarnings("unused")
 public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E extends SCDEntity<E, J, I>, I extends Serializable>
@@ -67,8 +68,8 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@SuppressWarnings("unchecked")
 	public J inDateRange(LocalDateTime betweenThisDate)
 	{
-		where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), Operand.LessThanEqualTo, betweenThisDate);
-		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.GreaterThanEqualTo, betweenThisDate);
+		where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), Operand.LessThanEqualTo, convertToUTCDateTime(betweenThisDate));
+		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.GreaterThanEqualTo, convertToUTCDateTime(betweenThisDate));
 		return (J) this;
 	}
 	
@@ -84,7 +85,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@SuppressWarnings("unchecked")
 	public J inDateRange(LocalDateTime effectiveToDate, boolean toDate)
 	{
-		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, effectiveToDate);
+		where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, convertToUTCDateTime(effectiveToDate));
 		return (J) this;
 	}
 	
@@ -118,16 +119,16 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	{
 		if (fromDate != null)
 		{
-			where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), Operand.GreaterThanEqualTo, fromDate);
+			where(getAttribute(EFFECTIVE_FROM_DATE_COLUMN_NAME), Operand.GreaterThanEqualTo, convertToUTCDateTime(fromDate));
 		}
 		//noinspection ReplaceNullCheck
 		if (toDate != null)
 		{
-			where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, toDate);
+			where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, convertToUTCDateTime(toDate));
 		}
 		else
 		{
-			where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, EndOfTime);
+			where(getAttribute(EFFECTIVE_TO_DATE_COLUMN_NAME), Operand.LessThanEqualTo, EndOfTime.atOffset(UTC));
 		}
 		
 		return (J) this;
@@ -137,7 +138,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	{
 		if (time != null)
 		{
-			where(getAttribute(WAREHOUSE_CREATED_DATE_COLUMN_NAME), Operand.Equals, time);
+			where(getAttribute(WAREHOUSE_CREATED_DATE_COLUMN_NAME), Operand.Equals, convertToUTCDateTime(time));
 		}
 		//noinspection unchecked
 		return (J) this;
@@ -147,7 +148,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	{
 		if (time != null)
 		{
-			where(getAttribute(WAREHOUSE_UPDATED_DATE_COLUMN_NAME), Operand.Equals, time);
+			where(getAttribute(WAREHOUSE_UPDATED_DATE_COLUMN_NAME), Operand.Equals, convertToUTCDateTime(time));
 		}
 		//noinspection unchecked
 		return (J) this;
@@ -156,7 +157,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@Override
 	public @NotNull E update(E entity)
 	{
-		entity.setWarehouseLastUpdatedTimestamp(RootEntity.getNow());
+		entity.setWarehouseLastUpdatedTimestamp(convertToUTCDateTime(RootEntity.getNow()));
 		try
 		{
 			return super.update(entity);
@@ -171,9 +172,9 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	
 	public @NotNull E update(E entity, java.time.Duration expiresIn)
 	{
-		entity.setEffectiveToDate(RootEntity.getNow()
+		entity.setEffectiveToDate(convertToUTCDateTime(RootEntity.getNow())
 		                                               .plus(expiresIn));
-		entity.setWarehouseLastUpdatedTimestamp(RootEntity.getNow());
+		entity.setWarehouseLastUpdatedTimestamp(convertToUTCDateTime(RootEntity.getNow()));
 		try
 		{
 			return super.update(entity);
@@ -215,19 +216,19 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	{
 		if (entity.getWarehouseCreatedTimestamp() == null)
 		{
-			entity.setWarehouseCreatedTimestamp(RootEntity.getNow());
+			entity.setWarehouseCreatedTimestamp(convertToUTCDateTime(RootEntity.getNow()));
 		}
 		if (entity.getWarehouseLastUpdatedTimestamp() == null)
 		{
-			entity.setWarehouseLastUpdatedTimestamp(RootEntity.getNow());
+			entity.setWarehouseLastUpdatedTimestamp(convertToUTCDateTime(RootEntity.getNow()));
 		}
 		if (entity.getEffectiveFromDate() == null)
 		{
-			entity.setEffectiveFromDate(RootEntity.getNow());
+			entity.setEffectiveFromDate(convertToUTCDateTime(RootEntity.getNow()));
 		}
 		if (entity.getEffectiveToDate() == null)
 		{
-			entity.setEffectiveToDate(EndOfTime);
+			entity.setEffectiveToDate(EndOfTime.atOffset(UTC));
 		}
 		return true;
 	}
@@ -242,7 +243,14 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	@Override
 	public boolean onUpdate(E entity)
 	{
-		entity.setWarehouseLastUpdatedTimestamp(RootEntity.getNow());
+		entity.setWarehouseLastUpdatedTimestamp(convertToUTCDateTime(RootEntity.getNow()));
 		return true;
+	}
+	
+	public static OffsetDateTime convertToUTCDateTime(LocalDateTime ldt) {
+		ZonedDateTime zonedDateTime = ldt.atZone(ZoneId.systemDefault());
+		ZonedDateTime utcZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.of("UTC"));
+		OffsetDateTime offsetDateTime = utcZonedDateTime.toOffsetDateTime();
+		return offsetDateTime;
 	}
 }
