@@ -248,9 +248,41 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 	}
 	
 	public static OffsetDateTime convertToUTCDateTime(LocalDateTime ldt) {
+		if (ldt == null)
+		{
+			return null;
+		}
 		ZonedDateTime zonedDateTime = ldt.atZone(ZoneId.systemDefault());
 		ZonedDateTime utcZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.of("UTC"));
 		OffsetDateTime offsetDateTime = utcZonedDateTime.toOffsetDateTime();
 		return offsetDateTime;
 	}
+	
+	public static LocalDateTime convertToLocalDateTime(OffsetDateTime ldt) {
+		if (ldt == null)
+		{
+			return null;
+		}
+		ZonedDateTime zonedDateTime = ldt.atZoneSameInstant(ZoneId.systemDefault());
+		return zonedDateTime.toLocalDateTime();
+	}
+	
+	public static LocalDateTime convertToLocalDateTime(OffsetDateTime ldt, ZoneId zone) {
+		if (ldt == null)
+		{
+			return null;
+		}
+		ZonedDateTime zonedDateTime = ldt.atZoneSameInstant(zone);
+		return zonedDateTime.toLocalDateTime();
+	}
+	
+	public static LocalDateTime convertToLocalDateTime(OffsetDateTime ldt, String timezone) {
+		if (ldt == null)
+		{
+			return null;
+		}
+		ZonedDateTime zonedDateTime = ldt.atZoneSameInstant(ZoneId.of(timezone));
+		return zonedDateTime.toLocalDateTime();
+	}
+	
 }

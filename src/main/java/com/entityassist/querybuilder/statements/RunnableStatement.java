@@ -3,6 +3,7 @@ package com.entityassist.querybuilder.statements;
 import com.entityassist.RootEntity;
 import com.google.common.base.Strings;
 import com.guicedee.guicedinjection.GuiceContext;
+import com.guicedee.guicedinjection.json.*;
 import com.guicedee.guicedinjection.pairing.Pair;
 import com.guicedee.logger.LogFactory;
 
@@ -13,8 +14,7 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
@@ -45,13 +45,16 @@ abstract class RunnableStatement
 	
 	private String getHex(byte[] raw)
 	{
-		StringBuilder hex = new StringBuilder(2 * raw.length);
+		return HexFormat.of()
+				.withUpperCase()
+		         .formatHex(raw);
+		/*StringBuilder hex = new StringBuilder(2 * raw.length);
 		for (byte b : raw)
 		{
 			hex.append(HEXES.charAt((b & 0xF0) >> 4))
 			   .append(HEXES.charAt((b & 0x0F)));
 		}
-		return hex.toString();
+		return hex.toString();*/
 	}
 	
 	/**
@@ -156,6 +159,13 @@ abstract class RunnableStatement
 			            .append(getDateTimeFormat().format(date))
 			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
 		}
+		else if (columnValue instanceof OffsetDateTime)
+		{
+			OffsetDateTime date = (OffsetDateTime) columnValue;
+			insertString.append(STRING_SINGLE_QUOTES)
+			            .append(new OffsetDateTimeSerializer().convert(date))
+			            .append(STRING_SINGLE_QUOTES + STRING_COMMNA_SPACE);
+		}
 		else if (columnValue instanceof RootEntity)
 		{
 			RootEntity wct = (RootEntity) columnValue;
@@ -219,10 +229,12 @@ abstract class RunnableStatement
 		}
 		else if (columnValue instanceof byte[])
 		{
-			
-			String bitString = STRING_HEX_SQL_START + getHex((byte[]) columnValue);
+			String bitString = "(decode('" + getHex((byte[]) columnValue) + "', 'hex'))";
 			insertString.append(bitString)
 			            .append(STRING_COMMNA_SPACE);
+			/*String bitString = STRING_HEX_SQL_START + getHex((byte[]) columnValue);
+			insertString.append(bitString)
+			            .append(STRING_COMMNA_SPACE);*/
 		}
 		else
 		{
