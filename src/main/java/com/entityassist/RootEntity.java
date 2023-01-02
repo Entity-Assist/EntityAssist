@@ -4,6 +4,8 @@ import com.entityassist.exceptions.*;
 import com.entityassist.querybuilder.builders.*;
 import com.entityassist.services.entities.*;
 import com.fasterxml.jackson.annotation.*;
+import com.guicedee.guicedinjection.pairing.*;
+import com.guicedee.logger.*;
 import jakarta.persistence.*;
 import jakarta.validation.*;
 import jakarta.validation.constraints.*;
@@ -16,6 +18,7 @@ import java.util.logging.*;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
+import static com.guicedee.guicedinjection.json.StaticStrings.*;
 
 @SuppressWarnings("unused")
 @MappedSuperclass()
@@ -188,5 +191,139 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 	public Class<I> getClassIDType()
 	{
 		return (Class<I>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[2];
+	}
+	
+	public  String getIdColumnName()
+	{
+		for (Field field : getFields())
+		{
+			if (field.isAnnotationPresent(Transient.class) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()))
+			{
+				continue;
+			}
+			try
+			{
+				Id idCol = field.getAnnotation(Id.class);
+				EmbeddedId embId = field.getAnnotation(EmbeddedId.class);
+				if (idCol != null)
+				{
+					field.setAccessible(true);
+					return Pair.of(getColumnName(field), field.get(getObject()));
+				}
+				if (embId != null)
+				{
+					//run the object through the analyzer
+					field.setAccessible(true);
+					Object be = field.get(obj);
+					Field[] fields = be.getClass()
+					                   .getFields();
+					StringBuilder sb = new StringBuilder();
+					StringBuilder valueList = new StringBuilder();
+					for (Field field1 : fields)
+					{
+						if (isColumnReadable(field1))
+						{
+							sb.append(getColumnName(field1))
+							  .append(STRING_COMMNA);
+							
+							Object fo = field.get(be);
+							valueList.append(getValue(fo, field1))
+							         .append(STRING_COMMNA);
+						}
+					}
+					sb.deleteCharAt(sb.length() - 1);
+					valueList.deleteCharAt(valueList.length() - 1);
+					RawInsertObjectValue r = new RawInsertObjectValue().setRawInsert(valueList.toString());
+					return Pair.of(sb.toString(), r);
+				}
+			}
+			catch (IllegalArgumentException | IllegalAccessException ex)
+			{
+				LogFactory
+						.getLog("RunnableStatement")
+						.log(Level.SEVERE, null, ex);
+			}
+		}
+		return Pair.empty();
+	}
+	
+	@SuppressWarnings("EqualsBetweenInconvertibleTypes")
+	protected boolean isColumnReadable(Field field)
+	{
+		JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
+		Column col = field.getAnnotation(Column.class);
+		Id idCol = field.getAnnotation(Id.class);
+		EmbeddedId embId = field.getAnnotation(EmbeddedId.class);
+		OneToOne oneToOne = field.getAnnotation(OneToOne.class);
+		OneToMany oneToMany = field.getAnnotation(OneToMany.class);
+		ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
+		ManyToOne manyToOne = field.getAnnotation(ManyToOne.class);
+		GeneratedValue genVal = field.getAnnotation(GeneratedValue.class);
+		if (col == joinCol && joinCol == idCol && idCol == embId
+		    && joinCol == oneToOne
+		    && joinCol == oneToMany
+		    && joinCol == manyToMany
+		    && joinCol == manyToOne
+		    && joinCol == genVal
+		) //if everything is null go to next field, easier than is nulls
+		{
+			return false;
+		}
+		if (Collection.class.isAssignableFrom(field.getType()))
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	public String getColumnName(Field field)
+	{
+		JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
+		Column col = field.getAnnotation(Column.class);
+		EmbeddedId embId = field.getAnnotation(EmbeddedId.class);
+		String columnName = STRING_EMPTY;
+		
+		if (joinCol != null)
+		{
+			columnName = joinCol.name();
+		}
+		else if (col != null)
+		{
+			columnName = col.name();
+		}
+		else if (embId != null)
+		{
+			columnName = STRING_EMPTY;
+		}
+		
+		if (embId != null)
+		{
+			try
+			{
+				Object o = field.get(this);
+				Field[] f = o.getClass()
+				             .getDeclaredFields();
+				StringBuilder colNames = new StringBuilder();
+				for (Field field1 : f)
+				{
+					if (isColumnReadable(field1))
+					{
+						colNames.append(getColumnName(field1))
+						        .append(STRING_COMMNA);
+					}
+				}
+				colNames.deleteCharAt(colNames.length() - 1);
+				return colNames.toString();
+			}
+			catch (IllegalAccessException e)
+			{
+				columnName = STRING_EMPTY;
+			}
+		}
+		if (columnName.isEmpty())
+		{
+			columnName = field.getName();
+		}
+		return columnName;
 	}
 }
