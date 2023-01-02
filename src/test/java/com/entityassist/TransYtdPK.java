@@ -1,10 +1,9 @@
 package com.entityassist;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import java.io.Serializable;
-import java.util.Objects;
+import jakarta.persistence.*;
+
+import java.io.*;
+import java.util.*;
 
 /**
  * @author MMagon

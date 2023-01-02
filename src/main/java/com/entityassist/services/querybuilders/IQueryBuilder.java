@@ -1,13 +1,11 @@
 package com.entityassist.services.querybuilders;
 
-import com.entityassist.exceptions.QueryBuilderException;
-import com.entityassist.services.entities.IBaseEntity;
-import jakarta.persistence.TypedQuery;
+import com.entityassist.services.entities.*;
+import jakarta.persistence.*;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.io.*;
+import java.util.*;
+import java.util.stream.*;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public interface IQueryBuilder<J extends IQueryBuilder<J, E, I>,
@@ -48,15 +46,7 @@ public interface IQueryBuilder<J extends IQueryBuilder<J, E, I>,
      * @return A built typed query
      */
     <T> TypedQuery<T> getQueryCount();
-
-    /**
-     * Returns the number of rows or an unsupported exception if there are no filters added
-     *
-     * @param updateFields Allows to use the Criteria Update to run a bulk update on the table
-     * @return number of rows updated
-     */
-    int bulkUpdate(E updateFields, boolean allowEmpty);
-
+	
     /**
      * Returns the result set as a stream
      *
@@ -142,16 +132,7 @@ public interface IQueryBuilder<J extends IQueryBuilder<J, E, I>,
      * @return number of results deleted
      */
     int delete();
-
-    /**
-     * Deletes a specific ID the good old almost fast way
-     * <p>
-     * Delete where ID = getId();
-     *
-     * @param entity entity with id populated
-     */
-    void deleteId(E entity) throws QueryBuilderException;
-
+	
     /**
      * Deletes the given entity through the entity manager
      *

@@ -1,10 +1,11 @@
 package com.entityassist.services.entities;
 
-import com.entityassist.services.querybuilders.IQueryBuilderRoot;
-import jakarta.validation.constraints.NotNull;
+import com.entityassist.services.querybuilders.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
-import java.io.Serializable;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 public interface IRootEntity<J extends IRootEntity<J, Q, I>, Q extends IQueryBuilderRoot<Q, J, I>, I extends Serializable> {
     /**
@@ -30,16 +31,7 @@ public interface IRootEntity<J extends IRootEntity<J, Q, I>, Q extends IQueryBui
      * @return The associated builder
      */
     @NotNull
-    Q builder();
-
-    /**
-     * Any DB Transient Maps
-     * <p>
-     * Sets any custom properties for this core entity.
-     * Dto Read only structure. Not for storage unless mapped as such in a sub-method
-     *
-     * @return
-     */
-    @NotNull
-    Map<Serializable, Object> getProperties();
+    Q builder(EntityManager entityManager);
+	
+	String getTableName();
 }

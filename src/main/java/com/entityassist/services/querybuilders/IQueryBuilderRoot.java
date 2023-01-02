@@ -1,13 +1,12 @@
 package com.entityassist.services.querybuilders;
 
-import com.entityassist.services.entities.IRootEntity;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.metamodel.Attribute;
+import com.entityassist.services.entities.*;
+import jakarta.persistence.*;
+import jakarta.persistence.metamodel.*;
 
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.sql.SQLException;
-import java.util.List;
+import java.io.*;
+import java.lang.annotation.*;
+import java.sql.*;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public interface IQueryBuilderRoot<J extends IQueryBuilderRoot<J, E, I>,
@@ -91,6 +90,14 @@ public interface IQueryBuilderRoot<J extends IQueryBuilderRoot<J, E, I>,
      * @return The entity manager to use for this run
      */
     EntityManager getEntityManager();
+	
+	/**
+	 * Sets this builders entity manager
+	 * @param entityManager
+	 *
+	 * @return
+	 */
+	J setEntityManager(EntityManager entityManager);
 
     /**
      * Persists this entity. Uses the get instance entity manager to operate.
@@ -107,34 +114,7 @@ public interface IQueryBuilderRoot<J extends IQueryBuilderRoot<J, E, I>,
      * @return true if must still create
      */
     boolean onCreate(E entity);
-
-    /**
-     * If this entity should run in a detached and separate to the entity manager
-     * <p>
-     * If the library generates the sql and runs it through a native query. Use InsertStatement, SelectStatement, Delete and UpdateStatement to view the queries that will get run
-     *
-     * @return boolean
-     */
-    boolean isRunDetached();
-
-    /**
-     * If this entity should run in a detached and separate to the entity manager
-     * <p>
-     * If the library generates the sql and runs it through a native query. Use InsertStatement, SelectStatement, Delete and UpdateStatement to view the queries that will get run
-     *
-     * @param runDetached if must do
-     * @return This
-     */
-
-    J setRunDetached(boolean runDetached);
-
-    /**
-     * If this ID is generated from the source and which form to use
-     * Default is Generated
-     *
-     * @return Returns if the id column is a generated type
-     */
-    boolean isIdGenerated();
+	
 
     /**
      * Getter for property 'requestId'.
@@ -179,14 +159,6 @@ public interface IQueryBuilderRoot<J extends IQueryBuilderRoot<J, E, I>,
      */
     boolean onUpdate(E entity);
 
-    /**
-     * Performs the constraint validation and returns a list of all constraint errors.
-     *
-     * <b>Great for form checking</b>
-     *
-     * @return List of Strings
-     */
-    List<String> validateEntity(E entity);
 
     /**
      * Returns the given attribute for a field name by reflectively accesing the static class
@@ -195,18 +167,4 @@ public interface IQueryBuilderRoot<J extends IQueryBuilderRoot<J, E, I>,
      * @return the attribute or null
      */
     <X, Y> Attribute<X, Y> getAttribute(String fieldName);
-
-    /**
-     * Method getSelectIdentityString returns the selectIdentityString of this QueryBuilderBase object.
-     *
-     * @return the selectIdentityString (type String) of this QueryBuilderBase object.
-     */
-    String getSelectIdentityString();
-
-    /**
-     * Method setSelectIdentityString sets the selectIdentityString of this QueryBuilderBase object.
-     *
-     * @param selectIdentityString the selectIdentityString of this QueryBuilderBase object.
-     */
-    void setSelectIdentityString(String selectIdentityString);
 }

@@ -1,11 +1,9 @@
 package com.entityassist.querybuilder.builders;
 
-import com.entityassist.BaseEntity;
-import com.entityassist.querybuilder.QueryBuilder;
-
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.metamodel.Attribute;
+import com.entityassist.*;
+import com.entityassist.querybuilder.*;
+import jakarta.persistence.criteria.*;
+import jakarta.persistence.metamodel.*;
 
 /**
  * Public join expression

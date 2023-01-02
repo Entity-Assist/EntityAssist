@@ -1,21 +1,18 @@
 package com.entityassist;
 
-import com.entityassist.exceptions.QueryBuilderException;
-import com.entityassist.querybuilder.QueryBuilder;
-import com.entityassist.services.entities.IBaseEntity;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.validation.constraints.NotNull;
+import com.entityassist.querybuilder.*;
+import com.entityassist.services.entities.*;
+import com.fasterxml.jackson.annotation.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
-import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.*;
+import java.sql.*;
+import java.util.*;
+import java.util.logging.*;
 
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 
 @MappedSuperclass()
 @JsonAutoDetect(fieldVisibility = ANY,
@@ -32,7 +29,6 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
      */
     public BaseEntity() {
         //No configuration needed
-        setFake(true);
     }
 
     /**
@@ -42,8 +38,8 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
      */
     @SuppressWarnings("unchecked")
     @NotNull
-    public J persist() {
-        builder().persist((J) this);
+    public J persist(@NotNull EntityManager entityManager) {
+        builder(entityManager).persist((J) this);
         return (J) this;
     }
 
@@ -54,9 +50,9 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
      */
     @SuppressWarnings("unchecked")
     @NotNull
-    public J update() {
+    public J update(@NotNull EntityManager entityManager) {
         try {
-            builder().update((J) this);
+            builder(entityManager).update((J) this);
         } catch (SQLException e) {
             log.log(Level.WARNING, "Unable to update id : " + e, e);
         }
@@ -70,8 +66,8 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
      */
     @SuppressWarnings("unchecked")
     @NotNull
-    public J persistNow() {
-        builder().persistNow((J) this);
+    public J persistNow(@NotNull EntityManager entityManager) {
+        builder(entityManager).persistNow((J) this);
         return (J) this;
     }
 
@@ -82,25 +78,41 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
      */
     @SuppressWarnings("unchecked")
     @NotNull
-    public J delete() {
-        ((QueryBuilder) builder())
+    public J delete(@NotNull EntityManager entityManager) {
+        ((QueryBuilder) builder(entityManager))
                 .delete(this);
         return (J) this;
     }
-
-    /**
-     * Deletes this object from the ID
-     *
-     * @return
-     */
-    public J deleteId() {
-        try {
-            ((QueryBuilder) builder())
-                    .deleteId(this);
-        } catch (QueryBuilderException e) {
-            log.log(Level.WARNING, "Unable to delete from id : " + e);
-        }
-        return (J) this;
-    }
-
+	
+	/**
+	 * Finds the entity with the given ID
+	 *
+	 * @param id The id to look for
+	 * @return If it is found through a get method
+	 */
+	@Override
+	public Optional<J> find(I id,EntityManager entityManager) {
+		setId(id);
+		return find(entityManager);
+	}
+	
+	/**
+	 * Finds this entity or refreshes
+	 * @return If it is found through a get method
+	 */
+	@Override
+	public Optional<J> find(EntityManager entityManager) {
+		return builder(entityManager).find(getId())
+		                             .get();
+	}
+	
+	/**
+	 * Finds all the entity types
+	 *
+	 * @return A list of get all from the current builder
+	 */
+	@Override
+	public List<J> findAll(EntityManager entityManager) {
+		return builder(entityManager).getAll();
+	}
 }

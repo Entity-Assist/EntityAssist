@@ -1,9 +1,9 @@
 package com.entityassist.services.entities;
 
-import com.entityassist.services.querybuilders.IQueryBuilderSCD;
-import jakarta.validation.constraints.NotNull;
+import com.entityassist.services.querybuilders.*;
+import jakarta.validation.constraints.*;
 
-import java.io.Serializable;
+import java.io.*;
 import java.time.*;
 
 public interface ISCDEntity<J extends ISCDEntity<J, Q, I>, Q extends IQueryBuilderSCD<Q, J, I>, I extends Serializable>

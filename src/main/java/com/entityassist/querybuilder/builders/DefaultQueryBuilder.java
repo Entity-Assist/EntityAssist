@@ -1,29 +1,19 @@
 package com.entityassist.querybuilder.builders;
 
-import com.entityassist.BaseEntity;
-import com.entityassist.DefaultEntity;
-import com.entityassist.enumerations.GroupedFilterType;
-import com.entityassist.enumerations.Operand;
-import com.entityassist.enumerations.OrderByType;
-import com.entityassist.enumerations.SelectAggregrate;
-import com.entityassist.querybuilder.QueryBuilder;
-import com.google.common.base.Strings;
-import com.guicedee.logger.LogFactory;
-
-import jakarta.persistence.Id;
+import com.entityassist.*;
+import com.entityassist.enumerations.*;
+import com.entityassist.querybuilder.*;
+import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
-import jakarta.persistence.metamodel.Attribute;
-import jakarta.persistence.metamodel.EntityType;
-import jakarta.persistence.metamodel.PluralAttribute;
-import jakarta.persistence.metamodel.SingularAttribute;
-import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.logging.Logger;
+import jakarta.persistence.metamodel.*;
+import jakarta.validation.constraints.*;
 
-import static com.entityassist.querybuilder.builders.IFilterExpression.isPluralOrMapAttribute;
-import static com.entityassist.querybuilder.builders.IFilterExpression.isSingularAttribute;
+import java.io.*;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.logging.*;
+
+import static com.entityassist.querybuilder.builders.IFilterExpression.*;
 
 @SuppressWarnings({"UnusedReturnValue", "WeakerAccess", "unused"})
 public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>,
@@ -36,7 +26,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	/**
 	 * The logger
 	 */
-	private static final Logger log = LogFactory.getLog("DefaultQueryBuilder");
+	private static final Logger log = Logger.getLogger("DefaultQueryBuilder");
 	/**
 	 * The set of joins to apply
 	 */
@@ -1642,7 +1632,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectExpressionNone(SelectExpression selectExpression)
 	{
 		Expression<?> selectColumn = selectExpression.getAttribute();
-		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		if (!isNullOrEmpty(selectExpression.getAlias()))
 		{
 			selectColumn.alias(selectExpression.getAlias());
 		}
@@ -1660,7 +1650,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectAverage(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
-		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		if (!isNullOrEmpty(selectExpression.getAlias()))
 		{
 			selectColumn.alias(selectExpression.getAlias());
 		}
@@ -1678,7 +1668,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectCount(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
-		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		if (!isNullOrEmpty(selectExpression.getAlias()))
 		{
 			selectColumn.alias(selectExpression.getAlias());
 		}
@@ -1697,7 +1687,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectCountDistinct(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
-		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		if (!isNullOrEmpty(selectExpression.getAlias()))
 		{
 			selectColumn.alias(selectExpression.getAlias());
 		}
@@ -1709,7 +1699,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectExpressionMax(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
-		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		if (!isNullOrEmpty(selectExpression.getAlias()))
 		{
 			selectColumn.alias(selectExpression.getAlias());
 		}
@@ -1721,7 +1711,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectExpressionMin(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
-		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		if (!isNullOrEmpty(selectExpression.getAlias()))
 		{
 			selectColumn.alias(selectExpression.getAlias());
 		}
@@ -1733,7 +1723,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectSum(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
-		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		if (!isNullOrEmpty(selectExpression.getAlias()))
 		{
 			selectColumn.alias(selectExpression.getAlias());
 		}
@@ -1745,7 +1735,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectSumAsDouble(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
-		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		if (!isNullOrEmpty(selectExpression.getAlias()))
 		{
 			selectColumn.alias(selectExpression.getAlias());
 		}
@@ -1757,7 +1747,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	private boolean processSelectSumAsLong(SelectExpression selectExpression)
 	{
 		Expression selectColumn = selectExpression.getAttribute();
-		if (!Strings.isNullOrEmpty(selectExpression.getAlias()))
+		if (!isNullOrEmpty(selectExpression.getAlias()))
 		{
 			selectColumn.alias(selectExpression.getAlias());
 		}
@@ -2112,5 +2102,10 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		WhereExpression<X, Y> whereExpression = new WhereExpression<>(attr, attribute, operator, value);
 		processOr(groupedExpression, whereExpression, nest);
 		return (J) this;
+	}
+	
+	private boolean isNullOrEmpty(String value)
+	{
+		return value == null || value.isEmpty() || value.isBlank()  || value.trim().isEmpty()  || value.trim().isBlank();
 	}
 }

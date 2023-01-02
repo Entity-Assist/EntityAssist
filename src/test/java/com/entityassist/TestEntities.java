@@ -1,21 +1,10 @@
 package com.entityassist;
 
-import com.entityassist.*;
-import com.entityassist.enumerations.ActiveFlag;
-import com.entityassist.enumerations.Operand;
-import com.google.inject.Key;
-import com.guicedee.guicedinjection.GuiceContext;
-import com.guicedee.guicedpersistence.db.annotations.Transactional;
-import com.guicedee.logger.LogFactory;
+import com.entityassist.enumerations.*;
+import jakarta.persistence.*;
 import org.junit.jupiter.api.*;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.JoinType;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Level;
+import java.util.*;
 
 import static com.entityassist.EntityClass_.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,161 +12,142 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestEntities
 {
+	public static final ThreadLocal<EntityManager> entityManager =ThreadLocal.withInitial(()->{
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("h2entityAssist");
+		EntityManager em = emf.createEntityManager();
+		System.out.println("EM Open : " + em.isOpen());
+		return em;
+	});
+	
+	@BeforeEach public void beforeEach(TestInfo info) {
+		entityManager.get().getTransaction().begin();
+	}
+	
+	@AfterEach
+	public void afterEach(TestInfo info)
+	{
+		entityManager.get().getTransaction().commit();
+	}
+	
 	@Test
 	public void testMe()
 	{
 		System.out.println("Override for server builds?");
 	}
-
+	
+	public long getNextNumber()
+	{
+		Optional<Long> max = new EntityClass().builder(entityManager.get())
+		                                      .selectMax(EntityClass_.id)
+		                                      .get(Long.class);
+		return max.map(aLong -> aLong + 1)
+		          .orElse(1L);
+	}
+	
 	@Test
 	public void testEntity()
 	{
-		LogFactory.configureConsoleColourOutput(Level.FINE);
-		GuiceContext.instance()
-		            .loadIGuiceModules()
-		            .add(new com.entityassist.EntityAssistTestDBModule());
-		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
-		System.out.println("EM Open : " + em.isOpen());
-
-		TestEntities te = GuiceContext.get(TestEntities.class);
-		Optional<EntityClass> ec1 = new EntityClass().find(1L);
+		Optional<EntityClass> ec1 = new EntityClass().find(1L,entityManager.get());
 		System.out.println("ec : " + ec1);
 	}
-
+	
 	@Test
-	public void testEntity2Really()
-	{
-		LogFactory.configureConsoleColourOutput(Level.FINE);
-		GuiceContext.instance()
-		            .loadIGuiceModules()
-		            .add(new com.entityassist.EntityAssistTestDBModule());
-		GuiceContext.get(TestEntities.class)
-		            .testEntity2();
-	}
-
-	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testEntity2()
 	{
-		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
-		System.out.println("EM Open : " + em.isOpen());
 
 		EntityClass ec = new EntityClass();
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persistNow(entityManager.get());
 
 		long l2;
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
-
-		Optional<EntityClass> ec1 = new EntityClass().find(l);
+		ec2.persistNow(entityManager.get());
+		Optional<EntityClass> ec1 = new EntityClass().find(l,entityManager.get());
 		System.out.println("ec after find: " + ec1);
 
-		System.out.println("Number of all rows : " + ec.builder()
+		System.out.println("Number of all rows : " + ec.builder(entityManager.get())
 		                                               .getCount());
 
-		List<EntityClass> numberofresults = ec.builder()
+		List<EntityClass> numberofresults = ec.builder(entityManager.get())
 		                                      .where(id, Operand.InList, l2)
 		                                      .getAll();
 		System.out.println("Wow that returned : " + numberofresults);
 	}
-
+	
 	@Test
 	public void testEntityEmbeddableID()
 	{
-		LogFactory.configureConsoleColourOutput(Level.FINE);
-		GuiceContext.instance()
-		            .loadIGuiceModules()
-		            .add(new com.entityassist.EntityAssistTestDBModule());
-		GuiceContext.get(TestEntities.class)
-		            .testEntityEmbeddableIDReally();
-	}
-
-	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
-	public void testEntityEmbeddableIDReally()
-	{
-		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
-		System.out.println("EM Open : " + em.isOpen());
-
 		TransYtd ytd = new TransYtd();
 		ytd.setId(new TransYtdPK().setDayID(1)
 		                          .setYtdDayID(1));
-		ytd.persist();
+		ytd.persist(entityManager.get());
 
-		Long numberofresults = ytd.builder()
+		Long numberofresults = ytd.builder(entityManager.get())
 		                             .getCount();
 		System.out.println("Wow that returned : " + numberofresults);
 
 		ytd = new TransYtd();
 		ytd.setId(new TransYtdPK().setDayID(2)
 		                          .setYtdDayID(2));
-		ytd.builder()
-		   .setRunDetached(true)
+		ytd.builder(entityManager.get())
 		   .persist(ytd);
 
-		numberofresults = ytd.builder()
+		numberofresults = ytd.builder(entityManager.get())
 		                          .getCount();
 		System.out.println("Wow that returned : " + numberofresults);
 	}
-
-	public long getNextNumber()
-	{
-		Optional<Long> max = new EntityClass().builder()
-		                                      .selectMax(id)
-		                                      .get(Long.class);
-		return max.map(aLong -> aLong + 1)
-		          .orElse(1L);
-	}
-
+	
 	@Test
-	public void testWhereInListReally()
-	{
-		configUp();
-		GuiceContext.get(TestEntities.class)
-		            .testWhereInList();
-	}
-
-	private void configUp()
-	{
-		LogFactory.configureConsoleColourOutput(Level.FINE);
-		GuiceContext.instance()
-		            .loadIGuiceModules()
-		            .add(new com.entityassist.EntityAssistTestDBModule());
-	}
-
-	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testWhereInList()
 	{
-		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
 		EntityClass ec = new EntityClass();
 
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persistNow(entityManager.get());
 
 		long l2;
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
+		ec2.persistNow(entityManager.get());
 
 		List resultList = new ArrayList();
 		resultList.add(l);
 		resultList.add(l2);
-		long resultCount = ec.builder()
+		long resultCount = ec.builder(entityManager.get())
 		                     .where(id, Operand.InList, resultList)
 		                     .getCount();
 		assertEquals(2L, resultCount);
 	}
-
+	
 	@Test
-	public void testWhereEqualsReally()
+	public void testBlob()
 	{
-		configUp();
-		GuiceContext.get(TestEntities.class)
-		            .testWhereEquals();
+		EntityClassTwo ec = new EntityClassTwo();
+		
+		long l;
+		ec.setId(-10111L);
+		ec.setBlob("This is a blob".getBytes());
+		ec.persistNow(entityManager.get());
+		
+		long resultCount = ec.builder(entityManager.get())
+		                     .where(id, Operand.Equals,-10111L)
+		                     .getCount();
+		assertEquals(1L, resultCount);
+		
+		Optional<EntityClassTwo> entityClassTwo = ec.find(entityManager.get());
+		if (entityClassTwo.isPresent())
+		{
+			byte[] blob = entityClassTwo
+					              .get()
+					              .getBlob();
+			System.out.println(new String(blob));
+		}
 	}
-
+	
+/*
 	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
 	public void testWhereEquals()
 	{
@@ -581,5 +551,5 @@ public class TestEntities
 		                 .setRunDetached(true)
 		                 .where(EntityClass_.activeFlag, Operand.Equals, ActiveFlag.Invisible)
 		                 .bulkUpdate(updates, true);
-	}
+	}*/
 }

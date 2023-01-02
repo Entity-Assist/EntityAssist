@@ -1,10 +1,9 @@
 package com.entityassist;
 
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
+import jakarta.persistence.*;
+import jakarta.xml.bind.annotation.*;
+
+import java.io.*;
 
 /**
  * @author MMagon

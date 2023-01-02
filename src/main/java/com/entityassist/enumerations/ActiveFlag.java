@@ -1,9 +1,8 @@
 package com.entityassist.enumerations;
 
-import jakarta.validation.constraints.NotNull;
-import java.util.EnumSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import jakarta.validation.constraints.*;
+
+import java.util.*;
 
 /**
  * Active Range ordered from Unknown to Removed to Archived/Visible to Active to Highlighted to Permanent

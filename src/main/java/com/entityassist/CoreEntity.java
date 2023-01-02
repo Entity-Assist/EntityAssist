@@ -1,22 +1,18 @@
 package com.entityassist;
 
-import com.entityassist.enumerations.ActiveFlag;
-import com.entityassist.querybuilder.QueryBuilderCore;
-import com.entityassist.services.entities.ICoreEntity;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.entityassist.enumerations.*;
+import com.entityassist.querybuilder.*;
+import com.entityassist.services.entities.*;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
+import org.hibernate.annotations.*;
 
-import java.io.Serializable;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import java.io.*;
+import java.sql.*;
 
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 
 /**
  * @param <J> Always this class (CRP)
@@ -35,24 +31,14 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
         extends SCDEntity<J, Q, I>
         implements ICoreEntity<J, Q, I> {
     /**
-     * Returns the date time formatter
-     */
-    private static final DateTimeFormatter dateTimeOffsetFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-    /**
-     * A reference ID for this entity - separate to ID
-     */
-    @JsonProperty(value = "$jwid")
-    @Transient
-    private String referenceId;
-
-    /**
      * A Row status identifier for a warehouse or OLAP system
      */
     @Basic(optional = false,
             fetch = FetchType.LAZY)
     @Column(nullable = false,
-            name = "ActiveFlag")
+            name = "ActiveFlag",columnDefinition = "VARCHAR(25)",length = 25)
     @Enumerated(value = EnumType.STRING)
+    @JdbcTypeCode(Types.VARCHAR)
     private ActiveFlag activeFlag;
 
     /**
@@ -94,26 +80,6 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
     }
 
     /**
-     * Finds the entity with the given ID
-     *
-     * @param id The id to look for
-     * @return If it is found through a get method
-     */
-    public Optional<J> find(I id) {
-        return builder().find(id)
-                .get();
-    }
-
-    /**
-     * Finds all the entity types
-     *
-     * @return A list of get all from the current builder
-     */
-    public List<J> findAll() {
-        return builder().getAll();
-    }
-
-    /**
      * Deletes this entity with the entity mananger. This will remove the row.
      *
      * @return This
@@ -121,43 +87,9 @@ public abstract class CoreEntity<J extends CoreEntity<J, Q, I>, Q extends QueryB
     @Override
     @SuppressWarnings("unchecked")
     @NotNull
-    public J delete() {
-        ((QueryBuilderCore) builder())
+    public J delete(EntityManager entityManager) {
+        ((QueryBuilderCore) builder(entityManager))
                 .delete(this);
         return (J) this;
     }
-
-    /**
-     * Sets the JW ID to send if necessary
-     *
-     * @return any associated reference id
-     */
-    @Transient
-    public String getReferenceId() {
-        return referenceId;
-    }
-
-    /**
-     * Sets the JW ID to send if necessary
-     *
-     * @param referenceId a transient identifier
-     */
-    @NotNull
-    @Transient
-    @SuppressWarnings("all")
-    public J setReferenceId(@NotNull String referenceId) {
-        this.referenceId = referenceId;
-        return (J) this;
-    }
-
-    /**
-     * Returns the formatter for date time offset (sql server)
-     *
-     * @return the formatter used for UTC
-     */
-    @NotNull
-    protected DateTimeFormatter getDateTimeOffsetFormatter() {
-        return dateTimeOffsetFormatter;
-    }
-
 }

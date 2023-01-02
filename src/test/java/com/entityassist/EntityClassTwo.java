@@ -15,6 +15,10 @@ public class EntityClassTwo
 	@JoinColumn(referencedColumnName = "entityClass",
 			name = "entityClass")
 	private EntityClass entityClass;
+	
+	@Lob
+	@Column(name = "dataColumn")
+	private byte[] blob;
 
 	public EntityClass getEntityClass()
 	{
@@ -42,6 +46,17 @@ public class EntityClassTwo
 	public EntityClassTwo setId(Long id)
 	{
 		this.id = id;
+		return this;
+	}
+	
+	public byte[] getBlob()
+	{
+		return blob;
+	}
+	
+	public EntityClassTwo setBlob(byte[] blob)
+	{
+		this.blob = blob;
 		return this;
 	}
 }

@@ -1,16 +1,14 @@
 package com.entityassist;
 
-import com.entityassist.querybuilder.builders.DefaultQueryBuilder;
-import com.entityassist.services.entities.IDefaultEntity;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.persistence.MappedSuperclass;
+import com.entityassist.querybuilder.builders.*;
+import com.entityassist.services.entities.*;
+import com.fasterxml.jackson.annotation.*;
+import jakarta.persistence.*;
 
-import java.io.Serializable;
+import java.io.*;
 
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 
 @MappedSuperclass()
 @JsonAutoDetect(fieldVisibility = ANY,

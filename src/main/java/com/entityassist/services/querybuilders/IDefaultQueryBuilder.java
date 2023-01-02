@@ -1,22 +1,16 @@
 package com.entityassist.services.querybuilders;
 
-import com.entityassist.BaseEntity;
-import com.entityassist.DefaultEntity;
-import com.entityassist.enumerations.Operand;
-import com.entityassist.enumerations.OrderByType;
-import com.entityassist.querybuilder.QueryBuilder;
-import com.entityassist.querybuilder.builders.DefaultQueryBuilder;
-import com.entityassist.querybuilder.builders.IFilterExpression;
-import com.entityassist.querybuilder.builders.JoinExpression;
-
-import com.entityassist.services.entities.IDefaultEntity;
+import com.entityassist.*;
+import com.entityassist.enumerations.*;
+import com.entityassist.querybuilder.*;
+import com.entityassist.querybuilder.builders.*;
+import com.entityassist.services.entities.*;
 import jakarta.persistence.criteria.*;
-import jakarta.persistence.metamodel.Attribute;
-import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import jakarta.persistence.metamodel.*;
+import jakarta.validation.constraints.*;
+
+import java.io.*;
+import java.util.*;
 
 @SuppressWarnings({"UnusedReturnValue", "unused", "rawtypes"})
 public interface IDefaultQueryBuilder<J extends IDefaultQueryBuilder<J, E, I>,

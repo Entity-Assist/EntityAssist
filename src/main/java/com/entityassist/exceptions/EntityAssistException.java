@@ -1,4 +1,4 @@
-package com.entityassist;
+package com.entityassist.exceptions;
 
 @SuppressWarnings("unused")
 public class EntityAssistException

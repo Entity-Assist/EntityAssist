@@ -1,21 +1,17 @@
 package com.entityassist.querybuilder.builders;
 
-import com.entityassist.EntityAssistException;
-import com.entityassist.enumerations.Operand;
-import com.guicedee.logger.LogFactory;
-
+import com.entityassist.enumerations.*;
 import jakarta.persistence.criteria.*;
-import jakarta.persistence.metamodel.Attribute;
-import jakarta.validation.constraints.NotNull;
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.logging.Logger;
+import jakarta.persistence.metamodel.*;
+import jakarta.validation.constraints.*;
+
+import java.util.*;
+import java.util.logging.*;
 
 final class WhereExpression<X, Y>
 		implements IFilterExpression
 {
-	private static final Logger log = LogFactory.getLog("WhereExpression");
+	private static final Logger log = Logger.getLogger("WhereExpression");
 
 	private Expression<X> expressionAttribute;
 	private Attribute attribute;

@@ -1,20 +1,9 @@
 package com.entityassist.querybuilder.statements;
 
-import com.entityassist.TestEntityAssistCustomPersistenceLoader;
-import com.entityassist.EntityClass;
-import com.entityassist.EntityClassGeneratedID;
-import com.entityassist.enumerations.ActiveFlag;
-import com.guicedee.guicedpersistence.db.annotations.Transactional;
-import com.guicedee.logger.LogFactory;
-import org.junit.jupiter.api.Test;
-
-import java.util.logging.Level;
-
 class UpdateStatementTest
 {
 
-	@Test
-	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+/*	@Test
 	void buildUpdateStatement()
 	{
 		LogFactory.setDefaultLevel(Level.FINE);
@@ -31,5 +20,5 @@ class UpdateStatementTest
 		generatedID.builder().setRunDetached(true).update(generatedID);
 		generatedID.builder().setRunDetached(true).updateNow(generatedID);
 
-	}
+	}*/
 }

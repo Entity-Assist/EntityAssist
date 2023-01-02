@@ -1,8 +1,7 @@
 package com.entityassist.querybuilder.builders;
 
-import com.entityassist.enumerations.OrderByType;
-
-import jakarta.persistence.metamodel.Attribute;
+import com.entityassist.enumerations.*;
+import jakarta.persistence.metamodel.*;
 
 /**
  * An order by expression

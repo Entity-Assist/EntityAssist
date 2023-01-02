@@ -1,6 +1,6 @@
 package com.entityassist.querybuilder.builders;
 
-import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.*;
 
 /**
  * Desginates a group by expression for a query

@@ -1,15 +1,13 @@
 package com.entityassist.querybuilder;
 
 import com.entityassist.*;
-import com.entityassist.enumerations.Operand;
-import com.guicedee.logger.LogFactory;
+import com.entityassist.enumerations.*;
+import jakarta.validation.constraints.*;
 
-import jakarta.validation.constraints.NotNull;
-
-import java.io.Serializable;
-import java.sql.SQLException;
+import java.io.*;
+import java.sql.*;
 import java.time.*;
-import java.util.logging.Level;
+import java.util.logging.*;
 
 import static com.entityassist.SCDEntity.*;
 import static java.time.ZoneOffset.*;
@@ -19,6 +17,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		extends QueryBuilder<J, E, I>
 		implements com.entityassist.services.querybuilders.IQueryBuilderSCD<J, E, I>
 {
+	private static final Logger log = Logger.getLogger("QueryBuilderSCD");
 	/**
 	 * The effective to date column name
 	 */
@@ -164,8 +163,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		}
 		catch (SQLException e)
 		{
-			LogFactory.getLog("QueryBuilderSCD")
-			          .log(Level.WARNING, "Unable to update id : " + e, e);
+			log.log(Level.WARNING, "Unable to update id : " + e, e);
 			return entity;
 		}
 	}
@@ -181,8 +179,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		}
 		catch (SQLException e)
 		{
-			LogFactory.getLog("QueryBuilderSCD")
-			          .log(Level.WARNING, "Unable to update id : " + e, e);
+			log.log(Level.WARNING, "Unable to update id : " + e, e);
 			return entity;
 		}
 	}

@@ -1,9 +1,11 @@
 package com.entityassist.services.entities;
 
-import com.entityassist.services.querybuilders.IQueryBuilder;
-import jakarta.validation.constraints.NotNull;
+import com.entityassist.services.querybuilders.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
-import java.io.Serializable;
+import java.io.*;
+import java.util.*;
 
 public interface IBaseEntity<J extends IBaseEntity<J, Q, I>, Q extends IQueryBuilder<Q, J, I>, I extends Serializable>
         extends IDefaultEntity<J, Q, I> {
@@ -13,7 +15,7 @@ public interface IBaseEntity<J extends IBaseEntity<J, Q, I>, Q extends IQueryBui
      * @return
      */
     @NotNull
-    J persist();
+    J persist(@NotNull EntityManager entityManager);
 
     /**
      * Updates this object through the builder
@@ -21,7 +23,7 @@ public interface IBaseEntity<J extends IBaseEntity<J, Q, I>, Q extends IQueryBui
      * @return
      */
     @NotNull
-    J update();
+    J update(@NotNull EntityManager entityManager);
 
     /**
      * Persists this object through the builder
@@ -29,7 +31,7 @@ public interface IBaseEntity<J extends IBaseEntity<J, Q, I>, Q extends IQueryBui
      * @return
      */
     @NotNull
-    J persistNow();
+    J persistNow(@NotNull EntityManager entityManager);
 
     /**
      * Deletes this entity with the entity mananger. This will remove the row.
@@ -37,12 +39,12 @@ public interface IBaseEntity<J extends IBaseEntity<J, Q, I>, Q extends IQueryBui
      * @return
      */
     @NotNull
-    J delete();
-
-    /**
-     * Deletes this object from the ID
-     *
-     * @return
-     */
-    J deleteId();
+    J delete(@NotNull EntityManager entityManager);
+	
+	
+	Optional<J> find(I id, EntityManager entityManager);
+	
+	Optional<J> find(EntityManager entityManager);
+	
+	List<J> findAll(EntityManager entityManager);
 }

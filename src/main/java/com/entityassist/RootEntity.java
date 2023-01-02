@@ -1,10 +1,11 @@
 package com.entityassist;
 
+import com.entityassist.exceptions.*;
 import com.entityassist.querybuilder.builders.*;
 import com.entityassist.services.entities.*;
 import com.fasterxml.jackson.annotation.*;
-import com.guicedee.guicedinjection.*;
 import jakarta.persistence.*;
+import jakarta.validation.*;
 import jakarta.validation.constraints.*;
 
 import java.io.*;
@@ -15,7 +16,6 @@ import java.util.logging.*;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
-import static com.guicedee.guicedinjection.json.StaticStrings.*;
 
 @SuppressWarnings("unused")
 @MappedSuperclass()
@@ -26,8 +26,10 @@ import static com.guicedee.guicedinjection.json.StaticStrings.*;
 public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryBuilderRoot<Q, J, I>, I extends Serializable>
 		implements IRootEntity<J, Q, I>
 {
+	@JsonIgnore
 	private static final Logger log = Logger.getLogger(RootEntity.class.getName());
 	
+	@JsonIgnore
 	private static final ThreadLocal<LocalDateTime> now = new ThreadLocal<>();
 	
 	public static LocalDateTime getNow()
@@ -63,17 +65,12 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 		}
 	}
 	
-	@Transient
-	@JsonIgnore
-	private Map<Serializable, Object> properties;
-	
 	/**
 	 * Constructs a new base entity type
 	 */
 	public RootEntity()
 	{
 		//No configuration needed
-		setFake(true);
 	}
 	
 	/**
@@ -81,16 +78,16 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 	 *
 	 * @return The associated builder
 	 */
-	@SuppressWarnings({"notnull"})
+	@SuppressWarnings({"notnull", "unchecked"})
 	@NotNull
-	public Q builder()
+	public Q builder(EntityManager entityManager)
 	{
 		Class<Q> foundQueryBuilderClass = getClassQueryBuilderClass();
 		Q instance = null;
 		try
 		{
-			instance = GuiceContext.get(foundQueryBuilderClass);
-			//noinspection unchecked
+			instance = foundQueryBuilderClass.getDeclaredConstructor().newInstance();
+			instance.setEntityManager(entityManager);
 			instance.setEntity((J) this);
 			return instance;
 		}
@@ -122,73 +119,63 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 	@NotNull
 	public List<String> validate()
 	{
-		return builder().validateEntity((J) this);
-	}
-	
-	/**
-	 * Returns if this entity is operating as a fake or not (testing or dto)
-	 *
-	 * @return
-	 */
-	@NotNull
-	public boolean isFake()
-	{
-		return getProperties().containsKey(FAKE_KEY) && Boolean.parseBoolean(getProperties().get(FAKE_KEY)
-		                                                                                    .toString());
-	}
-	
-	/**
-	 * Sets the fake property
-	 *
-	 * @param fake
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J setFake(boolean fake)
-	{
-		if (fake)
+		List<String> errors = new ArrayList<>();
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		Validator validator = factory.getValidator();
+		Set<?> constraintViolations = validator.validate(this);
+		if (!constraintViolations.isEmpty())
 		{
-			getProperties().put(FAKE_KEY, true);
+			for (Object constraintViolation : constraintViolations)
+			{
+				ConstraintViolation<?> contraints = (ConstraintViolation<?>) constraintViolation;
+				String error = contraints
+						               .getRootBeanClass()
+						               .getSimpleName() + "." + contraints.getPropertyPath() + " " + contraints.getMessage();
+				errors.add(error);
+			}
 		}
-		else
-		{
-			getProperties().remove(FAKE_KEY);
-		}
-		return (J) this;
+		return errors;
 	}
 	
-	/**
-	 * Any DB Transient Maps
-	 * <p>
-	 * Sets any custom properties for this core entity.
-	 * Dto Read only structure. Not for storage unless mapped as such in a sub-method
-	 *
-	 * @return
-	 */
-	@NotNull
-	public Map<Serializable, Object> getProperties()
+	@Override
+	public String getTableName()
 	{
-		if (properties == null)
+		Class<?> c = getClass();
+		Table t = c.getAnnotation(Table.class);
+		String tableName = "";
+		if (t != null)
 		{
-			properties = new HashMap<>();
+			String catalog = t.catalog();
+			if (!catalog.isEmpty())
+			{
+				tableName += catalog + ".";
+			}
+			String schema = t.schema();
+			if (!schema.isEmpty())
+			{
+				tableName += schema + ".";
+			}
+			if (t.name() == null || t.name().isEmpty() || t.name().isBlank())
+			{
+				tableName += c.getSimpleName();
+			}
+			else
+			{ tableName += t.name(); }
 		}
-		return properties;
-	}
-	
-	/**
-	 * Sets any custom properties for this core entity.
-	 * Dto Read only structure. Not for storage unless mapped as such in a sub-method
-	 *
-	 * @param properties
-	 * @return
-	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public J setProperties(@NotNull Map<Serializable, Object> properties)
-	{
-		this.properties = properties;
-		return (J) this;
+		if (tableName.isEmpty())
+		{
+			Entity e = c.getAnnotation(Entity.class);
+			if (e != null)
+			{
+				tableName = e.name();
+			}
+		}
+		if (tableName.isEmpty())
+		{
+			tableName = getClass()
+			               .getSimpleName();
+		}
+		return tableName;
 	}
 	
 	/**

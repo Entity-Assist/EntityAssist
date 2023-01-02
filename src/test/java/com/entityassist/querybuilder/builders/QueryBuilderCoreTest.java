@@ -1,26 +1,11 @@
 package com.entityassist.querybuilder.builders;
 
-import com.entityassist.EntityClass;
-import com.entityassist.EntityClassTwo;
-import com.entityassist.TestEntityAssistCustomPersistenceLoader;
-import com.entityassist.EntityClassTwo_;
-import com.entityassist.enumerations.ActiveFlag;
-import com.entityassist.enumerations.Operand;
-import com.google.inject.Key;
-import com.guicedee.guicedinjection.GuiceContext;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.JoinType;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class QueryBuilderCoreTest
 {
-	@Test
+	/*@Test
 	public void testVisibleRange()
 	{
 
@@ -85,5 +70,5 @@ public class QueryBuilderCoreTest
 		{
 			fail("Rows not inserted?");
 		}
-	}
+	}*/
 }

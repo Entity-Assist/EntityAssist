@@ -1,9 +1,9 @@
 package com.entityassist.services.querybuilders;
 
-import com.entityassist.enumerations.ActiveFlag;
-import com.entityassist.services.entities.ICoreEntity;
+import com.entityassist.enumerations.*;
+import com.entityassist.services.entities.*;
 
-import java.io.Serializable;
+import java.io.*;
 
 @SuppressWarnings("unused")
 public interface IQueryBuilderCore<J extends IQueryBuilderCore<J, E, I>,

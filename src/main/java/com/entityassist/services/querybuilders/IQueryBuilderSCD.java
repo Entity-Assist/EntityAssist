@@ -1,9 +1,9 @@
 package com.entityassist.services.querybuilders;
 
-import com.entityassist.services.entities.ISCDEntity;
+import com.entityassist.services.entities.*;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.io.*;
+import java.time.*;
 
 @SuppressWarnings("unused")
 public interface IQueryBuilderSCD<J extends IQueryBuilderSCD<J, E, I>,

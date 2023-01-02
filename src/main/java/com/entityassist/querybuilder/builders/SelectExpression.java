@@ -1,9 +1,8 @@
 package com.entityassist.querybuilder.builders;
 
-import com.entityassist.enumerations.SelectAggregrate;
-
-import jakarta.persistence.criteria.Expression;
-import jakarta.validation.constraints.NotNull;
+import com.entityassist.enumerations.*;
+import jakarta.persistence.criteria.*;
+import jakarta.validation.constraints.*;
 
 /**
  * A select clause expression

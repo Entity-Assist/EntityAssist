@@ -1,14 +1,13 @@
 package com.entityassist.querybuilder;
 
 import com.entityassist.*;
-import com.entityassist.enumerations.ActiveFlag;
-
-import jakarta.persistence.metamodel.Attribute;
+import com.entityassist.enumerations.*;
+import jakarta.persistence.metamodel.*;
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 
-import static com.entityassist.enumerations.Operand.InList;
+import java.io.*;
+
+import static com.entityassist.enumerations.Operand.*;
 import static java.time.ZoneOffset.*;
 
 /**
