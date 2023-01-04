@@ -4,8 +4,6 @@ import com.entityassist.exceptions.*;
 import com.entityassist.querybuilder.builders.*;
 import com.entityassist.services.entities.*;
 import com.fasterxml.jackson.annotation.*;
-import com.guicedee.guicedinjection.pairing.*;
-import com.guicedee.logger.*;
 import jakarta.persistence.*;
 import jakarta.validation.*;
 import jakarta.validation.constraints.*;
@@ -18,16 +16,12 @@ import java.util.logging.*;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
-import static com.guicedee.guicedinjection.json.StaticStrings.*;
 
 @SuppressWarnings("unused")
 @MappedSuperclass()
-@JsonAutoDetect(fieldVisibility = ANY,
-                getterVisibility = NONE,
-                setterVisibility = NONE)
+@JsonAutoDetect(fieldVisibility = ANY, getterVisibility = NONE, setterVisibility = NONE)
 @JsonInclude(NON_NULL)
-public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryBuilderRoot<Q, J, I>, I extends Serializable>
-		implements IRootEntity<J, Q, I>
+public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryBuilderRoot<Q, J, I>, I extends Serializable> implements IRootEntity<J, Q, I>
 {
 	@JsonIgnore
 	private static final Logger log = Logger.getLogger(RootEntity.class.getName());
@@ -54,8 +48,9 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 	{
 		if (now.get() != null)
 		{
-			now.set(now.get()
-			           .plusSeconds(1L));
+			now.set(now
+					        .get()
+					        .plusSeconds(1L));
 		}
 	}
 	
@@ -63,8 +58,9 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 	{
 		if (now.get() != null)
 		{
-			now.set(now.get()
-			           .plusNanos(100L));
+			now.set(now
+					        .get()
+					        .plusNanos(100L));
 		}
 	}
 	
@@ -89,7 +85,9 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 		Q instance = null;
 		try
 		{
-			instance = foundQueryBuilderClass.getDeclaredConstructor().newInstance();
+			instance = foundQueryBuilderClass
+					           .getDeclaredConstructor()
+					           .newInstance();
 			instance.setEntityManager(entityManager);
 			instance.setEntity((J) this);
 			return instance;
@@ -158,12 +156,18 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 			{
 				tableName += schema + ".";
 			}
-			if (t.name() == null || t.name().isEmpty() || t.name().isBlank())
+			if (t.name() == null || t
+					                        .name()
+					                        .isEmpty() || t
+							                                      .name()
+							                                      .isBlank())
 			{
 				tableName += c.getSimpleName();
 			}
 			else
-			{ tableName += t.name(); }
+			{
+				tableName += t.name();
+			}
 		}
 		if (tableName.isEmpty())
 		{
@@ -175,8 +179,7 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 		}
 		if (tableName.isEmpty())
 		{
-			tableName = getClass()
-			               .getSimpleName();
+			tableName = getClass().getSimpleName();
 		}
 		return tableName;
 	}
@@ -193,7 +196,39 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 		return (Class<I>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[2];
 	}
 	
-	public  String getIdColumnName()
+	/**
+	 * Returns a column field for a given name
+	 *
+	 * @param columnName
+	 *
+	 * @return
+	 */
+	public Field getColumn(String columnName)
+	{
+		for (Field field : getFields())
+		{
+			if (columnName.equalsIgnoreCase(getColumnName(field)))
+			{
+				return field;
+			}
+		}
+		throw new UnsupportedOperationException("Invalid Column Name to Find - " + columnName);
+	}
+	
+	public List<Field> getFields()
+	{
+		List<Field> fields = new ArrayList<>();
+		Class<?> i = getClass();
+		while (i != null)
+		{
+			Collections.addAll(fields, i.getDeclaredFields());
+			i = i.getSuperclass();
+		}
+		return fields;
+	}
+	
+	
+	public Optional<String> getIdColumnName()
 	{
 		for (Field field : getFields())
 		{
@@ -201,50 +236,15 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 			{
 				continue;
 			}
-			try
+			Id idCol = field.getAnnotation(Id.class);
+			EmbeddedId embId = field.getAnnotation(EmbeddedId.class);
+			if (idCol != null || embId != null)
 			{
-				Id idCol = field.getAnnotation(Id.class);
-				EmbeddedId embId = field.getAnnotation(EmbeddedId.class);
-				if (idCol != null)
-				{
-					field.setAccessible(true);
-					return Pair.of(getColumnName(field), field.get(getObject()));
-				}
-				if (embId != null)
-				{
-					//run the object through the analyzer
-					field.setAccessible(true);
-					Object be = field.get(obj);
-					Field[] fields = be.getClass()
-					                   .getFields();
-					StringBuilder sb = new StringBuilder();
-					StringBuilder valueList = new StringBuilder();
-					for (Field field1 : fields)
-					{
-						if (isColumnReadable(field1))
-						{
-							sb.append(getColumnName(field1))
-							  .append(STRING_COMMNA);
-							
-							Object fo = field.get(be);
-							valueList.append(getValue(fo, field1))
-							         .append(STRING_COMMNA);
-						}
-					}
-					sb.deleteCharAt(sb.length() - 1);
-					valueList.deleteCharAt(valueList.length() - 1);
-					RawInsertObjectValue r = new RawInsertObjectValue().setRawInsert(valueList.toString());
-					return Pair.of(sb.toString(), r);
-				}
-			}
-			catch (IllegalArgumentException | IllegalAccessException ex)
-			{
-				LogFactory
-						.getLog("RunnableStatement")
-						.log(Level.SEVERE, null, ex);
+				field.setAccessible(true);
+				return Optional.ofNullable(getColumnName(field));
 			}
 		}
-		return Pair.empty();
+		return Optional.empty();
 	}
 	
 	@SuppressWarnings("EqualsBetweenInconvertibleTypes")
@@ -259,13 +259,7 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 		ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
 		ManyToOne manyToOne = field.getAnnotation(ManyToOne.class);
 		GeneratedValue genVal = field.getAnnotation(GeneratedValue.class);
-		if (col == joinCol && joinCol == idCol && idCol == embId
-		    && joinCol == oneToOne
-		    && joinCol == oneToMany
-		    && joinCol == manyToMany
-		    && joinCol == manyToOne
-		    && joinCol == genVal
-		) //if everything is null go to next field, easier than is nulls
+		if (col == joinCol && joinCol == idCol && idCol == embId && joinCol == oneToOne && joinCol == oneToMany && joinCol == manyToMany && joinCol == manyToOne && joinCol == genVal) //if everything is null go to next field, easier than is nulls
 		{
 			return false;
 		}
@@ -281,7 +275,7 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 		JoinColumn joinCol = field.getAnnotation(JoinColumn.class);
 		Column col = field.getAnnotation(Column.class);
 		EmbeddedId embId = field.getAnnotation(EmbeddedId.class);
-		String columnName = STRING_EMPTY;
+		String columnName = "";
 		
 		if (joinCol != null)
 		{
@@ -293,7 +287,7 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 		}
 		else if (embId != null)
 		{
-			columnName = STRING_EMPTY;
+			columnName = "";
 		}
 		
 		if (embId != null)
@@ -301,15 +295,17 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 			try
 			{
 				Object o = field.get(this);
-				Field[] f = o.getClass()
-				             .getDeclaredFields();
+				Field[] f = o
+						            .getClass()
+						            .getDeclaredFields();
 				StringBuilder colNames = new StringBuilder();
 				for (Field field1 : f)
 				{
 					if (isColumnReadable(field1))
 					{
-						colNames.append(getColumnName(field1))
-						        .append(STRING_COMMNA);
+						colNames
+								.append(getColumnName(field1))
+								.append(",");
 					}
 				}
 				colNames.deleteCharAt(colNames.length() - 1);
@@ -317,7 +313,7 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 			}
 			catch (IllegalAccessException e)
 			{
-				columnName = STRING_EMPTY;
+				columnName = "";
 			}
 		}
 		if (columnName.isEmpty())
