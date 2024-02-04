@@ -24,25 +24,10 @@ public interface IBaseEntity<J extends IBaseEntity<J, Q, I>, Q extends IQueryBui
     J update();
 
     /**
-     * Persists this object through the builder
-     *
-     * @return
-     */
-    @NotNull
-    J persistNow();
-
-    /**
      * Deletes this entity with the entity mananger. This will remove the row.
      *
      * @return
      */
     @NotNull
     J delete();
-
-    /**
-     * Deletes this object from the ID
-     *
-     * @return
-     */
-    J deleteId();
 }

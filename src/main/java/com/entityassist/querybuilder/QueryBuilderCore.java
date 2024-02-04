@@ -134,7 +134,7 @@ public abstract class QueryBuilderCore<J extends QueryBuilderCore<J, E, I>, E ex
 		entity.setEffectiveToDate(SCDEntity.EndOfTime.atOffset(UTC));
 		entity.setActiveFlag(ActiveFlag.Active);
 		
-		persistNow(entity, true);
+		persist(entity);
 		
 		return entity;
 	}

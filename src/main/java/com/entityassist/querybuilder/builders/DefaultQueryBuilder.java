@@ -8,7 +8,7 @@ import com.entityassist.enumerations.OrderByType;
 import com.entityassist.enumerations.SelectAggregrate;
 import com.entityassist.querybuilder.QueryBuilder;
 import com.google.common.base.Strings;
-import com.guicedee.logger.LogFactory;
+
 
 import jakarta.persistence.Id;
 import jakarta.persistence.criteria.*;
@@ -32,11 +32,6 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		extends QueryBuilderRoot<J, E, I>
 		implements com.entityassist.services.querybuilders.IDefaultQueryBuilder<J, E, I>
 {
-	
-	/**
-	 * The logger
-	 */
-	private static final Logger log = LogFactory.getLog("DefaultQueryBuilder");
 	/**
 	 * The set of joins to apply
 	 */
@@ -518,7 +513,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		}
 		else
 		{
-			log.warning("Where Filter could not be added, predicate could not be built.");
+			Logger.getLogger(getClass().getName()).warning("Where Filter could not be added, predicate could not be built.");
 		}
 	}
 	
@@ -1047,7 +1042,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 			}
 			default:
 			{
-				log.warning("Unknown expression type? " + selectExpression.getAttribute());
+				Logger.getLogger(getClass().getName()).warning("Unknown expression type? " + selectExpression.getAttribute());
 			}
 		}
 	}

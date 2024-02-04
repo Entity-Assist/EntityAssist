@@ -15,7 +15,6 @@ import java.util.logging.*;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
-import static com.guicedee.guicedinjection.json.StaticStrings.*;
 
 @SuppressWarnings("unused")
 @MappedSuperclass()
@@ -133,7 +132,7 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 	@NotNull
 	public boolean isFake()
 	{
-		return getProperties().containsKey(FAKE_KEY) && Boolean.parseBoolean(getProperties().get(FAKE_KEY)
+		return getProperties().containsKey("fake") && Boolean.parseBoolean(getProperties().get("fake")
 		                                                                                    .toString());
 	}
 	
@@ -149,11 +148,11 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
 	{
 		if (fake)
 		{
-			getProperties().put(FAKE_KEY, true);
+			getProperties().put("fake", true);
 		}
 		else
 		{
-			getProperties().remove(FAKE_KEY);
+			getProperties().remove("fake");
 		}
 		return (J) this;
 	}

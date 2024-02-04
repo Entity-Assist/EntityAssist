@@ -1,7 +1,7 @@
 package com.entityassist;
 
 import com.guicedee.guicedpersistence.db.ConnectionBaseInfo;
-import com.guicedee.logger.LogFactory;
+
 
 import javax.sql.DataSource;
 import java.util.logging.Logger;
@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 public class JPAConnectionBaseInfo
 		extends ConnectionBaseInfo
 {
-	private static final Logger log = LogFactory.getLog("JPAConnectionBaseInfo");
 	private boolean driverRegistered;
 
 	/**

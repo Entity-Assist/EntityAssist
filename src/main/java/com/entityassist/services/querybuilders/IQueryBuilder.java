@@ -50,14 +50,6 @@ public interface IQueryBuilder<J extends IQueryBuilder<J, E, I>,
     <T> TypedQuery<T> getQueryCount();
 
     /**
-     * Returns the number of rows or an unsupported exception if there are no filters added
-     *
-     * @param updateFields Allows to use the Criteria Update to run a bulk update on the table
-     * @return number of rows updated
-     */
-    int bulkUpdate(E updateFields, boolean allowEmpty);
-
-    /**
      * Returns the result set as a stream
      *
      * @param resultType The result type
@@ -142,15 +134,6 @@ public interface IQueryBuilder<J extends IQueryBuilder<J, E, I>,
      * @return number of results deleted
      */
     int delete();
-
-    /**
-     * Deletes a specific ID the good old almost fast way
-     * <p>
-     * Delete where ID = getId();
-     *
-     * @param entity entity with id populated
-     */
-    void deleteId(E entity) throws QueryBuilderException;
 
     /**
      * Deletes the given entity through the entity manager

@@ -67,16 +67,7 @@ public interface IQueryBuilderRoot<J extends IQueryBuilderRoot<J, E, I>,
      */
 
     J setMaxResults(Integer maxResults);
-
-    /**
-     * Persist and Flush
-     * <p>
-     * doesn't set run detached - executes flush after persist
-     *
-     * @return This
-     */
-    J persistNow(E entity);
-
+    
     /**
      * Returns the annotation associated with the entity manager
      *
@@ -107,27 +98,7 @@ public interface IQueryBuilderRoot<J extends IQueryBuilderRoot<J, E, I>,
      * @return true if must still create
      */
     boolean onCreate(E entity);
-
-    /**
-     * If this entity should run in a detached and separate to the entity manager
-     * <p>
-     * If the library generates the sql and runs it through a native query. Use InsertStatement, SelectStatement, Delete and UpdateStatement to view the queries that will get run
-     *
-     * @return boolean
-     */
-    boolean isRunDetached();
-
-    /**
-     * If this entity should run in a detached and separate to the entity manager
-     * <p>
-     * If the library generates the sql and runs it through a native query. Use InsertStatement, SelectStatement, Delete and UpdateStatement to view the queries that will get run
-     *
-     * @param runDetached if must do
-     * @return This
-     */
-
-    J setRunDetached(boolean runDetached);
-
+    
     /**
      * If this ID is generated from the source and which form to use
      * Default is Generated
@@ -151,25 +122,11 @@ public interface IQueryBuilderRoot<J extends IQueryBuilderRoot<J, E, I>,
     void setRequestId(boolean requestId);
 
     /**
-     * Persist and Flush using the detached method (as a native query)
-     *
-     * @return This
-     */
-    J persistNow(E entity, boolean runDetached);
-
-    /**
      * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
      *
      * @return This
      */
     E update(E entity) throws SQLException;
-
-    /**
-     * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
-     *
-     * @return This
-     */
-    E updateNow(E entity);
 
     /**
      * Performed on update/persist

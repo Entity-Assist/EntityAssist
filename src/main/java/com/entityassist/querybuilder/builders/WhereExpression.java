@@ -2,7 +2,7 @@ package com.entityassist.querybuilder.builders;
 
 import com.entityassist.EntityAssistException;
 import com.entityassist.enumerations.Operand;
-import com.guicedee.logger.LogFactory;
+
 
 import jakarta.persistence.criteria.*;
 import jakarta.persistence.metamodel.Attribute;
@@ -15,8 +15,6 @@ import java.util.logging.Logger;
 final class WhereExpression<X, Y>
 		implements IFilterExpression
 {
-	private static final Logger log = LogFactory.getLog("WhereExpression");
-
 	private Expression<X> expressionAttribute;
 	private Attribute attribute;
 
@@ -85,7 +83,7 @@ final class WhereExpression<X, Y>
 		}
 		if (!result.isPresent())
 		{
-			log.severe("Unable to generate a where clause for the given expression");
+			Logger.getLogger(getClass().getName()).severe("Unable to generate a where clause for the given expression");
 		}
 		return result;
 	}

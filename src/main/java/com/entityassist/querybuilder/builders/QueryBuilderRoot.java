@@ -1,30 +1,30 @@
 package com.entityassist.querybuilder.builders;
 
-import com.entityassist.*;
-import com.entityassist.injections.*;
-import com.entityassist.querybuilder.statements.*;
-import com.entityassist.services.*;
-import com.entityassist.services.querybuilders.*;
-import com.google.inject.*;
-import com.guicedee.guicedinjection.*;
-import com.guicedee.guicedpersistence.services.*;
-import com.guicedee.logger.*;
-import jakarta.persistence.*;
-import jakarta.persistence.metamodel.*;
-import jakarta.validation.*;
-import jakarta.validation.constraints.*;
-import org.hibernate.jpa.boot.internal.*;
+import com.entityassist.RootEntity;
+import com.entityassist.services.querybuilders.IQueryBuilderRoot;
+import com.google.inject.Key;
+import com.guicedee.guicedinjection.GuiceContext;
+import com.guicedee.guicedpersistence.services.ITransactionHandler;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import jakarta.validation.constraints.NotNull;
+import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 
-import javax.sql.*;
-import java.io.*;
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.sql.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import static com.guicedee.guicedinjection.json.StaticStrings.*;
-import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
+import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.ITransactionHandlerReader;
 
 /**
  * Builds a Query Base
@@ -35,16 +35,12 @@ import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersB
  */
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue", "unused"})
 public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
-		E extends RootEntity<E, J, I>,
-		I extends Serializable>
-		implements IQueryBuilderRoot<J, E, I>
+				E extends RootEntity<E, J, I>,
+				I extends Serializable>
+				implements IQueryBuilderRoot<J, E, I>
 {
 	public static Level defaultLoggingLevel = Level.FINER;
 	
-	/**
-	 * This logger
-	 */
-	private static final Logger log = LogFactory.getLog("QueryBuilderRoot");
 	/**
 	 * The maximum number of results
 	 */
@@ -65,10 +61,6 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	 * The actual entity event
 	 */
 	private E entity;
-	/**
-	 * Whether or not to run these queries as detached objects or within the entity managers scope
-	 */
-	private boolean runDetached;
 	/**
 	 * If the inserted ID should be request override
 	 */
@@ -177,47 +169,6 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	}
 	
 	/**
-	 * Persist and Flush
-	 * <p>
-	 * doesn't set run detached - executes flush after persist
-	 *
-	 * @return This
-	 */
-	@Override
-	@NotNull
-	@SuppressWarnings({"unchecked", "Duplicates"})
-	public J persistNow(E entity)
-	{
-		boolean transactionAlreadyStarted = false;
-		ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
-			{
-				transactionAlreadyStarted = true;
-				break;
-			}
-		}
-		
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (!transactionAlreadyStarted && handler.active(unit))
-			{
-				handler.beginTransacation(false, getEntityManager(), unit);
-			}
-		}
-		persist(entity);
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (!transactionAlreadyStarted && handler.active(unit))
-			{
-				handler.commitTransacation(false, getEntityManager(), unit);
-			}
-		}
-		return (J) this;
-	}
-	
-	/**
 	 * Returns the annotation associated with the entity manager
 	 *
 	 * @return The annotations associated with this builder
@@ -228,7 +179,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	{
 		EntityManager em = getEntityManager();
 		return (Class<? extends Annotation>) em.getProperties()
-		                                       .get("annotation");
+						.get("annotation");
 	}
 	
 	/**
@@ -247,64 +198,15 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 			{
 				boolean transactionAlreadyStarted = false;
 				ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
-				if (isRunDetached())
-				{
-					String insertString = new InsertStatement(entity).toString();
-					log.log(defaultLoggingLevel, insertString);
-					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
-					                             .containsKey(getEntityManagerAnnotation()))
-					{
-						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-						if (!useDirectConnection || ds == null)
-						{
-							Query query = getEntityManager().createNativeQuery(insertString);
-							query.executeUpdate();
-							if (isIdGenerated() && isRequestId())
-							{
-								iterateThroughResultSetForGeneratedIDs();
-							}
-						}
-						else
-						{
-							var c = GuiceContext.get(Key.get(Connection.class, getEntityManagerAnnotation()));
-							try (Statement st = c.createStatement())
-							{
-								st.executeUpdate(insertString);
-								if (isIdGenerated() && isRequestId())
-								{
-									iterateThroughResultSetForGeneratedIDs(c);
-								}
-							}
-							if(!c.getAutoCommit() && commitDirectConnection)
-							{
-								c.commit();
-							}
-						}
-					}
-					else
-					{
-						Query query = getEntityManager().createNativeQuery(insertString);
-						query.executeUpdate();
-						if (isIdGenerated() && isRequestId())
-						{
-							iterateThroughResultSetForGeneratedIDs();
-						}
-					}
-				}
-				else
-				{
-					getEntityManager().persist(entity);
-				}
+				getEntityManager().persist(entity);
 				entity.setFake(false);
 			}
-		}
-		catch (IllegalStateException ise)
+		} catch (IllegalStateException ise)
 		{
-			log.log(Level.SEVERE, "This entity is not in a state to be persisted. Perhaps an update merge remove or refresh?", ise);
-		}
-		catch (Exception e)
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "This entity is not in a state to be persisted. Perhaps an update merge remove or refresh?", ise);
+		} catch (Exception e)
 		{
-			log.log(Level.SEVERE, "Unable to persist, exception occured\n", e);
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Unable to persist, exception occured\n", e);
 			throw new UnsupportedOperationException(e);
 		}
 		return (J) this;
@@ -320,36 +222,6 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	public boolean onCreate(E entity)
 	{
 		return true;
-	}
-	
-	/**
-	 * If this entity should run in a detached and separate to the entity manager
-	 * <p>
-	 * If the library generates the sql and runs it through a native query. Use InsertStatement, SelectStatement, Delete and UpdateStatement to view the queries that will get run
-	 *
-	 * @return boolean
-	 */
-	@Override
-	public boolean isRunDetached()
-	{
-		return runDetached;
-	}
-	
-	/**
-	 * If this entity should run in a detached and separate to the entity manager
-	 * <p>
-	 * If the library generates the sql and runs it through a native query. Use InsertStatement, SelectStatement, Delete and UpdateStatement to view the queries that will get run
-	 *
-	 * @param runDetached if must do
-	 * @return This
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J setRunDetached(boolean runDetached)
-	{
-		this.runDetached = runDetached;
-		return (J) this;
 	}
 	
 	/**
@@ -375,88 +247,6 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	}
 	
 	/**
-	 * Method iterateThroughResultSetForGeneratedIDs ...
-	 */
-	private void iterateThroughResultSetForGeneratedIDs()
-	{
-		Query statmentSelectId = getEntityManager().createNativeQuery(selectIdentityString);
-		Object o = statmentSelectId.getSingleResult();
-		processId(o);
-	}
-	
-	/**
-	 * Method iterateThroughResultSetForGeneratedIDs ...
-	 */
-	private void iterateThroughResultSetForGeneratedIDs(Connection connection)
-	{
-		try (Statement st = connection.createStatement())
-		{
-			ResultSet rs = st.executeQuery(selectIdentityString);
-			if (rs.next())
-			{
-				Object o = rs.getObject(1);
-				processId(o);
-			}
-		}
-		catch (SQLException e)
-		{
-			log.log(Level.WARNING, "Unable to get generatedID", e);
-		}
-	}
-	
-	/**
-	 * Method processId ...
-	 *
-	 * @param o of type Object
-	 */
-	@SuppressWarnings("unchecked")
-	private <DB, JPA> void processId(DB o)
-	{
-		EntityAssistIDMapping<DB, JPA> mapping = EntityAssistBinder.lookup(o.getClass(), entity.getClassIDType());
-		entity.setId((I) mapping.toObject(o));
-	}
-	
-	/**
-	 * Persist and Flush using the detached method (as a native query)
-	 *
-	 * @return This
-	 */
-	@Override
-	@NotNull
-	@SuppressWarnings({"unchecked", "Duplicates"})
-	public J persistNow(E entity, boolean runDetached)
-	{
-		boolean transactionAlreadyStarted = false;
-		ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
-			{
-				transactionAlreadyStarted = true;
-				break;
-			}
-		}
-		
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (!transactionAlreadyStarted && handler.active(unit))
-			{
-				handler.beginTransacation(false, getEntityManager(), unit);
-			}
-		}
-		setRunDetached(runDetached);
-		persist(entity);
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (!transactionAlreadyStarted && handler.active(unit))
-			{
-				handler.commitTransacation(false, getEntityManager(), unit);
-			}
-		}
-		return (J) this;
-	}
-	
-	/**
 	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
 	 *
 	 * @return This
@@ -470,140 +260,14 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 		{
 			if (onUpdate(entity))
 			{
-				if (isRunDetached())
-				{
-					String updateString = new UpdateStatement(entity).toString();
-					log.log(defaultLoggingLevel, updateString);
-					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
-					                             .containsKey(getEntityManagerAnnotation()))
-					{
-						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-						if (!useDirectConnection || ds == null)
-						{
-							Query query = getEntityManager().createNativeQuery(updateString);
-							query.executeUpdate();
-						}
-						else
-						{
-							var c = GuiceContext.get(Key.get(Connection.class, getEntityManagerAnnotation()));
-							try (Statement st = c.createStatement())
-							{
-								st.executeUpdate(updateString);
-							}
-							if(!c.getAutoCommit() && commitDirectConnection)
-							{
-								c.commit();
-							}
-						}
-					}
-					else
-					{
-						Query query = getEntityManager().createNativeQuery(updateString);
-						query.executeUpdate();
-					}
-				}
-				else
-				{
-					getEntityManager().merge(entity);
-				}
+				getEntityManager().merge(entity);
 			}
-		}
-		catch (IllegalStateException ise)
+		} catch (IllegalStateException ise)
 		{
-			log.log(Level.SEVERE, "Cannot update this entity the state of this object is not ready : \n", ise);
-		}
-		catch (Exception e)
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Cannot update this entity the state of this object is not ready : \n", ise);
+		} catch (Exception e)
 		{
-			log.log(Level.SEVERE, "Cannot update this entity  unknown exception the state of this object is not ready : \n", e);
-		}
-		return entity;
-	}
-	
-	/**
-	 * Merges this entity with the database copy. Uses getInstance(EntityManager.class)
-	 *
-	 * @return This
-	 */
-	@Override
-	@NotNull
-	@SuppressWarnings({"Duplicates"})
-	public E updateNow(E entity)
-	{
-		try
-		{
-			if (onUpdate(entity))
-			{
-				boolean transactionAlreadyStarted = false;
-				ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
-				for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-				{
-					if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
-					{
-						transactionAlreadyStarted = true;
-						break;
-					}
-				}
-				
-				for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-				{
-					if (!transactionAlreadyStarted && handler.active(unit))
-					{
-						handler.beginTransacation(false, getEntityManager(), unit);
-					}
-				}
-				if (isRunDetached())
-				{
-					String updateString = new UpdateStatement(entity).toString();
-					log.log(defaultLoggingLevel, updateString);
-					if (PersistenceServicesModule.getJtaConnectionBaseInfo()
-					                             .containsKey(getEntityManagerAnnotation()))
-					{
-						DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-						if (!useDirectConnection || ds == null)
-						{
-							Query query = getEntityManager().createNativeQuery(updateString);
-							query.executeUpdate();
-						}
-						else
-						{
-							var c = GuiceContext.get(Key.get(Connection.class, getEntityManagerAnnotation()));
-							try (Statement st = c.createStatement())
-							{
-								st.executeUpdate(updateString);
-							}
-							if(!c.getAutoCommit() && commitDirectConnection)
-							{
-								c.commit();
-							}
-						}
-					}
-					else
-					{
-						Query query = getEntityManager().createNativeQuery(updateString);
-						query.executeUpdate();
-					}
-				}
-				else
-				{
-					getEntityManager().merge(entity);
-					getEntityManager().flush();
-				}
-				for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-				{
-					if (!transactionAlreadyStarted && handler.active(unit))
-					{
-						handler.commitTransacation(false, getEntityManager(), unit);
-					}
-				}
-			}
-		}
-		catch (IllegalStateException ise)
-		{
-			log.log(Level.SEVERE, "Cannot update this entity the state of this object is not ready : \n", ise);
-		}
-		catch (Exception e)
-		{
-			log.log(Level.SEVERE, "Cannot update this entity  unknown exception the state of this object is not ready : \n", e);
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Cannot update this entity  unknown exception the state of this object is not ready : \n", e);
 		}
 		return entity;
 	}
@@ -642,7 +306,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 			{
 				ConstraintViolation<?> contraints = (ConstraintViolation<?>) constraintViolation;
 				String error = contraints.getRootBeanClass()
-				                         .getSimpleName() + STRING_DOT + contraints.getPropertyPath() + STRING_EMPTY + contraints.getMessage();
+								.getSimpleName() + "." + contraints.getPropertyPath() + " " + contraints.getMessage();
 				errors.add(error);
 			}
 		}
@@ -658,17 +322,16 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 	@Override
 	public <X, Y> Attribute<X, Y> getAttribute(@NotNull String fieldName)
 	{
-		String clazz = getEntityClass().getCanonicalName() + CHAR_UNDERSCORE;
+		String clazz = getEntityClass().getCanonicalName() + '_';
 		try
 		{
 			Class<?> c = Class.forName(clazz);
 			Field f = c.getField(fieldName);
 			//noinspection unchecked
 			return (Attribute<X, Y>) f.get(null);
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
-			log.log(Level.SEVERE, "Unable to field field in class [" + clazz + "]-[" + fieldName + "]", e);
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Unable to field field in class [" + clazz + "]-[" + fieldName + "]", e);
 		}
 		return null;
 	}

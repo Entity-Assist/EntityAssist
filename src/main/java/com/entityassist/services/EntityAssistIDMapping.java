@@ -1,11 +1,12 @@
 package com.entityassist.services;
 
 import com.guicedee.guicedinjection.interfaces.IDefaultService;
-import com.guicedee.logger.LogFactory;
+
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Maps an entity assist ID Mapping for db returned data from the query.
@@ -38,7 +39,7 @@ public interface EntityAssistIDMapping<DB, OBJECT>
 		}
 		catch (Exception e)
 		{
-			LogFactory.getLog("EntityAssistIDMapping")
+			Logger.getLogger("EntityAssistIDMapping")
 			          .log(Level.SEVERE,
 			               "Cannot return the db or entity id class - config seems wrong. " +
 			               "Check that a builder is attached to this entity as the second generic field type\n" +
@@ -63,7 +64,7 @@ public interface EntityAssistIDMapping<DB, OBJECT>
 		}
 		catch (Exception e)
 		{
-			LogFactory.getLog("EntityAssistIDMapping")
+			Logger.getLogger("EntityAssistIDMapping")
 			          .log(Level.SEVERE,
 			               "Cannot return the db or entity id class - config seems wrong. " +
 			               "Check that a builder is attached to this entity as the second generic field type\n" +

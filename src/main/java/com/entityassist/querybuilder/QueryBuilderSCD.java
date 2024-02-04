@@ -2,7 +2,7 @@ package com.entityassist.querybuilder;
 
 import com.entityassist.*;
 import com.entityassist.enumerations.Operand;
-import com.guicedee.logger.LogFactory;
+
 
 import jakarta.validation.constraints.NotNull;
 
@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.time.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.entityassist.SCDEntity.*;
 import static java.time.ZoneOffset.*;
@@ -164,7 +165,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		}
 		catch (SQLException e)
 		{
-			LogFactory.getLog("QueryBuilderSCD")
+			Logger.getLogger(getClass().getName())
 			          .log(Level.WARNING, "Unable to update id : " + e, e);
 			return entity;
 		}
@@ -181,7 +182,7 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		}
 		catch (SQLException e)
 		{
-			LogFactory.getLog("QueryBuilderSCD")
+			Logger.getLogger(getClass().getName())
 			          .log(Level.WARNING, "Unable to update id : " + e, e);
 			return entity;
 		}

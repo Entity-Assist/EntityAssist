@@ -62,18 +62,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
         }
         return (J) this;
     }
-
-    /**
-     * Persists this object through the builder
-     *
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    @NotNull
-    public J persistNow() {
-        builder().persistNow((J) this);
-        return (J) this;
-    }
+    
 
     /**
      * Deletes this entity with the entity mananger. This will remove the row.
@@ -87,20 +76,5 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
                 .delete(this);
         return (J) this;
     }
-
-    /**
-     * Deletes this object from the ID
-     *
-     * @return
-     */
-    public J deleteId() {
-        try {
-            ((QueryBuilder) builder())
-                    .deleteId(this);
-        } catch (QueryBuilderException e) {
-            log.log(Level.WARNING, "Unable to delete from id : " + e);
-        }
-        return (J) this;
-    }
-
+    
 }

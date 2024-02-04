@@ -1,9 +1,19 @@
 package com.entityassist.services.querybuilders;
 
 import com.entityassist.services.entities.ISCDEntity;
+import com.guicedee.guicedinjection.pairing.Pair;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @SuppressWarnings("unused")
 public interface IQueryBuilderSCD<J extends IQueryBuilderSCD<J, E, I>,
@@ -63,4 +73,5 @@ public interface IQueryBuilderSCD<J extends IQueryBuilderSCD<J, E, I>,
      * @return currently always true @TODO
      */
     boolean onDeleteUpdate(E originalEntity, E newEntity);
+    
 }

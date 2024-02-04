@@ -6,7 +6,7 @@ import com.entityassist.enumerations.Operand;
 import com.google.inject.Key;
 import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedpersistence.db.annotations.Transactional;
-import com.guicedee.logger.LogFactory;
+
 import org.junit.jupiter.api.*;
 
 import jakarta.persistence.EntityManager;
@@ -32,7 +32,7 @@ public class TestEntities
 	@Test
 	public void testEntity()
 	{
-		LogFactory.configureConsoleColourOutput(Level.FINE);
+	//	LogFactory.configureConsoleColourOutput(Level.FINE);
 		GuiceContext.instance()
 		            .loadIGuiceModules()
 		            .add(new com.entityassist.EntityAssistTestDBModule());
@@ -47,7 +47,7 @@ public class TestEntities
 	@Test
 	public void testEntity2Really()
 	{
-		LogFactory.configureConsoleColourOutput(Level.FINE);
+	//	LogFactory.configureConsoleColourOutput(Level.FINE);
 		GuiceContext.instance()
 		            .loadIGuiceModules()
 		            .add(new com.entityassist.EntityAssistTestDBModule());
@@ -64,12 +64,12 @@ public class TestEntities
 		EntityClass ec = new EntityClass();
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persist();
 
 		long l2;
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
+		ec2.persist();
 
 		Optional<EntityClass> ec1 = new EntityClass().find(l);
 		System.out.println("ec after find: " + ec1);
@@ -86,7 +86,7 @@ public class TestEntities
 	@Test
 	public void testEntityEmbeddableID()
 	{
-		LogFactory.configureConsoleColourOutput(Level.FINE);
+	//	LogFactory.configureConsoleColourOutput(Level.FINE);
 		GuiceContext.instance()
 		            .loadIGuiceModules()
 		            .add(new com.entityassist.EntityAssistTestDBModule());
@@ -113,7 +113,7 @@ public class TestEntities
 		ytd.setId(new TransYtdPK().setDayID(2)
 		                          .setYtdDayID(2));
 		ytd.builder()
-		   .setRunDetached(true)
+		   //.setRunDetached(true)
 		   .persist(ytd);
 
 		numberofresults = ytd.builder()
@@ -140,7 +140,7 @@ public class TestEntities
 
 	private void configUp()
 	{
-		LogFactory.configureConsoleColourOutput(Level.FINE);
+		//LogFactory.configureConsoleColourOutput(Level.FINE);
 		GuiceContext.instance()
 		            .loadIGuiceModules()
 		            .add(new com.entityassist.EntityAssistTestDBModule());
@@ -154,12 +154,12 @@ public class TestEntities
 
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persist();
 
 		long l2;
 		EntityClass ec2 = new EntityClass();
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
+		ec2.persist();
 
 		List resultList = new ArrayList();
 		resultList.add(l);
@@ -185,12 +185,12 @@ public class TestEntities
 		EntityClass ec = new EntityClass();
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persist();
 
 		EntityClass ec2 = new EntityClass();
 		long l2;
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
+		ec2.persist();
 
 		List resultList = new ArrayList();
 		resultList.add(l);
@@ -217,12 +217,12 @@ public class TestEntities
 
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persist();
 
 		EntityClass ec2 = new EntityClass();
 		long l2;
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
+		ec2.persist();
 
 		List resultList = new ArrayList();
 		resultList.add(l);
@@ -250,12 +250,12 @@ public class TestEntities
 
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persist();
 
 		EntityClass ec2 = new EntityClass();
 		long l2;
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
+		ec2.persist();
 
 		List resultList = new ArrayList();
 		resultList.add(l);
@@ -282,12 +282,12 @@ public class TestEntities
 		EntityClass ec = new EntityClass();
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persist();
 
 		EntityClass ec2 = new EntityClass();
 		long l2;
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
+		ec2.persist();
 
 		List resultList = new ArrayList();
 		resultList.add(l);
@@ -314,12 +314,12 @@ public class TestEntities
 		EntityClass ec = new EntityClass();
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persist();
 
 		EntityClass ec2 = new EntityClass();
 		long l2;
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
+		ec2.persist();
 
 		List resultList = new ArrayList();
 		resultList.add(l);
@@ -346,12 +346,12 @@ public class TestEntities
 		EntityClass ec = new EntityClass();
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persist();
 
 		EntityClass ec2 = new EntityClass();
 		long l2;
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
+		ec2.persist();
 
 		List resultList = new ArrayList();
 		resultList.add(l);
@@ -378,12 +378,12 @@ public class TestEntities
 		EntityClass ec = new EntityClass();
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persist();
 
 		EntityClass ec2 = new EntityClass();
 		long l2;
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
+		ec2.persist();
 
 		List resultList = new ArrayList();
 		resultList.add(l);
@@ -477,12 +477,12 @@ public class TestEntities
 		EntityClass ec = new EntityClass();
 		long l;
 		ec.setId(l = getNextNumber());
-		ec.persistNow();
+		ec.persist();
 
 		EntityClass ec2 = new EntityClass();
 		long l2;
 		ec2.setId(l2 = getNextNumber());
-		ec2.persistNow();
+		ec2.persist();
 
 		List resultList = new ArrayList();
 		resultList.add(l);
@@ -511,18 +511,18 @@ public class TestEntities
 	{
 		EntityClassGeneratedID generatedID = new EntityClassGeneratedID();
 		generatedID.builder()
-		           .setRunDetached(true)
-		           .persistNow(generatedID);
+		           //.setRunDetached(true)
+		           .persist(generatedID);
 
 		//Test delete from builder
 		EntityClassGeneratedID generatedID2 = new EntityClassGeneratedID();
 		generatedID2.builder()
-		            .persistNow(generatedID2);
+		            .persist(generatedID2);
 
 		EntityClassGeneratedID generatedID3 = new EntityClassGeneratedID();
 		generatedID3.builder()
-		            .setRunDetached(true)
-		            .persistNow(generatedID3);
+		            //.setRunDetached(true)
+		            .persist(generatedID3);
 
 		long resultCount = generatedID.builder()
 		                              .where(id, Operand.Equals, generatedID.getId())
@@ -533,53 +533,5 @@ public class TestEntities
 
 		assertTrue(3 == resultCount);
 	}
-
-	@Test
-	public void testBulkUpdateReally()
-	{
-		LogFactory.configureConsoleColourOutput(Level.FINE);
-		GuiceContext.instance()
-		            .loadIGuiceModules()
-		            .add(new com.entityassist.EntityAssistTestDBModule());
-		GuiceContext.get(TestEntities.class)
-		            .testBulkUpdate();
-	}
-
-	@SuppressWarnings("WeakerAccess")
-	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
-	public void testBulkUpdate()
-	{
-		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
-		System.out.println("EM Open : " + em.isOpen());
-		EntityClass updates = new EntityClass();
-		updates.setActiveFlag(ActiveFlag.Archived);
-		new EntityClass().builder()
-		                 .where(EntityClass_.activeFlag, Operand.Equals, ActiveFlag.Invisible)
-		                 .bulkUpdate(updates, true);
-	}
-
-	@Test
-	public void testUpdateStatementReally()
-	{
-		LogFactory.configureConsoleColourOutput(Level.FINE);
-		GuiceContext.instance()
-		            .loadIGuiceModules()
-		            .add(new com.entityassist.EntityAssistTestDBModule());
-		GuiceContext.get(TestEntities.class)
-		            .testUpdateStatement();
-	}
-
-	@SuppressWarnings("WeakerAccess")
-	@Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
-	public void testUpdateStatement()
-	{
-		EntityManager em = GuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
-		System.out.println("EM Open : " + em.isOpen());
-		EntityClass updates = new EntityClass();
-		updates.setActiveFlag(ActiveFlag.Archived);
-		new EntityClass().builder()
-		                 .setRunDetached(true)
-		                 .where(EntityClass_.activeFlag, Operand.Equals, ActiveFlag.Invisible)
-		                 .bulkUpdate(updates, true);
-	}
+	
 }

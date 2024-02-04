@@ -1,27 +1,24 @@
 package com.entityassist;
 
-import com.entityassist.converters.LocalDateTimeAttributeConverter;
 import com.entityassist.querybuilder.QueryBuilderSCD;
 import com.entityassist.services.entities.ISCDEntity;
-import com.guicedee.guicedinjection.json.LocalDateTimeDeserializer;
-import com.guicedee.guicedinjection.json.LocalDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import jakarta.persistence.*;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.*;
-import org.hibernate.annotations.JavaType;
-import org.hibernate.type.descriptor.java.*;
 
 import java.io.Serializable;
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
-import static com.entityassist.querybuilder.QueryBuilderSCD.*;
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.*;
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
+import static com.entityassist.querybuilder.QueryBuilderSCD.convertToUTCDateTime;
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @MappedSuperclass()
 @JsonAutoDetect(fieldVisibility = ANY,
@@ -44,8 +41,6 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "EffectiveFromDate")
-	@JsonSerialize(using = LocalDateTimeSerializer.class)
-	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private OffsetDateTime effectiveFromDate;
 	/**
 	 * A date to designate when this record is effective to
@@ -54,8 +49,6 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "EffectiveToDate")
-	@JsonSerialize(using = LocalDateTimeSerializer.class)
-	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private OffsetDateTime effectiveToDate;
 	/**
 	 * A date to mark when a warehouse can fetch the given record
@@ -64,8 +57,6 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "WarehouseCreatedTimestamp")
-	@JsonSerialize(using = LocalDateTimeSerializer.class)
-	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private OffsetDateTime warehouseCreatedTimestamp;
 	/**
 	 * A marker for the warehouse to identify when last this field was updated
@@ -74,8 +65,6 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 			fetch = FetchType.LAZY)
 	@Column(nullable = false,
 			name = "WarehouseLastUpdatedTimestamp")
-	@JsonSerialize(using = LocalDateTimeSerializer.class)
-	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private OffsetDateTime warehouseLastUpdatedTimestamp;
 
 	public SCDEntity()

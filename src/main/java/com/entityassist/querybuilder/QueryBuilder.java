@@ -2,45 +2,36 @@ package com.entityassist.querybuilder;
 
 import com.entityassist.BaseEntity;
 import com.entityassist.enumerations.OrderByType;
-import com.entityassist.exceptions.QueryBuilderException;
 import com.entityassist.querybuilder.builders.DefaultQueryBuilder;
 import com.entityassist.querybuilder.builders.JoinExpression;
-import com.entityassist.querybuilder.statements.DeleteStatement;
-import com.entityassist.querybuilder.statements.UpdateStatement;
 import com.entityassist.services.querybuilders.IQueryBuilder;
 import com.google.common.base.Strings;
-import com.google.inject.Key;
-import com.guicedee.guicedinjection.GuiceContext;
-import com.guicedee.guicedpersistence.services.ITransactionHandler;
-import com.guicedee.guicedpersistence.services.PersistenceServicesModule;
-import com.guicedee.logger.LogFactory;
-import jakarta.persistence.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.NonUniqueResultException;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
-import jakarta.persistence.metamodel.*;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 
-import javax.sql.DataSource;
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static com.entityassist.querybuilder.builders.IFilterExpression.*;
-import static com.guicedee.guicedpersistence.scanners.PersistenceServiceLoadersBinder.*;
+import static com.entityassist.querybuilder.builders.IFilterExpression.isPluralOrMapAttribute;
+import static com.entityassist.querybuilder.builders.IFilterExpression.isSingularAttribute;
 
 @SuppressWarnings({"unchecked", "unused"})
 public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends BaseEntity<E, J, I>, I extends Serializable>
 		extends DefaultQueryBuilder<J, E, I>
 		implements IQueryBuilder<J, E, I>
 {
-	/**
-	 * The logger
-	 */
-	private static final Logger log = LogFactory.getLog(QueryBuilder.class.getName());
 	/**
 	 * Marks if this query is selected
 	 */
@@ -100,7 +91,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			}
 			catch (NoResultException nre)
 			{
-				log.log(Level.WARNING, "Couldn''t find object with name : " + getEntityClass().getName() + "}\n", nre);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Couldn''t find object with name : " + getEntityClass().getName() + "}\n", nre);
 				return 0L;
 			}
 		}
@@ -288,76 +279,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	}
 	
 	/**
-	 * Returns the number of rows or an unsupported exception if there are no filters added
-	 *
-	 * @param updateFields Allows to use the Criteria Update to run a bulk update on the table
-	 * @return number of rows updated
-	 */
-	@Override
-	@SuppressWarnings({"UnusedReturnValue", "Duplicates"})
-	public int bulkUpdate(E updateFields, boolean allowEmpty)
-	{
-		if (!allowEmpty && getFilters().isEmpty())
-		{
-			throw new UnsupportedOperationException("Calling the bulk update method with no filters. This will update the entire table.");
-		}
-		CriteriaUpdate<E> update = getCriteriaUpdate();
-		Map<Field, Object> updateFieldMap = new UpdateStatement(updateFields).getUpdateFieldMap(updateFields);
-		if (updateFieldMap.isEmpty())
-		{
-			log.warning("Nothing to update, ignore bulk update");
-			return 0;
-		}
-		for (Map.Entry<Field, Object> entries : updateFieldMap.entrySet())
-		{
-			String attributeName = new UpdateStatement(updateFields).getColumnName(entries.getKey());
-			Object value = entries.getValue();
-			try
-			{
-				update.set(attributeName, value);
-			}
-			catch (IllegalArgumentException iae)
-			{
-				log.warning("Unable to find attribute name [" + attributeName + "] on type [" + updateFields.getClass()
-				                                                                                            .getCanonicalName() + "]");
-				log.log(Level.FINER, "Illegal Attribute", iae);
-				return -1;
-			}
-		}
-		select();
-		
-		boolean transactionAlreadyStarted = false;
-		ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
-			{
-				transactionAlreadyStarted = true;
-				break;
-			}
-		}
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (!transactionAlreadyStarted && handler.active(unit))
-			{
-				handler.beginTransacation(false, getEntityManager(), unit);
-			}
-		}
-		
-		int results = getEntityManager().createQuery(update)
-		                                .executeUpdate();
-		
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (!transactionAlreadyStarted && handler.active(unit))
-			{
-				handler.commitTransacation(false, getEntityManager(), unit);
-			}
-		}
-		return results;
-	}
-	
-	/**
 	 * Processors the join section
 	 *
 	 * @param executor Processes the joins into the expression
@@ -503,7 +424,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 					}
 					catch (Throwable T)
 					{
-						log.finer("Unable to detach : " + j.getClass()
+						Logger.getLogger(getClass().getName()).finer("Unable to detach : " + j.getClass()
 						                                   .getName());
 					}
 				}
@@ -511,7 +432,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			}
 			catch (NoResultException | NullPointerException nre)
 			{
-				log.log(Level.FINER, "Couldn't find object : " + getEntityClass().getName() + "}", nre);
+				Logger.getLogger(getClass().getName()).log(Level.FINER, "Couldn't find object : " + getEntityClass().getName() + "}", nre);
 				return Optional.empty();
 			}
 			catch (NonUniqueResultException nure)
@@ -537,7 +458,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 							}
 							catch (Throwable T)
 							{
-								log.finer("Unable to detach : " + j.getClass()
+								Logger.getLogger(getClass().getName()).finer("Unable to detach : " + j.getClass()
 								                                   .getName());
 							}
 						}
@@ -546,7 +467,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 				}
 				else
 				{
-					log.log(Level.FINE, "Non Unique Result. Found too many for a get() for class : " + getEntityClass().getName() + "}. Get First Result disabled. Returning empty",
+					Logger.getLogger(getClass().getName()).log(Level.FINE, "Non Unique Result. Found too many for a get() for class : " + getEntityClass().getName() + "}. Get First Result disabled. Returning empty",
 							nure);
 					return Optional.empty();
 				}
@@ -642,7 +563,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 						}
 						catch (Throwable T)
 						{
-							log.finer("Unable to detach : " + t.getClass()
+							Logger.getLogger(getClass().getName()).finer("Unable to detach : " + t.getClass()
 							                                   .getName());
 						}
 					}
@@ -690,51 +611,6 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	}
 	
 	/**
-	 * Deletes a specific ID the good old almost fast way
-	 * <p>
-	 * Delete where ID = getId();
-	 *
-	 * @param entity entity with id populated
-	 */
-	@Override
-	public void deleteId(E entity) throws QueryBuilderException
-	{
-		String deleteString = new DeleteStatement(entity).toString();
-		log.fine(deleteString);
-		if (PersistenceServicesModule.getJtaConnectionBaseInfo()
-		                             .containsKey(getEntityManagerAnnotation()))
-		{
-			DataSource ds = GuiceContext.get(DataSource.class, getEntityManagerAnnotation());
-			if (!isUseDirectConnection() || ds == null)
-			{
-				Query query = getEntityManager().createNativeQuery(deleteString);
-				query.executeUpdate();
-			}
-			else
-			{
-				try
-				{
-					var c = GuiceContext.get(Key.get(Connection.class, getEntityManagerAnnotation()));
-					try (Statement st = c.createStatement())
-					{
-						st.executeUpdate(deleteString);
-					}
-					if(!c.getAutoCommit() && isCommitDirectConnection())
-					{
-						c.commit();
-					}
-				}
-				catch (SQLException throwables)
-				{
-					throwables.printStackTrace();
-				}
-				
-			}
-		}
-	}
-	
-	
-	/**
 	 * Deletes the given entity through the entity manager
 	 *
 	 * @param entity Deletes through the entity manager
@@ -744,32 +620,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 	@SuppressWarnings("Duplicates")
 	public E delete(E entity)
 	{
-		boolean transactionAlreadyStarted = false;
-		ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
-			{
-				transactionAlreadyStarted = true;
-				break;
-			}
-		}
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (!transactionAlreadyStarted && handler.active(unit))
-			{
-				handler.beginTransacation(false, getEntityManager(), unit);
-			}
-		}
 		getEntityManager().remove(entity);
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (!transactionAlreadyStarted && handler.active(unit))
-			{
-				handler.commitTransacation(false, getEntityManager(), unit);
-			}
-		}
-		
 		return entity;
 	}
 	
@@ -796,33 +647,8 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 		reset(deletion.from(getEntityClass()));
 		getFilters().clear();
 		select();
-		boolean transactionAlreadyStarted = false;
-		ParsedPersistenceXmlDescriptor unit = GuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (handler.active(unit) && handler.transactionExists(getEntityManager(), unit))
-			{
-				transactionAlreadyStarted = true;
-				break;
-			}
-		}
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (!transactionAlreadyStarted && handler.active(unit))
-			{
-				handler.beginTransacation(false, getEntityManager(), unit);
-			}
-		}
-		
 		int results = getEntityManager().createQuery(deletion)
-		                                .executeUpdate();
-		for (ITransactionHandler<?> handler : GuiceContext.get(ITransactionHandlerReader))
-		{
-			if (!transactionAlreadyStarted && handler.active(unit))
-			{
-				handler.commitTransacation(false, getEntityManager(), unit);
-			}
-		}
+						.executeUpdate();
 		return results;
 	}
 	
