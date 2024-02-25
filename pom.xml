@@ -27,11 +27,14 @@
     <properties>
         <ignore.moditect>true</ignore.moditect>
         <flatten.pom>false</flatten.pom>
+
+        <project.scm.nameUrl>/Entity-Assist/core</project.scm.nameUrl>
+        <project.scm.packages>/Entity-Assist/Packages</project.scm.packages>
     </properties>
 
     <organization>
-        <name>Marc Magon</name>
-        <url>http://jwebmp.com</url>
+        <name>Entity Assist</name>
+        <url>http://entityassist.com</url>
     </organization>
 
     <developers>
@@ -43,7 +46,7 @@
         </developer>
     </developers>
 
-    <url>https://github.com/GedMarc/EntityAssist</url>
+    <url>https://github.com/Entity-Assist</url>
 
     <dependencyManagement>
         <dependencies>
@@ -105,49 +108,9 @@
 
 
     </dependencies>
-    <scm>
-        <url>https://github.com/GedMarc/EntityAssist.git</url>
-    </scm>
-
-    <issueManagement>
-        <system>Github</system>
-        <url>https://github.com/GedMarc/EntityAssist/issues</url>
-    </issueManagement>
-
-    <ciManagement>
-        <system>TeamCity</system>
-        <url>http://jwebmp.com/teamcity</url>
-    </ciManagement>
 
     <build>
         <plugins>
-           <!-- <plugin>
-                <groupId>org.hibernate.orm.tooling</groupId>
-                <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                <version>${maven.hibernate.enhance.version}</version>
-                <executions>
-                    <execution>
-                        <configuration>
-                            <failOnError>false</failOnError>
-                            <enableLazyInitialization>true</enableLazyInitialization>
-                            <enableDirtyTracking>true</enableDirtyTracking>
-                            <enableAssociationManagement>false</enableAssociationManagement>
-                            <enableExtendedEnhancement>false</enableExtendedEnhancement>
-                        </configuration>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>enhance</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <failOnError>false</failOnError>
-                    <enableLazyInitialization>true</enableLazyInitialization>
-                    <enableDirtyTracking>true</enableDirtyTracking>
-                    <enableAssociationManagement>false</enableAssociationManagement>
-                    <enableExtendedEnhancement>false</enableExtendedEnhancement>
-                </configuration>
-            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -176,51 +139,11 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-
-                <configuration>
-                    <flattenMode>ossrh</flattenMode>
-                    <flattenDependencyMode>direct</flattenDependencyMode>
-                    <detail>true</detail>
-                    <updatePomFile>true</updatePomFile>
-                    <flattenedPomFilename>flatter.pom</flattenedPomFilename>
-                </configuration>
-                <executions>
-                    <!-- enable flattening -->
-                    <execution>
-                        <id>flatten</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>flatten</goal>
-                        </goals>
-                    </execution>
-                    <!-- ensure proper cleanup -->
-                    <execution>
-                        <id>flatten.clean</id>
-                        <phase>clean</phase>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
                 <groupId>com.coderplus.maven.plugins</groupId>
                 <artifactId>copy-rename-maven-plugin</artifactId>
-                <version>1.0</version>
-                <executions>
-                    <execution>
-                        <id>copy-file</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <sourceFile>flatter.pom</sourceFile>
-                            <destinationFile>dependency-reduced-pom.xml</destinationFile>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
         </plugins>
