@@ -1,11 +1,4 @@
-
-import com.entityassist.injections.bigdecimal.*;
-import com.entityassist.injections.biginteger.*;
-import com.entityassist.injections.integer.*;
-import com.entityassist.injections.longs.*;
-import com.entityassist.injections.strings.*;
-import com.entityassist.services.EntityAssistIDMapping;
-import com.guicedee.guicedpersistence.services.ITransactionHandler;
+import com.guicedee.guicedpersistence.services.*;
 
 module com.entityassist {
 	
@@ -27,18 +20,7 @@ module com.entityassist {
 	requires jakarta.xml.bind;
 	
 	opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice, org.hibernate.validator;
-	opens com.entityassist.services to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
-	
-	opens com.entityassist.injections.bigdecimal to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
-	opens com.entityassist.injections.biginteger to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
-	opens com.entityassist.injections.integer to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
-	opens com.entityassist.injections.longs to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
-	opens com.entityassist.injections.strings to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice;
-	
-	provides EntityAssistIDMapping with BigDecimalToBigIntIDMapping, BigDecimalToDoubleIDMapping, BigDecimalToFloatIDMapping, BigDecimalToIntIDMapping, BigDecimalToStringIDMapping, BigDecimalToLongIDMapping, BigDecimalIDMapping, BigIntegerBigDecimalIDMapping, BigIntegerFloatIDMapping, BigIntegerIntegerIDMapping, BigIntegerLongIDMapping, BigIntegerDoubleIDMapping, BigIntegerStringIDMapping, BigIntegerIDMapping, LongBigIntegerIDMapping, LongIntegerIDMapping, LongStringIDMapping, LongBigDecimalIDMapping, LongFloatIDMapping, LongIDMapping, IntegerBigDecimalIDMapping, IntegerBigIntegerIDMapping, IntegerDoubleIDMapping, IntegerFloatIDMapping, IntegerLongIDMapping, IntegerStringIDMapping, IntegerIDMapping, StringIDMapping, StringIntegerIDMapping, StringUUIDIDMapping, StringBigDecimalIDMapping, StringBigIntegerIDMapping, StringLongIDMapping
-			;
 	
 	uses ITransactionHandler;
-	uses EntityAssistIDMapping;
-	
+
 }

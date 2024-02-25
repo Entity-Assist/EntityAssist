@@ -15,5 +15,6 @@ javadoc.zip
 db/
 /.idea/
 /.flattened-pom.xml
-/dependency-reduced-pom.xml
-/flatter.pom
+dependency-reduced-pom.xml
+flatter.pom
+.idea/workspace.xml
