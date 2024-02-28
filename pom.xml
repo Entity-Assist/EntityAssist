@@ -28,7 +28,7 @@
         <ignore.moditect>true</ignore.moditect>
         <flatten.pom>false</flatten.pom>
 
-        <project.scm.nameUrl>/Entity-Assist/core</project.scm.nameUrl>
+        <project.scm.nameUrl>/Entity-Assist/EntityAssist</project.scm.nameUrl>
         <project.scm.packages>/Entity-Assist/Packages</project.scm.packages>
     </properties>
 
