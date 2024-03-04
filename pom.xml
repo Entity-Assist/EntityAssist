@@ -79,8 +79,13 @@
             <groupId>com.guicedee.persistence</groupId>
             <artifactId>guiced-persistence</artifactId>
         </dependency>
-		
-		<!-- Test Libraries -->
+
+        <dependency>
+            <groupId>com.guicedee</groupId>
+            <artifactId>guice-injection</artifactId>
+        </dependency>
+
+        <!-- Test Libraries -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
