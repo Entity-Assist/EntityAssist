@@ -1,4 +1,4 @@
-package com.entityassist;
+package com.test;
 
 import com.entityassist.querybuilder.QueryBuilderCore;
 import com.google.inject.Key;
@@ -16,7 +16,7 @@ public class EntityClassGeneratedIDBuilder
     @Override
     public EntityManager getEntityManager()
     {
-        return IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        return IGuiceContext.get(Key.get(EntityManager.class));
     }
 
     @Override

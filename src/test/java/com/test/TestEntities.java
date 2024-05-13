@@ -1,10 +1,11 @@
-package com.entityassist;
+package com.test;
 
+import com.entityassist.RootEntity;
 import com.entityassist.enumerations.Operand;
 import com.google.inject.Key;
+import com.google.inject.persist.Transactional;
 import com.guicedee.client.IGuiceContext;
 import com.guicedee.guicedinjection.GuiceContext;
-import com.guicedee.guicedpersistence.db.annotations.Transactional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.JoinType;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.entityassist.EntityClass_.*;
+import static com.test.EntityClass_.id;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -32,8 +33,8 @@ public class TestEntities
         //	LogFactory.configureConsoleColourOutput(Level.FINE);
         GuiceContext.instance()
                     .loadIGuiceModules()
-                    .add(new com.entityassist.EntityAssistTestDBModule());
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+                    .add(new EntityAssistTestDBModule());
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         System.out.println("EM Open : " + em.isOpen());
 
         TestEntities te = IGuiceContext.get(TestEntities.class);
@@ -47,15 +48,15 @@ public class TestEntities
         //	LogFactory.configureConsoleColourOutput(Level.FINE);
         GuiceContext.instance()
                     .loadIGuiceModules()
-                    .add(new com.entityassist.EntityAssistTestDBModule());
+                    .add(new EntityAssistTestDBModule());
         IGuiceContext.get(TestEntities.class)
                      .testEntity2();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testEntity2()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         System.out.println("EM Open : " + em.isOpen());
 
         EntityClass ec = new EntityClass();
@@ -86,15 +87,15 @@ public class TestEntities
         //	LogFactory.configureConsoleColourOutput(Level.FINE);
         GuiceContext.instance()
                     .loadIGuiceModules()
-                    .add(new com.entityassist.EntityAssistTestDBModule());
+                    .add(new EntityAssistTestDBModule());
         IGuiceContext.get(TestEntities.class)
                      .testEntityEmbeddableIDReally();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testEntityEmbeddableIDReally()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         System.out.println("EM Open : " + em.isOpen());
 
         TransYtd ytd = new TransYtd();
@@ -140,13 +141,13 @@ public class TestEntities
         //LogFactory.configureConsoleColourOutput(Level.FINE);
         GuiceContext.instance()
                     .loadIGuiceModules()
-                    .add(new com.entityassist.EntityAssistTestDBModule());
+                    .add(new EntityAssistTestDBModule());
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testWhereInList()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         EntityClass ec = new EntityClass();
 
         long l;
@@ -175,10 +176,10 @@ public class TestEntities
                      .testWhereEquals();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testWhereEquals()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         EntityClass ec = new EntityClass();
         long l;
         ec.setId(l = getNextNumber());
@@ -206,10 +207,10 @@ public class TestEntities
                      .testWhereGreaterThanEquals();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testWhereGreaterThanEquals()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         EntityClass ec = new EntityClass();
 
         long l;
@@ -239,10 +240,10 @@ public class TestEntities
                      .testWhereGreater();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testWhereGreater()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         EntityClass ec = new EntityClass();
 
         long l;
@@ -272,10 +273,10 @@ public class TestEntities
                      .testWhereLessThanEquals();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testWhereLessThanEquals()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         EntityClass ec = new EntityClass();
         long l;
         ec.setId(l = getNextNumber());
@@ -304,10 +305,10 @@ public class TestEntities
                      .testWhereLessThan();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testWhereLessThan()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         EntityClass ec = new EntityClass();
         long l;
         ec.setId(l = getNextNumber());
@@ -336,10 +337,10 @@ public class TestEntities
                      .testNotNull();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testNotNull()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         EntityClass ec = new EntityClass();
         long l;
         ec.setId(l = getNextNumber());
@@ -368,10 +369,10 @@ public class TestEntities
                      .testNull();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testNull()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         EntityClass ec = new EntityClass();
         long l;
         ec.setId(l = getNextNumber());
@@ -396,7 +397,7 @@ public class TestEntities
     public void testJoin()
     {
         configUp();
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         System.out.println("EM Open : " + em.isOpen());
         List<EntityClass> list = new EntityClass().builder()
                                                   .join(EntityClassTwo_.entityClass)
@@ -411,7 +412,7 @@ public class TestEntities
     public void testJoinLeft()
     {
         configUp();
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         System.out.println("EM Open : " + em.isOpen());
         List<EntityClass> list = new EntityClass().builder()
                                                   .join(EntityClassTwo_.entityClass, JoinType.LEFT)
@@ -422,7 +423,7 @@ public class TestEntities
     public void testJoinLeftWithOnClauses()
     {
         configUp();
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         System.out.println("EM Open : " + em.isOpen());
     }
 
@@ -430,7 +431,7 @@ public class TestEntities
     public void testInRangeSpecified()
     {
         configUp();
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         System.out.println("EM Open : " + em.isOpen());
         List<EntityClass> list = new EntityClass().builder()
                                                   .inDateRange(RootEntity.getNow(), RootEntity.getNow())
@@ -450,10 +451,10 @@ public class TestEntities
                      .testGetAll();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testGetAll()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         System.out.println("EM Open : " + em.isOpen());
         List<EntityClass> list = new EntityClass().builder()
                                                   .getAll();
@@ -467,10 +468,10 @@ public class TestEntities
                      .testDelete();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testDelete()
     {
-        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        EntityManager em = IGuiceContext.get(Key.get(EntityManager.class));
         EntityClass ec = new EntityClass();
         long l;
         ec.setId(l = getNextNumber());
@@ -503,7 +504,7 @@ public class TestEntities
                      .testOrCollection();
     }
 
-    @Transactional(entityManagerAnnotation = TestEntityAssistCustomPersistenceLoader.class)
+    @Transactional()
     public void testOrCollection()
     {
         EntityClassGeneratedID generatedID = new EntityClassGeneratedID();

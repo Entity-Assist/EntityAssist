@@ -2,19 +2,20 @@ package com.entityassist.querybuilder.builders;
 
 import com.entityassist.RootEntity;
 import com.entityassist.services.querybuilders.IQueryBuilderRoot;
-import com.google.inject.Key;
-import com.guicedee.client.IGuiceContext;
-import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ import java.util.logging.Logger;
  * @param <E> The entity type
  * @param <I> The entity ID type
  */
+@Getter
+@Setter
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue", "unused"})
 public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
         E extends RootEntity<E, J, I>,
@@ -37,7 +40,30 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
         implements IQueryBuilderRoot<J, E, I>
 {
     public static Level defaultLoggingLevel = Level.FINER;
-
+    /**
+     * The actual builder for the entity
+     */
+    private CriteriaBuilder criteriaBuilder;
+    /**
+     * The physical criteria query
+     */
+    private CriteriaQuery<?> criteriaQuery;
+    /**
+     * The physical criteria query
+     */
+    private CriteriaDelete<E> criteriaDelete;
+    /**
+     * The physical criteria query
+     */
+    private CriteriaUpdate<E> criteriaUpdate;
+    /**
+     * If a delete is currently running
+     */
+    private boolean delete;
+    /**
+     * If the builder is currently running an update
+     */
+    private boolean update;
     /**
      * The maximum number of results
      */
@@ -66,6 +92,43 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
     private boolean useDirectConnection = false;
 
     private boolean commitDirectConnection;
+
+    public CriteriaBuilder getCriteriaBuilder()
+    {
+        if (criteriaBuilder == null)
+        { criteriaBuilder = getEntityManager().getCriteriaBuilder(); }
+        return criteriaBuilder;
+    }
+
+
+    /**
+     * Gets the criteria query linked to this root and builder
+     *
+     * @return A Criteria Query
+     */
+    @Override
+    public CriteriaQuery getCriteriaQuery()
+    {
+        if (criteriaQuery == null)
+        { criteriaQuery = getCriteriaBuilder().createQuery(); }
+        return criteriaQuery;
+    }
+
+    /**
+     * Sets the criteria query for this instance
+     *
+     * @param criteriaDelete A delete statement to run
+     * @return This
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    @NotNull
+    public J setCriteriaQuery(CriteriaDelete<E> criteriaDelete)
+    {
+        this.criteriaDelete = criteriaDelete;
+        return (J) this;
+    }
+
 
     /**
      * Constructor QueryBuilderBase creates a new QueryBuilderBase instance.
@@ -166,20 +229,6 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
     }
 
     /**
-     * Returns the annotation associated with the entity manager
-     *
-     * @return The annotations associated with this builder
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    public Class<? extends Annotation> getEntityManagerAnnotation()
-    {
-        EntityManager em = getEntityManager();
-        return (Class<? extends Annotation>) em.getProperties()
-                                               .get("annotation");
-    }
-
-    /**
      * Persists this entity. Uses the get instance entity manager to operate.
      *
      * @return This
@@ -194,7 +243,6 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
             if (onCreate(entity))
             {
                 boolean transactionAlreadyStarted = false;
-                ParsedPersistenceXmlDescriptor unit = IGuiceContext.get(Key.get(ParsedPersistenceXmlDescriptor.class, getEntityManagerAnnotation()));
                 getEntityManager().persist(entity);
                 entity.setFake(false);
             }
@@ -368,16 +416,6 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
     /**
      * If a connection should be directly fetched from the datasource, or if an entity manager create native sql should be used
      *
-     * @return
-     */
-    public boolean isUseDirectConnection()
-    {
-        return useDirectConnection;
-    }
-
-    /**
-     * If a connection should be directly fetched from the datasource, or if an entity manager create native sql should be used
-     *
      * @param useDirectConnection
      * @return
      */
@@ -386,16 +424,6 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
     {
         this.useDirectConnection = useDirectConnection;
         return (J) this;
-    }
-
-    /**
-     * Commits the direct connection after execution
-     *
-     * @return
-     */
-    public boolean isCommitDirectConnection()
-    {
-        return commitDirectConnection;
     }
 
     /**
@@ -410,4 +438,111 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
         this.commitDirectConnection = commitDirectConnection;
         return (J) this;
     }
+
+    /**
+     * Sets the criteria delete
+     *
+     * @param criteriaDelete A delete criteria delete
+     */
+    @NotNull
+    @SuppressWarnings("unchecked")
+    public J setCriteriaDelete(CriteriaDelete<E> criteriaDelete)
+    {
+        this.criteriaDelete = criteriaDelete;
+        setDelete(true);
+        return (J) this;
+    }
+
+
+    /**
+     * If the builder is set to delete
+     *
+     * @return if it is in a delete statement
+     */
+    @Override
+    public boolean isDelete()
+    {
+        return delete;
+    }
+
+    /**
+     * If the builder is set to delete
+     *
+     * @param delete if this must run as a delete statement
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    @NotNull
+    public J setDelete(boolean delete)
+    {
+        this.delete = delete;
+        return (J) this;
+    }
+
+    /**
+     * If the builder is set to update
+     *
+     * @return if in a update statement
+     */
+    @Override
+    public boolean isUpdate()
+    {
+        return update;
+    }
+
+    /**
+     * If the builder is set to update
+     *
+     * @param update If is update
+     * @return This
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    @NotNull
+    public J setUpdate(boolean update)
+    {
+        this.update = update;
+        return (J) this;
+    }
+
+    public CriteriaDelete<E> getCriteriaDelete()
+    {
+        if (criteriaDelete == null)
+        {
+            setDelete(true);
+            criteriaDelete = getCriteriaBuilder().createCriteriaDelete(getEntityClass());
+        }
+        return criteriaDelete;
+    }
+
+    @Override
+    public CriteriaUpdate<E> getCriteriaUpdate()
+    {
+        if (criteriaUpdate == null)
+        {
+            criteriaUpdate = getCriteriaBuilder().createCriteriaUpdate(getEntityClass());
+           /* EntityType<E> eEntityType = getEntityManager().getEntityManagerFactory()
+                                                          .getMetamodel()
+                                                          .entity(getEntityClass());
+            criteriaUpdate.from(eEntityType);*/
+            update = true;
+        }
+        return criteriaUpdate;
+    }
+
+    /**
+     * Sets the criteria update object
+     *
+     * @param criteriaUpdate The criteria update from a criteria builder
+     * @return This
+     */
+    @Override
+    @NotNull
+    @SuppressWarnings("unchecked")
+    public J setCriteriaUpdate(CriteriaUpdate<E> criteriaUpdate)
+    {
+        this.criteriaUpdate = criteriaUpdate;
+        return (J) this;
+    }
+
 }

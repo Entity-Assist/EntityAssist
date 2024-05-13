@@ -2,10 +2,13 @@ package com.entityassist.services.querybuilders;
 
 import com.entityassist.services.entities.IRootEntity;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.metamodel.Attribute;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -67,14 +70,6 @@ public interface IQueryBuilderRoot<J extends IQueryBuilderRoot<J, E, I>,
      */
 
     J setMaxResults(Integer maxResults);
-    
-    /**
-     * Returns the annotation associated with the entity manager
-     *
-     * @return The annotations associated with this builder
-     */
-
-    Class<? extends Annotation> getEntityManagerAnnotation();
 
     /**
      * Returns the assigned entity manager
@@ -166,4 +161,100 @@ public interface IQueryBuilderRoot<J extends IQueryBuilderRoot<J, E, I>,
      * @param selectIdentityString the selectIdentityString of this QueryBuilderBase object.
      */
     void setSelectIdentityString(String selectIdentityString);
+
+
+    /**
+     * If the builder is set to delete
+     *
+     * @return if it is in a delete statement
+     */
+    boolean isDelete();
+
+    /**
+     * If the builder is set to delete
+     *
+     * @param delete if this must run as a delete statement
+     */
+
+    J setDelete(boolean delete);
+
+    /**
+     * Returns the criteria delete, which is nullable
+     *
+     * @return The criteria delete or null
+     */
+
+    CriteriaDelete<E> getCriteriaDelete();
+
+    /**
+     * Sets the criteria delete
+     *
+     * @param criteriaDelete A delete criteria delete
+     */
+
+    J setCriteriaDelete(CriteriaDelete<E> criteriaDelete);
+
+    /**
+     * If the builder is set to update
+     *
+     * @return if in a update statement
+     */
+    boolean isUpdate();
+
+    /**
+     * If the builder is set to update
+     *
+     * @param update If is update
+     * @return This
+     */
+
+    J setUpdate(boolean update);
+
+
+    /**
+     * Gets the criteria builder
+     *
+     * @return The criteria builder
+     */
+    CriteriaBuilder getCriteriaBuilder();
+
+    /**
+     * Gets the criteria query linked to this root and builder
+     *
+     * @return A Criteria Query
+     */
+    CriteriaQuery getCriteriaQuery();
+
+    /**
+     * Sets the criteria query for this instance
+     *
+     * @param criteriaDelete A delete statement to run
+     * @return This
+     */
+
+    J setCriteriaQuery(CriteriaDelete<E> criteriaDelete);
+
+
+    /**
+     * Gets the criteria update object
+     *
+     * @return A criteria update
+     */
+    CriteriaUpdate<E> getCriteriaUpdate();
+
+    /**
+     * Sets the criteria update object
+     *
+     * @param criteriaUpdate The criteria update from a criteria builder
+     * @return This
+     */
+
+    J setCriteriaUpdate(CriteriaUpdate<E> criteriaUpdate);
+
+    /**
+     * Resets to the given new root and constructs the select query
+     * Not CRP to make sure you know whats going on
+     *
+     * @param newRoot A FROM object to reset to
+     */
 }

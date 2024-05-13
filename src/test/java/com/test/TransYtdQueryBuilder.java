@@ -1,4 +1,4 @@
-package com.entityassist;
+package com.test;
 
 import com.entityassist.querybuilder.QueryBuilder;
 import com.google.inject.Key;
@@ -18,7 +18,7 @@ public class TransYtdQueryBuilder
     @Override
     public EntityManager getEntityManager()
     {
-        return IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        return IGuiceContext.get(Key.get(EntityManager.class));
     }
 
 

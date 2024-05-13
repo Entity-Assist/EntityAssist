@@ -1,25 +1,21 @@
-package com.entityassist;
+package com.test;
 
 import com.entityassist.querybuilder.QueryBuilderCore;
 import com.google.inject.Key;
 import com.guicedee.client.IGuiceContext;
 import jakarta.persistence.EntityManager;
 
-public class EntityClassBuilder
-        extends QueryBuilderCore<EntityClassBuilder, EntityClass, Long>
+public class EntityClassTwoBuilder
+        extends QueryBuilderCore<EntityClassTwoBuilder, EntityClassTwo, Long>
 {
-    public EntityClassBuilder()
-    {
-    }
-
     @Override
     public EntityManager getEntityManager()
     {
-        return IGuiceContext.get(Key.get(EntityManager.class, TestEntityAssistCustomPersistenceLoader.class));
+        return IGuiceContext.get(Key.get(EntityManager.class));
     }
 
     @Override
-    public boolean onCreate(EntityClass entity)
+    public boolean onCreate(EntityClassTwo entity)
     {
         return true;
     }
@@ -31,7 +27,7 @@ public class EntityClassBuilder
     }
 
     @Override
-    public boolean onUpdate(EntityClass entity)
+    public boolean onUpdate(EntityClassTwo entity)
     {
         return true;
     }

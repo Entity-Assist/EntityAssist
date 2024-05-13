@@ -1,18 +1,19 @@
 package com.entityassist.services.querybuilders;
 
 import com.entityassist.BaseEntity;
-import com.entityassist.DefaultEntity;
 import com.entityassist.enumerations.Operand;
 import com.entityassist.enumerations.OrderByType;
 import com.entityassist.querybuilder.QueryBuilder;
-import com.entityassist.querybuilder.builders.DefaultQueryBuilder;
 import com.entityassist.querybuilder.builders.IFilterExpression;
 import com.entityassist.querybuilder.builders.JoinExpression;
-
 import com.entityassist.services.entities.IDefaultEntity;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
@@ -31,14 +32,7 @@ public interface IDefaultQueryBuilder<J extends IDefaultQueryBuilder<J, E, I>,
 	 */
 	
 	J selectCountDistinct();
-	
-	/**
-	 * Gets the criteria builder
-	 *
-	 * @return The criteria builder
-	 */
-	CriteriaBuilder getCriteriaBuilder();
-	
+
 	/**
 	 * Gets my given root
 	 *
@@ -338,78 +332,6 @@ public interface IDefaultQueryBuilder<J extends IDefaultQueryBuilder<J, E, I>,
 	 */
 	Set<Expression<?>> getGroupBys();
 	
-	/**
-	 * If the builder is set to delete
-	 *
-	 * @return if it is in a delete statement
-	 */
-	boolean isDelete();
-	
-	/**
-	 * If the builder is set to delete
-	 *
-	 * @param delete if this must run as a delete statement
-	 */
-	
-	J setDelete(boolean delete);
-	
-	/**
-	 * Returns the criteria delete, which is nullable
-	 *
-	 * @return The criteria delete or null
-	 */
-	
-	CriteriaDelete<E> getCriteriaDelete();
-	
-	/**
-	 * Sets the criteria delete
-	 *
-	 * @param criteriaDelete A delete criteria delete
-	 */
-	
-	J setCriteriaDelete(CriteriaDelete<E> criteriaDelete);
-	
-	/**
-	 * If the builder is set to update
-	 *
-	 * @return if in a update statement
-	 */
-	boolean isUpdate();
-	
-	/**
-	 * If the builder is set to update
-	 *
-	 * @param update If is update
-	 * @return This
-	 */
-	
-	J setUpdate(boolean update);
-	
-	/**
-	 * Gets the criteria update object
-	 *
-	 * @return A criteria update
-	 */
-	
-	
-	CriteriaUpdate<E> getCriteriaUpdate();
-	
-	/**
-	 * Sets the criteria update object
-	 *
-	 * @param criteriaUpdate The criteria update from a criteria builder
-	 * @return This
-	 */
-	
-	J setCriteriaUpdate(CriteriaUpdate<E> criteriaUpdate);
-	
-	/**
-	 * Resets to the given new root and constructs the select query
-	 * Not CRP to make sure you know whats going on
-	 *
-	 * @param newRoot A FROM object to reset to
-	 */
-	
 	void reset(From newRoot);
 	
 	/**
@@ -642,23 +564,7 @@ public interface IDefaultQueryBuilder<J extends IDefaultQueryBuilder<J, E, I>,
 	
 	@SuppressWarnings("unchecked")
 	J selectSumAsLong(Attribute attribute, String alias);
-	
-	/**
-	 * Gets the criteria query linked to this root and builder
-	 *
-	 * @return A Criteria Query
-	 */
-	CriteriaQuery getCriteriaQuery();
-	
-	/**
-	 * Sets the criteria query for this instance
-	 *
-	 * @param criteriaDelete A delete statement to run
-	 * @return This
-	 */
-	
-	J setCriteriaQuery(CriteriaDelete<E> criteriaDelete);
-	
+
 	/**
 	 * Returns the map of join executors
 	 *

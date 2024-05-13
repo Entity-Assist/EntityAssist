@@ -1,11 +1,12 @@
-package com.entityassist;
+package com.test;
 
+import com.entityassist.CoreEntity;
 import jakarta.persistence.*;
 
 @Entity
 @Table
 public class EntityClassTwo
-		extends CoreEntity<EntityClassTwo, EntityClassTwoBuilder, Long>
+        extends CoreEntity<EntityClassTwo, EntityClassTwoBuilder, Long>
 {
 	@Id
 	@Column(name = "id")

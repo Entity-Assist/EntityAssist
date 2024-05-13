@@ -1,5 +1,6 @@
-package com.entityassist;
+package com.test;
 
+import com.entityassist.BaseEntity;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -15,7 +16,7 @@ import java.io.Serializable;
 @Table(name = "Trans_Ytd")
 @XmlRootElement
 public class TransYtd
-		extends BaseEntity<TransYtd, TransYtdQueryBuilder, TransYtdPK>
+        extends BaseEntity<TransYtd, TransYtdQueryBuilder, TransYtdPK>
 		implements Serializable
 {
 	private static final long serialVersionUID = 1L;

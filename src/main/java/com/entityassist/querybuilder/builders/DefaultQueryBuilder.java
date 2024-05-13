@@ -8,15 +8,13 @@ import com.entityassist.enumerations.OrderByType;
 import com.entityassist.enumerations.SelectAggregrate;
 import com.entityassist.querybuilder.QueryBuilder;
 import com.google.common.base.Strings;
-
-
 import jakarta.persistence.Id;
 import jakarta.persistence.criteria.*;
 import jakarta.persistence.metamodel.Attribute;
-import jakarta.persistence.metamodel.EntityType;
 import jakarta.persistence.metamodel.PluralAttribute;
 import jakarta.persistence.metamodel.SingularAttribute;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -72,39 +70,17 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	 * All of the group by's to apply
 	 */
 	private final Set<GroupByExpression> groupByExpressions;
-	/**
-	 * The actual builder for the entity
-	 */
-	private CriteriaBuilder criteriaBuilder;
+
 	/**
 	 * A cache region name to apply
 	 */
 	private String cacheRegion;
-	/**
-	 * The physical criteria query
-	 */
-	private CriteriaQuery<?> criteriaQuery;
-	/**
-	 * The physical criteria query
-	 */
-	private CriteriaDelete<E> criteriaDelete;
-	/**
-	 * The physical criteria query
-	 */
-	private CriteriaUpdate<E> criteriaUpdate;
+
 	
 	/**
 	 * If a dto construct is required (classes that extend the entity as transports)
 	 */
 	private Class<? extends BaseEntity> construct;
-	/**
-	 * If a delete is currently running
-	 */
-	private boolean delete;
-	/**
-	 * If the builder is currently running an update
-	 */
-	private boolean update;
 	/**
 	 * The cache name to use
 	 */
@@ -153,19 +129,6 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	protected Set<Selection<?>> getSelections()
 	{
 		return selections;
-	}
-	
-	/**
-	 * Gets the criteria builder
-	 *
-	 * @return The criteria builder
-	 */
-	@Override
-	public CriteriaBuilder getCriteriaBuilder()
-	{
-		if (criteriaBuilder == null)
-		{ criteriaBuilder = getEntityManager().getCriteriaBuilder(); }
-		return criteriaBuilder;
 	}
 	
 	/**
@@ -809,122 +772,19 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 	}
 	
 	/**
-	 * If the builder is set to delete
-	 *
-	 * @return if it is in a delete statement
-	 */
-	@Override
-	public boolean isDelete()
-	{
-		return delete;
-	}
-	
-	/**
-	 * If the builder is set to delete
-	 *
-	 * @param delete if this must run as a delete statement
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J setDelete(boolean delete)
-	{
-		this.delete = delete;
-		return (J) this;
-	}
-	
-	/**
-	 * Returns the criteria delete, which is nullable
-	 *
-	 * @return The criteria delete or null
-	 */
-	
-	@Override
-	public CriteriaDelete<E> getCriteriaDelete()
-	{
-		return criteriaDelete;
-	}
-	
-	/**
-	 * Sets the criteria delete
-	 *
-	 * @param criteriaDelete A delete criteria delete
-	 */
-	@Override
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public J setCriteriaDelete(CriteriaDelete<E> criteriaDelete)
-	{
-		this.criteriaDelete = criteriaDelete;
-		setDelete(true);
-		return (J) this;
-	}
-	
-	/**
-	 * If the builder is set to update
-	 *
-	 * @return if in a update statement
-	 */
-	@Override
-	public boolean isUpdate()
-	{
-		return update;
-	}
-	
-	/**
-	 * If the builder is set to update
-	 *
-	 * @param update If is update
-	 * @return This
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J setUpdate(boolean update)
-	{
-		this.update = update;
-		return (J) this;
-	}
-	
-	/**
 	 * Gets the criteria update object
 	 *
 	 * @return A criteria update
 	 */
-	
 	@Override
-	@SuppressWarnings("unchecked")
 	public CriteriaUpdate<E> getCriteriaUpdate()
 	{
-		if (criteriaUpdate == null)
-		{
-			criteriaUpdate = getCriteriaBuilder().createCriteriaUpdate(getEntityClass());
-			EntityType<E> eEntityType = getEntityManager().getEntityManagerFactory()
-			                                              .getMetamodel()
-			                                              .entity(getEntityClass());
-			criteriaUpdate.from(eEntityType);
-			setRoot(criteriaUpdate.getRoot());
-			reset(criteriaUpdate.getRoot());
-			update = true;
-		}
+		CriteriaUpdate<E> criteriaUpdate = super.getCriteriaUpdate();
+		setRoot(criteriaUpdate.getRoot());
+		reset(criteriaUpdate.getRoot());
 		return criteriaUpdate;
 	}
-	
-	/**
-	 * Sets the criteria update object
-	 *
-	 * @param criteriaUpdate The criteria update from a criteria builder
-	 * @return This
-	 */
-	@Override
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public J setCriteriaUpdate(CriteriaUpdate<E> criteriaUpdate)
-	{
-		this.criteriaUpdate = criteriaUpdate;
-		return (J) this;
-	}
-	
+
 	/**
 	 * Resets to the given new root and constructs the select query
 	 * Not CRP to make sure you know whats going on
@@ -1759,35 +1619,7 @@ public abstract class DefaultQueryBuilder<J extends DefaultQueryBuilder<J, E, I>
 		getSelections().add(getCriteriaBuilder().sumAsLong(selectColumn));
 		return true;
 	}
-	
-	/**
-	 * Gets the criteria query linked to this root and builder
-	 *
-	 * @return A Criteria Query
-	 */
-	@Override
-	public CriteriaQuery getCriteriaQuery()
-	{
-		if (criteriaQuery == null)
-		{ criteriaQuery = getCriteriaBuilder().createQuery(); }
-		return criteriaQuery;
-	}
-	
-	/**
-	 * Sets the criteria query for this instance
-	 *
-	 * @param criteriaDelete A delete statement to run
-	 * @return This
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@NotNull
-	public J setCriteriaQuery(CriteriaDelete<E> criteriaDelete)
-	{
-		this.criteriaDelete = criteriaDelete;
-		return (J) this;
-	}
-	
+
 	/**
 	 * Returns the map of join executors
 	 *

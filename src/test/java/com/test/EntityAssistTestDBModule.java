@@ -1,11 +1,11 @@
-package com.entityassist;
+package com.test;
 
 import com.guicedee.guicedpersistence.db.ConnectionBaseInfo;
 import com.guicedee.guicedpersistence.db.DatabaseModule;
+import com.guicedee.guicedpersistence.jta.JPAConnectionBaseInfo;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 
-import jakarta.validation.constraints.NotNull;
-import java.lang.annotation.Annotation;
 import java.util.Properties;
 
 public class EntityAssistTestDBModule
@@ -31,12 +31,5 @@ public class EntityAssistTestDBModule
 	protected String getJndiMapping()
 	{
 		return "jdbc:eatest";
-	}
-
-	@NotNull
-	@Override
-	protected Class<? extends Annotation> getBindingAnnotation()
-	{
-		return TestEntityAssistCustomPersistenceLoader.class;
 	}
 }

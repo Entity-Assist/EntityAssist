@@ -1,5 +1,3 @@
-import com.guicedee.guicedpersistence.services.*;
-
 module com.entityassist {
 
     exports com.entityassist;
@@ -11,17 +9,15 @@ module com.entityassist {
     exports com.entityassist.exceptions;
     exports com.entityassist.querybuilder.builders;
 
-    requires com.guicedee.guicedpersistence;
-    requires com.guicedee.guicedinjection;
+    requires transitive com.guicedee.guicedpersistence;
+    requires transitive com.guicedee.guicedinjection;
 
     requires java.naming;
     requires java.sql;
 
-    requires jakarta.persistence;
+    requires transitive jakarta.persistence;
     requires jakarta.xml.bind;
+    requires static lombok;
 
     opens com.entityassist to org.hibernate.orm.core, com.fasterxml.jackson.databind, com.google.guice, org.hibernate.validator;
-
-    uses ITransactionHandler;
-
 }

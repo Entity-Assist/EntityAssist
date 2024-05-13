@@ -1,11 +1,12 @@
-package com.entityassist;
+package com.test;
 
+import com.entityassist.CoreEntity;
 import jakarta.persistence.*;
 
 @Entity
 @Table
 public class EntityClassGeneratedID
-		extends CoreEntity<EntityClassGeneratedID, EntityClassGeneratedIDBuilder, Long>
+        extends CoreEntity<EntityClassGeneratedID, EntityClassGeneratedIDBuilder, Long>
 {
 	@Id
 	@Column(name = "id")

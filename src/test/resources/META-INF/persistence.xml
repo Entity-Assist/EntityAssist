@@ -10,10 +10,10 @@
         <class>com.entityassist.converters.LocalDateTimeAttributeConverter</class>
         <class>com.entityassist.converters.LocalDateTimestampAttributeConverter</class>
 
-        <class>com.entityassist.EntityClass</class>
-        <class>com.entityassist.EntityClassTwo</class>
-        <class>com.entityassist.EntityClassGeneratedID</class>
-        <class>com.entityassist.TransYtd</class>
+        <class>com.test.EntityClass</class>
+        <class>com.test.EntityClassTwo</class>
+        <class>com.test.EntityClassGeneratedID</class>
+        <class>com.test.TransYtd</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
@@ -26,6 +26,8 @@
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.use_sql_comments" value="true"/>
+            <property name="hibernate.enhancer.enableDirtyTracking" value="false"/>
+            <property name="hibernate.enhancer.enableLazyInitialization" value="false"/>
         </properties>
     </persistence-unit>
 </persistence>

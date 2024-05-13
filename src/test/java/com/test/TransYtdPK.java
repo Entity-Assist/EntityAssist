@@ -1,4 +1,4 @@
-package com.entityassist;
+package com.test;
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
