@@ -1,19 +1,23 @@
 package com.entityassist.querybuilder;
 
-import com.entityassist.*;
+import com.entityassist.RootEntity;
+import com.entityassist.SCDEntity;
 import com.entityassist.enumerations.Operand;
-
-
+import com.entityassist.enumerations.OrderByType;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.entityassist.SCDEntity.*;
-import static java.time.ZoneOffset.*;
+import static com.entityassist.SCDEntity.EndOfTime;
+import static com.entityassist.SCDEntity.getNow;
+import static java.time.ZoneOffset.UTC;
 
 @SuppressWarnings("unused")
 public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E extends SCDEntity<E, J, I>, I extends Serializable>
@@ -285,5 +289,10 @@ public abstract class QueryBuilderSCD<J extends QueryBuilderSCD<J, E, I>, E exte
 		ZonedDateTime zonedDateTime = ldt.atZoneSameInstant(ZoneId.of(timezone));
 		return zonedDateTime.toLocalDateTime();
 	}
-	
+
+	public J latestFirst()
+	{
+		orderBy(getAttribute(WAREHOUSE_UPDATED_DATE_COLUMN_NAME), OrderByType.DESC);
+		return (J)this;
+	}
 }

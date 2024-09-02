@@ -91,7 +91,7 @@ public abstract class QueryBuilder<J extends QueryBuilder<J, E, I>, E extends Ba
 			}
 			catch (NoResultException nre)
 			{
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Couldn''t find object with name : " + getEntityClass().getName() + "}\n", nre);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Couldn't find object with name : " + getEntityClass().getName(), nre);
 				return 0L;
 			}
 		}

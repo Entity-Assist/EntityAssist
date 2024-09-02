@@ -245,12 +245,14 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
                 boolean transactionAlreadyStarted = false;
                 getEntityManager().persist(entity);
                 entity.setFake(false);
+                setEntity(entity);
             }
         }
         catch (IllegalStateException ise)
         {
             Logger.getLogger(getClass().getName())
                   .log(Level.SEVERE, "This entity is not in a state to be persisted. Perhaps an update merge remove or refresh?", ise);
+            throw new UnsupportedOperationException(ise);
         }
         catch (Exception e)
         {

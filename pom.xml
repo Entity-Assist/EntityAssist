@@ -131,7 +131,8 @@
                         <annotationProcessorPath>
                             <groupId>org.hibernate.orm</groupId>
                             <artifactId>hibernate-jpamodelgen</artifactId>
-                            <version>${maven.hibernate.version}</version>
+                            <!--<version>${maven.hibernate.version}</version>-->
+                            <version>6.4.8.Final</version>
                         </annotationProcessorPath>
                         <path>
                             <groupId>jakarta.xml.bind</groupId>

@@ -1,6 +1,5 @@
 package com.entityassist;
 
-import com.entityassist.exceptions.QueryBuilderException;
 import com.entityassist.querybuilder.QueryBuilder;
 import com.entityassist.services.entities.IBaseEntity;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -43,8 +42,7 @@ public abstract class BaseEntity<J extends BaseEntity<J, Q, I>, Q extends QueryB
     @SuppressWarnings("unchecked")
     @NotNull
     public J persist() {
-        builder().persist((J) this);
-        return (J) this;
+        return builder().persist((J) this).getEntity();
     }
 
     /**
