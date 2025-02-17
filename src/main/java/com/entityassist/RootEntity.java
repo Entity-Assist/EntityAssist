@@ -9,6 +9,7 @@ import com.guicedee.client.IGuiceContext;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.Session;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
@@ -105,6 +106,23 @@ public abstract class RootEntity<J extends RootEntity<J, Q, I>, Q extends QueryB
             log.log(Level.SEVERE, "Unable to instantiate the query builder class. Make sure there is a blank constructor", e);
             throw new EntityAssistException("Unable to construct builder", e);
         }
+    }
+
+    /**
+     * @return A refreshed entity from the DB with this key
+     */
+    public J refresh()
+    {
+        return isDetached() ?  builder().getEntityManager().merge((J) this) : (J) this;
+    }
+
+    /**
+     *
+     * @return If this entity is currently detached
+     */
+    public boolean isDetached()
+    {
+        return builder().getEntityManager().unwrap(Session.class).contains((J) this);
     }
 
     /**

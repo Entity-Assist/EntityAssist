@@ -14,6 +14,7 @@ import jakarta.validation.ValidatorFactory;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.Session;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -242,8 +243,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
         {
             if (onCreate(entity))
             {
-                boolean transactionAlreadyStarted = false;
-                getEntityManager().persist(entity);
+                getEntityManager().unwrap(Session.class).persist(entity);
                 entity.setFake(false);
                 setEntity(entity);
             }
@@ -311,7 +311,7 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
         {
             if (onUpdate(entity))
             {
-                getEntityManager().merge(entity);
+                entity = getEntityManager().merge(entity);
             }
         }
         catch (IllegalStateException ise)
