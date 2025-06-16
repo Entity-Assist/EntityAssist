@@ -94,6 +94,9 @@ public abstract class QueryBuilderRoot<J extends QueryBuilderRoot<J, E, I>,
 
     private boolean commitDirectConnection;
 
+
+
+
     public CriteriaBuilder getCriteriaBuilder()
     {
         if (criteriaBuilder == null)

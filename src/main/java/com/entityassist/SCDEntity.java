@@ -58,6 +58,7 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 	@Column(nullable = false,
 			name = "WarehouseCreatedTimestamp")
 	private OffsetDateTime warehouseCreatedTimestamp;
+
 	/**
 	 * A marker for the warehouse to identify when last this field was updated
 	 */
@@ -177,4 +178,5 @@ public abstract class SCDEntity<J extends SCDEntity<J, Q, I>, Q extends QueryBui
 		this.warehouseLastUpdatedTimestamp = warehouseLastUpdatedTimestamp;
 		return (J) this;
 	}
+
 }

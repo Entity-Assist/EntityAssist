@@ -4,7 +4,7 @@ import com.guicedee.guicedpersistence.db.ConnectionBaseInfo;
 import com.guicedee.guicedpersistence.db.DatabaseModule;
 import com.guicedee.guicedpersistence.jta.JPAConnectionBaseInfo;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 
 import java.util.Properties;
 
@@ -21,7 +21,7 @@ public class EntityAssistTestDBModule
 
 	@Override
 	@NotNull
-	protected ConnectionBaseInfo getConnectionBaseInfo(ParsedPersistenceXmlDescriptor unit, Properties filteredProperties)
+	protected ConnectionBaseInfo getConnectionBaseInfo(PersistenceUnitDescriptor unit, Properties filteredProperties)
 	{
 		return new JPAConnectionBaseInfo();
 	}
